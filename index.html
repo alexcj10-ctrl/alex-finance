@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#091a2a">
+<title>Alex Finance</title>
+<style>
+:root{--bg:#071624;--panel:#10273a;--line:#2b536e;--text:#eef7ff;--muted:#9bb2c5;--cyan:#43d9d2;--green:#65e99c;--red:#ff7f87;--amber:#f1c865;--violet:#cbb8ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.app{max-width:650px;margin:auto;padding:15px 15px 94px}.top{display:flex;justify-content:space-between;align-items:center;margin:5px 0 14px}.brand{font-size:25px;font-weight:900;letter-spacing:-.05em}.brand span{color:var(--cyan)}.sub{color:var(--muted);font-size:12px;margin-top:2px}
+.monthnav{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center;margin:8px 0 14px}.monthnav button{height:48px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--cyan);font-size:26px;font-weight:800}.monthnav button:disabled{opacity:.3}.monthbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}.monthbox small{display:block;color:var(--muted);font-size:10px;font-weight:800;letter-spacing:.09em}.monthbox b{display:block;margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:17px;margin:12px 0}.hero{background:linear-gradient(135deg,#163d58,#102437)}.eyebrow,.badge{color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.1em}.amount{font-size:40px;line-height:1;font-weight:900;letter-spacing:-.06em;margin:8px 0}.panel h2{font-size:21px;letter-spacing:-.03em;margin:0 0 7px}.panel p{color:var(--muted);line-height:1.45;margin:7px 0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{background:#0b2030;border:1px solid var(--line);border-radius:16px;padding:13px}.card span{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.05em}.card strong{display:block;font-size:22px;margin-top:7px;letter-spacing:-.04em}.card small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.35}
+.row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.row b{font-size:17px}.row small{display:block;color:var(--muted);margin-top:4px;line-height:1.3}.right{text-align:right;font-weight:900;font-size:18px}.positive{color:var(--green)}.negative{color:var(--red)}.violet{color:var(--violet)}
+.extra{background:linear-gradient(135deg,#291c4b,#162944);border-color:#6853a5}.extra .badge{color:var(--violet)}.notice{background:#0e3341;border:1px solid #2e7382;border-radius:14px;padding:12px;color:#d0f1f1;font-size:13px;line-height:1.4;margin-top:11px}.bar{height:9px;border-radius:999px;background:#071420;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--green))}.bar.warn i{background:linear-gradient(90deg,#66c6ff,#efc15d)}
+.field label{display:block;color:var(--muted);font-size:11px;font-weight:900;margin:0 0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}input,select{width:100%;background:#091b2a;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;outline:none}.hint{font-size:11px;color:var(--muted);margin-top:5px}.primary,.secondary,.danger{font:inherit;border-radius:12px;font-weight:900}.primary{width:100%;border:0;padding:13px;background:var(--cyan);color:#08202e;margin-top:12px}.secondary{border:1px solid var(--line);background:#153850;color:var(--cyan);padding:9px 11px}.danger{border:0;background:#57212b;color:#ffb6bc;padding:7px 9px;font-size:12px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:#091a29ef;border-top:1px solid var(--line);backdrop-filter:blur(12px);display:flex;justify-content:center;gap:5px;padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.tabs button{border:0;background:transparent;color:var(--muted);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:900}.tabs button.active{background:#173b54;color:var(--cyan)}
+@media(max-width:390px){.app{padding-left:12px;padding-right:12px}.tabs button{padding:12px 11px}.amount{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div><div class="brand">Alex <span>Finance</span></div><div class="sub">Patrimonio reale · piano semplice</div></div><button class="secondary" onclick="setPage('base')">⚙︎</button></div>
+  <main id="view"></main>
+</div>
+<nav class="tabs">
+  <button data-page="home" class="active">Dashboard</button>
+  <button data-page="plan">Piano</button>
+  <button data-page="expenses">Spese</button>
+  <button data-page="base">Base</button>
+</nav>
+<script>
+const MONTHS=['Luglio 2026','Agosto 2026','Settembre 2026','Ottobre 2026','Novembre 2026','Dicembre 2026','Gennaio 2027','Febbraio 2027','Marzo 2027'];
+const KEY='alex-finance-v5-patrimonio';
+const initial={
+  selected:'Luglio 2026',
+  patrimony:2114,
+  fixed:800,
+  target:1400,
+  commissions:Object.fromEntries(MONTHS.map(m=>[m,0])),
+  expenses:[
+    {category:'Benzina',amount:120,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Pedaggi',amount:11.20,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Bonifico personale',amount:275,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Cibo',amount:250,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Telefono/app/banca',amount:6.13,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Bar/ristoranti',amount:133.30,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Extra/acquisti',amount:15,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Altro',amount:37,month:'Luglio 2026',note:'Aruba',funding:'budget',baseline:true},
+    {category:'Altro',amount:180,month:'Luglio 2026',note:'Plantari',funding:'extra',baseline:true}
+  ]
+};
+function deep(x){return JSON.parse(JSON.stringify(x))}
+function load(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(!saved)return deep(initial);
+    return {...deep(initial),...saved,commissions:{...initial.commissions,...(saved.commissions||{})},expenses:Array.isArray(saved.expenses)?saved.expenses:deep(initial.expenses)};
+  }catch(e){return deep(initial)}
+}
+let state=load();
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(v){
+  if(typeof v==='number')return v;
+  let s=String(v??'').trim().replace(/\s/g,'');if(!s)return 0;
+  if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');
+  else if(s.includes(','))s=s.replace(',','.');
+  return Number(s)||0;
+}
+function euro(n){return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',minimumFractionDigits:0,maximumFractionDigits:2}).format(money(n))}
+function idx(){return MONTHS.indexOf(state.selected)}
+function normalSpent(month){return state.expenses.filter(e=>e.month===month&&e.funding!=='extra').reduce((a,e)=>a+money(e.amount),0)}
+function extraSpent(month=null){return state.expenses.filter(e=>e.funding==='extra'&&(!month||e.month===month)).reduce((a,e)=>a+money(e.amount),0)}
+function newExpensesAfterBalance(){return state.expenses.filter(e=>!e.baseline).reduce((a,e)=>a+money(e.amount),0)}
+function capitalAvailable(){return Math.max(0,money(state.patrimony)-newExpensesAfterBalance())}
+function currentMonths(){return MONTHS.slice(idx(),Math.min(idx()+4,MONTHS.length))}
+function commissionAllocation(){
+  const allocation=Object.fromEntries(MONTHS.map(m=>[m,0]));
+  const reserve=Object.fromEntries(MONTHS.map(m=>[m,0]));
+  MONTHS.forEach((source,si)=>{
+    let remaining=money(state.commissions[source]);
+    for(let ti=si;ti<=Math.min(si+3,MONTHS.length-1);ti++){
+      const m=MONTHS[ti];
+      const base=(ti===idx()?normalSpent(m):money(state.fixed))+allocation[m];
+      const gap=Math.max(0,money(state.target)-base);
+      const add=Math.min(remaining,gap);
+      allocation[m]+=add;remaining-=add;
+    }
+    reserve[source]=remaining;
+  });
+  return {allocation,reserve};
+}
+function plan(){
+  const c=commissionAllocation();
+  let capital=capitalAvailable();
+  const rows=[];
+  currentMonths().forEach((m,i)=>{
+    const isCurrent=i===0;
+    const base=isCurrent?normalSpent(m):money(state.fixed);
+    const commission=c.allocation[m];
+    const beforeCapital=base+commission;
+    const need=Math.max(0,money(state.target)-beforeCapital);
+    const fromCapital=Math.min(capital,need);
+    capital-=fromCapital;
+    const total=beforeCapital+fromCapital;
+    rows.push({m,isCurrent,base,commission,fromCapital,total,missing:Math.max(0,money(state.target)-total)});
+  });
+  const futureExtra=Object.values(c.reserve).reduce((a,v)=>a+money(v),0);
+  return {rows,capitalLeft:capital,commissionReserve:futureExtra};
+}
+function setPage(page){
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  render(page);
+}
+function changeMonth(step){
+  state.selected=MONTHS[Math.max(0,Math.min(MONTHS.length-1,idx()+step))];save();render('home');
+}
+function homeHTML(){
+  const spent=normalSpent(state.selected), target=money(state.target), toSpend=Math.max(0,target-spent);
+  const available=capitalAvailable(), p=plan(), extraNow=extraSpent(state.selected);
+  const totalMissing=p.rows.reduce((a,r)=>a+r.missing,0);
+  return `<div class="monthnav"><button onclick="changeMonth(-1)" ${idx()===0?'disabled':''}>‹</button><div class="monthbox"><small>MESE ATTUALE</small><b>${state.selected}</b></div><button onclick="changeMonth(1)" ${idx()===MONTHS.length-1?'disabled':''}>›</button></div>
+  <section class="panel hero"><div class="eyebrow">PATRIMONIO REALE OGGI</div><div class="amount positive">${euro(available)}</div><p>È il saldo di ${euro(state.patrimony)} già dopo le spese segnate. Le nuove spese che aggiungi da ora in poi lo riducono una sola volta.</p></section>
+  <div class="grid"><div class="card"><span>BUDGET ${state.selected.toUpperCase()}</span><strong>${euro(spent)} / ${euro(target)}</strong><small>Restano da pagare ${euro(toSpend)} per chiudere il mese a target.</small></div><div class="card"><span>SPESO EXTRA NEL MESE</span><strong class="violet">${euro(extraNow)}</strong><small>È storico/informativo: non rientra nel budget di ${euro(target)}.</small></div></div>
+  <section class="panel"><h2>Come vengono divisi i ${euro(available)}</h2><p>Prima chiude ciò che manca in ${state.selected}. Poi usa quello che resta per aggiungere i 600 € necessari nei tre mesi successivi.</p>
+  ${p.rows.map(r=>`<div class="row"><div><b>${r.m}</b><small>${r.isCurrent?`Spese già segnate ${euro(r.base)}`:`Fisso previsto ${euro(state.fixed)}`}${r.commission?` · provvigioni allocate ${euro(r.commission)}`:''}</small></div><div class="right ${r.missing===0?'positive':'negative'}">${euro(r.total)}<small>${r.missing===0?'target raggiunto':`mancano ${euro(r.missing)}`}</small></div></div>`).join('')}
+  <div class="notice">${totalMissing===0?`Piano coperto. Dopo questi 4 mesi restano ${euro(p.capitalLeft)} non ancora assegnati.`:`Per arrivare a target in tutti e 4 i mesi mancano ancora ${euro(totalMissing)}.`}</div></section>
+  <section class="panel"><h2>Riepilogo corretto</h2><div class="grid"><div class="card"><span>CAPITALE USATO NEL PIANO</span><strong>${euro(available-p.capitalLeft)}</strong></div><div class="card"><span>EXTRA FUTURO NON ASSEGNATO</span><strong class="violet">${euro(p.commissionReserve+p.capitalLeft)}</strong><small>Solo dopo aver protetto i 4 mesi.</small></div></div></section>`
+}
+function planHTML(){
+  const p=plan();
+  return `<div class="monthbox" style="margin:8px 0 12px"><small>PIANO FINO A 4 MESI</small><b>${state.selected} → ${currentMonths().at(-1)}</b></div>
+  <section class="panel"><h2>Provvigioni future</h2><p>Inserisci solo le provvigioni che non hai ancora incassato. Quando le incassi davvero, aggiorna il patrimonio reale in Base.</p>
+  ${currentMonths().map(m=>`<div class="row"><div><b>${m}</b><small>${m===state.selected?'Se l’hai già incassata, è già nel patrimonio':'Viene distribuita sul mese e i 3 successivi'}</small></div><div class="right"><input style="width:120px;text-align:right" type="text" inputmode="decimal" placeholder="0" value="${state.commissions[m]||''}" oninput="state.commissions['${m}']=Math.max(0,money(this.value));save()" onblur="render('plan')"><small>provvigione</small></div></div>`).join('')}</section>
+  <section class="panel"><h2>Risultato</h2>${p.rows.map(r=>`<div class="row"><div><b>${r.m}</b><small>Dal patrimonio: ${euro(r.fromCapital)}${r.commission?` · da provvigioni: ${euro(r.commission)}`:''}</small></div><div class="right ${r.missing===0?'positive':'negative'}">${r.missing===0?'OK':`-${euro(r.missing)}`}</div></div>`).join('')}</section>`
+}
+function expensesHTML(){
+  const cats=['Benzina','Pedaggi','Assicurazione','Bonifico personale','Cibo','Telefono/app/banca','Bar/ristoranti','Extra/acquisti','Altro'];
+  const spent=normalSpent(state.selected), target=money(state.target), rows=state.expenses.filter(e=>e.month===state.selected);
+  return `<div class="monthbox" style="margin:8px 0 12px"><small>SPESE</small><b>${state.selected}</b></div>
+  <section class="panel"><h2>${euro(spent)} / ${euro(target)}</h2><p>Ti restano ${euro(Math.max(0,target-spent))} prima di arrivare al target del mese.</p><div class="bar warn"><i style="width:${Math.min(100,spent/target*100)}%"></i></div></section>
+  <section class="panel"><h2>Aggiungi spesa</h2><div class="fields"><div class="field"><label>Categoria</label><select id="cat">${cats.map(x=>`<option>${x}</option>`).join('')}</select></div><div class="field"><label>Importo</label><input id="amount" type="text" inputmode="decimal" placeholder="es. 1,60"><div class="hint">Puoi usare la virgola.</div></div></div><div class="fields" style="margin-top:10px"><div class="field"><label>Tipo</label><select id="fund"><option value="budget">Conta nel budget 1.400 €</option><option value="extra">Spesa extra / informativa</option></select></div><div class="field"><label>Nota</label><input id="note" placeholder="facoltativa"></div></div><button class="primary" onclick="addExpense()">Aggiungi spesa</button></section>
+  <section class="panel"><h2>Movimenti del mese</h2>${rows.slice().reverse().map(e=>`<div class="row"><div><b>${e.category}</b><small>${e.note||''} · ${e.funding==='extra'?'Extra':'Budget'}${e.baseline?' · già incluso nel patrimonio':''}</small></div><div class="right negative">-${euro(e.amount)}<br><button class="danger" onclick="removeExpense(${state.expenses.indexOf(e)})">elimina</button></div></div>`).join('')||'<p>Nessuna spesa.</p>'}</section>`
+}
+function baseHTML(){
+ return `<section class="panel"><h2>Numeri base</h2><p>Questi sono i soli tre numeri che governano il piano.</p>
+ <div class="field"><label>Patrimonio reale oggi</label><input type="text" inputmode="decimal" value="${state.patrimony}" oninput="state.patrimony=money(this.value);save()"><div class="hint">Deve essere il saldo che hai davvero adesso, già dopo le spese già registrate.</div></div>
+ <div class="fields" style="margin-top:12px"><div class="field"><label>Fisso mensile futuro</label><input type="text" inputmode="decimal" value="${state.fixed}" oninput="state.fixed=money(this.value);save()"></div><div class="field"><label>Target mensile</label><input type="text" inputmode="decimal" value="${state.target}" oninput="state.target=money(this.value);save()"></div></div>
+ <button class="primary" onclick="save();render('home')">Salva</button></section>
+ <section class="panel"><h2>Riparti pulito</h2><p>Azzera solo questa versione semplificata e ricarica i dati iniziali di luglio.</p><button class="danger" onclick="resetAll()">Ripristina dati iniziali</button></section>`
+}
+function addExpense(){
+ const amount=money(document.getElementById('amount').value); if(!amount)return;
+ state.expenses.push({category:document.getElementById('cat').value,amount,month:state.selected,note:document.getElementById('note').value,funding:document.getElementById('fund').value,baseline:false});
+ save();render('expenses');
+}
+function removeExpense(i){state.expenses.splice(i,1);save();render('expenses')}
+function resetAll(){if(confirm('Ripristinare patrimonio 2.114 € e le spese iniziali?')){state=deep(initial);save();render('home')}}
+function render(page='home'){document.getElementById('view').innerHTML=page==='home'?homeHTML():page==='plan'?planHTML():page==='expenses'?expensesHTML():baseHTML()}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
+render('home');
+</script>
+</body></html>
