@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#071624">
+<title>Alex Finance</title>
+<style>
+:root{--bg:#071624;--panel:#10273a;--panel2:#0b2030;--line:#2b536e;--text:#eef7ff;--muted:#9bb2c5;--cyan:#43d9d2;--green:#65e99c;--red:#ff7f87;--amber:#f1c865;--violet:#cbb8ff}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}.app{max-width:680px;margin:auto;padding:15px 15px 96px}.top{display:flex;justify-content:space-between;align-items:center;margin:5px 0 14px}.brand{font-size:25px;font-weight:900;letter-spacing:-.05em}.brand span{color:var(--cyan)}.sub{color:var(--muted);font-size:12px;margin-top:2px}
+.monthnav{display:grid;grid-template-columns:48px 1fr 48px;gap:8px;align-items:center;margin:8px 0 14px}.monthnav button{height:48px;border:1px solid var(--line);border-radius:14px;background:var(--panel);color:var(--cyan);font-size:26px;font-weight:800}.monthnav button:disabled{opacity:.3}.monthbox{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;text-align:center}.monthbox small{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.09em}.monthbox b{display:block;margin-top:2px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:17px;margin:12px 0}.hero{background:linear-gradient(135deg,#163d58,#102437)}.eyebrow,.badge{color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.1em}.amount{font-size:40px;line-height:1;font-weight:900;letter-spacing:-.06em;margin:8px 0}.panel h2{font-size:21px;letter-spacing:-.03em;margin:0 0 7px}.panel p{color:var(--muted);line-height:1.45;margin:7px 0}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.card{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:13px}.card span{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.05em}.card strong{display:block;font-size:22px;margin-top:7px;letter-spacing:-.04em}.card small{display:block;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.35}
+.row{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}.row b{font-size:17px}.row small{display:block;color:var(--muted);margin-top:4px;line-height:1.3}.right{text-align:right;font-weight:900;font-size:18px}.positive{color:var(--green)}.negative{color:var(--red)}.violet{color:var(--violet)}.amber{color:var(--amber)}
+.notice{background:#0e3341;border:1px solid #2e7382;border-radius:14px;padding:12px;color:#d0f1f1;font-size:13px;line-height:1.4;margin-top:11px}.bar{height:9px;border-radius:999px;background:#071420;overflow:hidden;margin-top:10px}.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--green))}.bar.warn i{background:linear-gradient(90deg,#66c6ff,#efc15d)}
+.summarywrap{display:grid;grid-template-columns:140px 1fr;gap:14px;align-items:center}.donut{width:136px;height:136px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}.donut .hole{width:82px;height:82px;border-radius:50%;background:#0b2030;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:8px}.donut span{color:var(--muted);font-size:9px;font-weight:900}.donut strong{font-size:18px}.legendrow{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}.legendrow:last-child{border-bottom:0}.legendleft{display:flex;align-items:center;gap:8px;min-width:0}.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.field label{display:block;color:var(--muted);font-size:11px;font-weight:900;margin:0 0 6px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}input,select{width:100%;background:#091b2a;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;outline:none}.hint{font-size:11px;color:var(--muted);margin-top:5px}.primary,.secondary,.danger{font:inherit;border-radius:12px;font-weight:900}.primary{width:100%;border:0;padding:13px;background:var(--cyan);color:#08202e;margin-top:12px}.secondary{border:1px solid var(--line);background:#153850;color:var(--cyan);padding:9px 11px}.danger{border:0;background:#57212b;color:#ffb6bc;padding:7px 9px;font-size:12px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:#091a29ef;border-top:1px solid var(--line);backdrop-filter:blur(12px);display:flex;justify-content:center;gap:5px;padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}.tabs button{border:0;background:transparent;color:var(--muted);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:900}.tabs button.active{background:#173b54;color:var(--cyan)}
+@media(max-width:520px){.summarywrap{grid-template-columns:1fr}.donut{margin:0 auto}}@media(max-width:390px){.app{padding-left:12px;padding-right:12px}.tabs button{padding:12px 11px}.amount{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top"><div><div class="brand">Alex <span>Finance</span></div><div class="sub">saldo attuale · piano 4 mesi</div></div><button class="secondary" onclick="setPage('base')">⚙︎</button></div>
+  <main id="view"></main>
+</div>
+<nav class="tabs">
+  <button data-page="home" class="active">Dashboard</button>
+  <button data-page="plan">Piano</button>
+  <button data-page="expenses">Spese</button>
+  <button data-page="base">Base</button>
+</nav>
+<script>
+const MONTHS=['Luglio 2026','Agosto 2026','Settembre 2026','Ottobre 2026','Novembre 2026','Dicembre 2026','Gennaio 2027','Febbraio 2027','Marzo 2027','Aprile 2027','Maggio 2027','Giugno 2027','Luglio 2027','Agosto 2027','Settembre 2027','Ottobre 2027','Novembre 2027','Dicembre 2027'];
+const KEY='alex-finance-v9-professionale-1767';
+const initial={
+  startMonth:'Luglio 2026',
+  selected:'Luglio 2026',
+  balance:1767,
+  currentRemaining:195,
+  fixed:800,
+  base:{benzina:476,pedaggi:50,assicurazione:106,bonifico:275,cibo:250,telefono:58,altri:35,cuscinetto:150},
+  commissions:Object.fromEntries(MONTHS.map(m=>[m,0])),
+  expenses:[
+    {category:'Benzina',amount:120,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Pedaggi',amount:11.20,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Bonifico personale',amount:275,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Cibo',amount:250,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Telefono/app/banca',amount:6.13,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Bar/ristoranti',amount:133.30,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Extra/acquisti',amount:15,month:'Luglio 2026',note:'',funding:'budget',baseline:true},
+    {category:'Altro',amount:37,month:'Luglio 2026',note:'Aruba',funding:'budget',baseline:true},
+    {category:'Altro',amount:180,month:'Luglio 2026',note:'Plantari',funding:'extra',baseline:true}
+  ]
+};
+function deep(x){return JSON.parse(JSON.stringify(x))}
+function load(){try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');if(!saved)return deep(initial);return {...deep(initial),...saved,base:{...initial.base,...(saved.base||{})},commissions:{...initial.commissions,...(saved.commissions||{})},expenses:Array.isArray(saved.expenses)?saved.expenses:deep(initial.expenses)}}catch(e){return deep(initial)}}
+let state=load();
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(v){if(typeof v==='number')return v;let s=String(v??'').trim().replace(/\s/g,'');if(!s)return 0;if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');else if(s.includes(','))s=s.replace(',','.');return Number(s)||0}
+function euro(n){return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',minimumFractionDigits:0,maximumFractionDigits:2}).format(money(n))}
+function idx(){return MONTHS.indexOf(state.selected)}
+function startIdx(){return Math.max(0,MONTHS.indexOf(state.startMonth||'Luglio 2026'))}
+function baseVitalTotal(){return ['benzina','pedaggi','assicurazione','bonifico','cibo','telefono','altri'].reduce((s,k)=>s+money(state.base[k]),0)}
+function targetMonthly(){return baseVitalTotal()+money(state.base.cuscinetto)}
+function normalSpent(m){return state.expenses.filter(e=>e.month===m&&e.funding!=='extra').reduce((a,e)=>a+money(e.amount),0)}
+function extraSpent(m=null){return state.expenses.filter(e=>e.funding==='extra'&&(!m||e.month===m)).reduce((a,e)=>a+money(e.amount),0)}
+function newExpenses(){return state.expenses.filter(e=>!e.baseline).reduce((a,e)=>a+money(e.amount),0)}
+function newBudgetExpensesStart(){return state.expenses.filter(e=>!e.baseline&&e.month===state.startMonth&&e.funding!=='extra').reduce((a,e)=>a+money(e.amount),0)}
+function availableBalance(){return Math.max(0,money(state.balance)-newExpenses())}
+function currentRemaining(){return Math.max(0,money(state.currentRemaining)-newBudgetExpensesStart())}
+function commissionNeedBase(monthIndex, allocatedSoFar){
+  if(monthIndex===startIdx()) return currentRemaining()+allocatedSoFar;
+  return money(state.fixed)+allocatedSoFar;
+}
+function allSources(){
+  const sources=[{id:'balance',label:'Saldo attuale',start:startIdx(),amount:availableBalance(),type:'balance'}];
+  MONTHS.forEach((m,i)=>{if(i>=startIdx()&&money(state.commissions[m])>0)sources.push({id:'comm_'+i,label:'Provvigione '+m,start:i,amount:money(state.commissions[m]),type:'commission',month:m})});
+  sources.sort((a,b)=>a.start-b.start||(a.type==='balance'?-1:1));
+  return sources;
+}
+function computePlan(){
+  const target=targetMonthly(), allocated=Object.fromEntries(MONTHS.map(m=>[m,0])), extraBySource={};
+  allSources().forEach(src=>{
+    let remaining=src.amount;
+    for(let ti=src.start;ti<=Math.min(src.start+3,MONTHS.length-1);ti++){
+      const m=MONTHS[ti];
+      const base=commissionNeedBase(ti, allocated[m]);
+      const need=Math.max(0,target-base);
+      const put=Math.min(remaining,need);
+      allocated[m]+=put; remaining-=put;
+    }
+    extraBySource[src.id]=remaining;
+  });
+  const months=MONTHS.map((m,i)=>{
+    const base=i===startIdx()?currentRemaining():money(state.fixed);
+    const total=base+(allocated[m]||0);
+    return {m,i,base,allocated:allocated[m]||0,total,missing:Math.max(0,target-total),covered:total>=target};
+  });
+  const balanceExtra=extraBySource.balance||0;
+  const commissionExtra=Object.entries(extraBySource).filter(([k])=>k!=='balance').reduce((a,[,v])=>a+money(v),0);
+  return {months,allocated,extraBySource,balanceExtra,commissionExtra,totalExtra:balanceExtra+commissionExtra,target};
+}
+function visible4(){return computePlan().months.slice(startIdx(),Math.min(startIdx()+4,MONTHS.length))}
+function selectedWindow(){return computePlan().months.slice(idx(),Math.min(idx()+4,MONTHS.length))}
+function selectedRow(){return computePlan().months[idx()]}
+function changeMonth(step){state.selected=MONTHS[Math.max(0,Math.min(MONTHS.length-1,idx()+step))];save();render('home')}
+function setPage(page){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));render(page)}
+function homeHTML(){
+  const p=computePlan(), bal=availableBalance(), rem=currentRemaining(), four=visible4(), row=selectedRow(), win=selectedWindow();
+  const initialCovered=four.filter(x=>x.covered).length;
+  const capitalAfterStart=Math.max(0,bal-rem);
+  return `<div class="monthnav"><button onclick="changeMonth(-1)" ${idx()===0?'disabled':''}>‹</button><div class="monthbox"><small>DASHBOARD · FINO A DICEMBRE 2027</small><b>${state.selected}</b></div><button onclick="changeMonth(1)" ${idx()===MONTHS.length-1?'disabled':''}>›</button></div>
+  <section class="panel hero"><div class="eyebrow">CAPITALE TOTALE</div><div class="amount positive">${euro(bal)}</div></section>
+  <div class="grid"><div class="card"><span>Budget ${state.startMonth}</span><strong class="amber">${euro(rem)}</strong><small>da tenere per chiudere il mese</small></div><div class="card"><span>Per mesi successivi</span><strong>${euro(capitalAfterStart)}</strong></div><div class="card"><span>Stato ${state.selected}</span><strong class="${row.covered?'positive':'negative'}">${row.covered?'OK':euro(row.missing)}</strong><small>${row.covered?euro(row.total):'mancanti'}</small></div><div class="card"><span>Extra disponibile</span><strong class="violet">${euro(p.totalExtra)}</strong></div></div>
+  <section class="panel"><h2>Primi 4 mesi da ${state.startMonth}</h2>${four.map(m=>`<div class="row"><div><b>${m.m}</b><small>${m.i===startIdx()?`Budget residuo ${euro(m.base)}`:`Fisso ${euro(state.fixed)}`}${m.allocated?` · copertura ${euro(m.allocated)}`:''}</small></div><div class="right ${m.covered?'positive':'negative'}">${m.covered?'OK':euro(m.missing)}<small>${euro(m.total)}</small></div></div>`).join('')}<div class="notice">Coperti: ${initialCovered}/4</div></section>
+  <section class="panel"><h2>Vista da ${state.selected}</h2>${win.map(m=>`<div class="row"><div><b>${m.m}</b><small>${m.i===startIdx()?`Budget residuo ${euro(m.base)}`:`Fisso ${euro(state.fixed)}`}${m.allocated?` · copertura ${euro(m.allocated)}`:''}</small></div><div class="right ${m.covered?'positive':'negative'}">${m.covered?'OK':euro(m.missing)}<small>${euro(m.total)}</small></div></div>`).join('')}</section>`
+}
+function planHTML(){
+  const p=computePlan(), months=p.months.slice(startIdx());
+  return `<div class="monthbox" style="margin:8px 0 12px"><small>PIANO COMPLETO</small><b>${state.startMonth} → Dicembre 2027</b></div>
+  <section class="panel"><h2>Provvigioni</h2>${MONTHS.slice(startIdx()).map(m=>`<div class="row"><div><b>${m}</b><small>Copre massimo 4 mesi</small></div><div class="right"><input type="text" inputmode="decimal" style="width:118px;text-align:right" value="${state.commissions[m]||''}" placeholder="0" oninput="state.commissions['${m}']=Math.max(0,money(this.value));save()" onblur="render('plan')"></div></div>`).join('')}</section>
+  <section class="panel"><h2>Vista fino a dicembre 2027</h2>${months.map(m=>`<div class="row"><div><b>${m.m}</b><small>${m.i===startIdx()?`Budget residuo ${euro(m.base)}`:`Fisso ${euro(state.fixed)}`}${m.allocated?` · copertura ${euro(m.allocated)}`:''}</small></div><div class="right ${m.covered?'positive':'negative'}">${m.covered?'OK':'-'+euro(m.missing)}<small>${euro(m.total)}</small></div></div>`).join('')}</section>`
+}
+function expensesHTML(){
+  const cats=['Benzina','Pedaggi','Assicurazione','Bonifico personale','Cibo','Telefono/app/banca','Bar/ristoranti','Extra/acquisti','Altro'];
+  const palette=['#42d7d1','#65e99c','#f1c865','#ff7f87','#7bc4ff','#cbb8ff','#ffb86b','#7ee0a6','#f79ad3'];
+  const rows=state.expenses.filter(e=>e.month===state.selected), totalAll=rows.reduce((a,e)=>a+money(e.amount),0);
+  const grouped={}; rows.forEach(e=>{if(!grouped[e.category])grouped[e.category]={category:e.category,total:0,budget:0,extra:0};grouped[e.category].total+=money(e.amount);if(e.funding==='extra')grouped[e.category].extra+=money(e.amount);else grouped[e.category].budget+=money(e.amount)});
+  const breakdown=cats.map((c,i)=>({...grouped[c],category:c,color:palette[i]})).filter(x=>x&&x.total>0);
+  let acc=0; const gradient=breakdown.length?('conic-gradient('+breakdown.map(item=>{const s=acc;acc+=(item.total/totalAll)*360;return `${item.color} ${s}deg ${acc}deg`}).join(',')+')'):'conic-gradient(#16344c 0deg 360deg)';
+  return `<div class="monthbox" style="margin:8px 0 12px"><small>SPESE</small><b>${state.selected}</b></div>
+  <section class="panel"><h2>Riassunto spese</h2><div class="summarywrap"><div class="donut" style="background:${gradient}"><div class="hole"><span>TOTALE</span><strong>${euro(totalAll)}</strong></div></div><div>${breakdown.map(item=>`<div class="legendrow"><div class="legendleft"><span class="dot" style="background:${item.color}"></span><div><b>${item.category}</b><small>${item.extra>0&&item.budget>0?`Budget ${euro(item.budget)} · Extra ${euro(item.extra)}`:item.extra>0?`Extra ${euro(item.extra)}`:`Budget ${euro(item.budget)}`}</small></div></div><div class="right">${euro(item.total)}</div></div>`).join('')||'<p>Nessuna spesa registrata.</p>'}</div></div></section>
+  <section class="panel"><h2>Aggiungi spesa</h2><div class="fields"><div class="field"><label>Categoria</label><select id="cat">${cats.map(x=>`<option>${x}</option>`).join('')}</select></div><div class="field"><label>Importo</label><input id="amount" type="text" inputmode="decimal" placeholder="es. 1,60"><div class="hint">Puoi usare la virgola.</div></div></div><div class="fields" style="margin-top:10px"><div class="field"><label>Tipo</label><select id="fund"><option value="budget">Budget mensile</option><option value="extra">Extra fuori piano</option></select></div><div class="field"><label>Nota</label><input id="note" placeholder="facoltativa"></div></div><button class="primary" onclick="addExpense()">Aggiungi spesa</button></section>
+  <section class="panel"><h2>Movimenti</h2>${rows.slice().reverse().map(e=>`<div class="row"><div><b>${e.category}</b><small>${e.note||''} · ${e.funding==='extra'?'Extra':'Budget'}${e.baseline?' · iniziale':''}</small></div><div class="right negative">-${euro(e.amount)}<br><button class="danger" onclick="removeExpense(${state.expenses.indexOf(e)})">elimina</button></div></div>`).join('')||'<p>Nessuna spesa.</p>'}</section>`
+}
+function baseHTML(){
+ const rows=[['benzina','Benzina'],['pedaggi','Pedaggi'],['assicurazione','Assicurazione auto'],['bonifico','Bonifico personale'],['cibo','Cibo essenziale'],['telefono','Telefono, app e banca'],['altri','Altri fissi minimi'],['cuscinetto','Cuscinetto']];
+ return `<section class="panel"><h2>Numeri principali</h2><div class="fields"><div class="field"><label>Mese di partenza</label><select onchange="state.startMonth=this.value;state.selected=this.value;save();render('base')">${MONTHS.map(m=>`<option ${m===state.startMonth?'selected':''}>${m}</option>`).join('')}</select></div><div class="field"><label>Capitale totale</label><input type="text" inputmode="decimal" value="${state.balance}" oninput="state.balance=money(this.value);save()"></div></div><div class="fields" style="margin-top:12px"><div class="field"><label>Budget residuo mese</label><input type="text" inputmode="decimal" value="${state.currentRemaining}" oninput="state.currentRemaining=money(this.value);save()"></div><div class="field"><label>Fisso mensile futuro</label><input type="text" inputmode="decimal" value="${state.fixed}" oninput="state.fixed=money(this.value);save()"></div></div></section>
+ <section class="panel"><h2>Spese fisse base</h2>${rows.map(([k,l])=>`<div class="row"><div><b>${l}</b><small>${k==='cuscinetto'?'Margine mensile':'Budget mensile previsto'}</small></div><div class="right"><input type="text" inputmode="decimal" value="${state.base[k]}" style="width:110px;text-align:right" oninput="state.base['${k}']=Math.max(0,money(this.value));save()" onblur="render('base')"></div></div>`).join('')}<div class="notice">Target mensile: <b>${euro(targetMonthly())}</b></div></section>
+ <section class="panel"><h2>Riparti pulito</h2><button class="danger" onclick="resetAll()">Ripristina dati iniziali</button></section>`
+}
+function addExpense(){const amount=money(document.getElementById('amount').value);if(!amount)return;state.expenses.push({category:document.getElementById('cat').value,amount,month:state.selected,note:document.getElementById('note').value,funding:document.getElementById('fund').value,baseline:false});save();render('expenses')}
+function removeExpense(i){state.expenses.splice(i,1);save();render('expenses')}
+function resetAll(){if(confirm('Ripristinare capitale 1.767 € e budget residuo 195 €?')){state=deep(initial);save();render('home')}}
+function render(page='home'){document.getElementById('view').innerHTML=page==='home'?homeHTML():page==='plan'?planHTML():page==='expenses'?expensesHTML():baseHTML()}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
+render('home');
+</script>
+</body></html>
