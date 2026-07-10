@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#071624">
+<title>Alex Finance</title>
+<style>
+:root{
+  --bg:#071624;--panel:#10283b;--panel2:#0b2030;--line:#2c5674;
+  --text:#eef7ff;--muted:#9bb2c5;--cyan:#43d9d2;--green:#65e99c;
+  --red:#ff7f87;--amber:#f1c865;--violet:#cbb8ff;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.app{max-width:720px;margin:auto;padding:18px 16px 104px}
+.top{display:flex;align-items:center;justify-content:space-between;margin:4px 0 16px}
+.brand{font-size:28px;font-weight:900;letter-spacing:-.06em;line-height:1}
+.brand span{color:var(--cyan)}
+.sub{margin-top:7px;color:var(--muted);font-size:12px}
+.iconbtn,.monthnav button{border:1px solid var(--line);background:#123149;color:var(--cyan);border-radius:15px;font-weight:900}
+.iconbtn{padding:11px 13px;font-size:17px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:18px;margin:13px 0}
+.hero{background:linear-gradient(135deg,#173e59,#102538)}
+.eyebrow{color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.amount{font-size:42px;line-height:1;font-weight:900;letter-spacing:-.06em;margin-top:10px}
+h2{font-size:22px;letter-spacing:-.03em;margin:0 0 8px}
+p{color:var(--muted);line-height:1.4;margin:7px 0}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:17px;padding:14px}
+.card span{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.06em;text-transform:uppercase}
+.card strong{display:block;font-size:22px;letter-spacing:-.04em;margin-top:7px}
+.card small{display:block;color:var(--muted);font-size:11px;line-height:1.3;margin-top:6px}
+.monthnav{display:grid;grid-template-columns:50px 1fr 50px;gap:9px;align-items:center;margin:5px 0 14px}
+.monthnav button{height:50px;font-size:28px}
+.monthnav button:disabled{opacity:.3}
+.monthbox{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;text-align:center}
+.monthbox small{display:block;color:var(--muted);font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase}
+.monthbox b{display:block;margin-top:3px;font-size:21px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row b{font-size:17px}
+.row small{display:block;color:var(--muted);margin-top:4px;line-height:1.3}
+.right{text-align:right;font-size:18px;font-weight:900;min-width:92px}
+.right small{font-weight:800}
+.positive{color:var(--green)}.negative{color:var(--red)}.amber{color:var(--amber)}.violet{color:var(--violet)}
+.notice{background:#0e3341;border:1px solid #2e7382;border-radius:14px;padding:12px;color:#d0f1f1;font-size:13px;line-height:1.4;margin-top:11px}
+.bar{height:9px;border-radius:999px;background:#071420;overflow:hidden;margin-top:12px}
+.bar i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--cyan),var(--green))}
+.bar.warn i{background:linear-gradient(90deg,#67c8ff,#efc15d)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.field label{display:block;color:var(--muted);font-size:11px;font-weight:900;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+input,select{width:100%;background:#091b2a;color:var(--text);border:1px solid var(--line);border-radius:12px;padding:12px;font-size:16px;outline:none}
+.hint{font-size:11px;color:var(--muted);margin-top:5px}
+.primary,.secondary,.danger{font:inherit;border-radius:12px;font-weight:900}
+.primary{width:100%;border:0;padding:13px;background:var(--cyan);color:#08202e;margin-top:12px}
+.secondary{border:1px solid var(--line);background:#153850;color:var(--cyan);padding:10px 12px}
+.danger{border:0;background:#57212b;color:#ffb6bc;padding:7px 9px;font-size:12px}
+.summarywrap{display:grid;grid-template-columns:190px 1fr;gap:18px;align-items:center}
+.donut{width:184px;height:184px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.donut .hole{width:112px;height:112px;border-radius:50%;background:#0b2030;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px}
+.donut span{color:var(--muted);font-size:10px;font-weight:900}.donut strong{font-size:22px}
+.legendrow{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.legendrow:last-child{border-bottom:0}.legendleft{display:flex;align-items:flex-start;gap:9px;min-width:0}.legendtext b{display:block;font-size:15px}.legendtext small{display:block;color:var(--muted);font-size:12px;line-height:1.25;margin-top:4px}.dot{width:11px;height:11px;border-radius:50%;flex:0 0 auto;margin-top:4px}
+.tabs{position:fixed;left:0;right:0;bottom:0;background:#091a29ef;border-top:1px solid var(--line);backdrop-filter:blur(12px);display:flex;justify-content:center;gap:5px;padding:10px max(12px,env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+.tabs button{border:0;background:transparent;color:var(--muted);padding:12px 16px;border-radius:14px;font-size:14px;font-weight:900}
+.tabs button.active{background:#173b54;color:var(--cyan)}
+.version{text-align:center;color:#58778c;font-size:10px;margin:18px 0 0}
+@media(max-width:520px){.summarywrap{grid-template-columns:1fr}.donut{margin:0 auto 5px}}
+@media(max-width:390px){.app{padding-left:12px;padding-right:12px}.tabs button{padding:12px 11px}.amount{font-size:38px}.right{min-width:80px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div><div class="brand">Alex <span>Finance</span></div><div class="sub">capitale reale · budget · provvigioni</div></div>
+    <button class="iconbtn" onclick="setPage('base')">⚙︎</button>
+  </div>
+  <main id="view"></main>
+  <div class="version">Alex Finance 2.0</div>
+</div>
+<nav class="tabs">
+  <button data-page="home" class="active">Dashboard</button>
+  <button data-page="plan">Piano</button>
+  <button data-page="expenses">Spese</button>
+  <button data-page="base">Base</button>
+</nav>
+<script>
+const MONTHS=[
+ 'Luglio 2026','Agosto 2026','Settembre 2026','Ottobre 2026','Novembre 2026','Dicembre 2026',
+ 'Gennaio 2027','Febbraio 2027','Marzo 2027','Aprile 2027','Maggio 2027','Giugno 2027',
+ 'Luglio 2027','Agosto 2027','Settembre 2027','Ottobre 2027','Novembre 2027','Dicembre 2027'
+];
+const KEY='alex-finance-2-stabile';
+const initial={
+  startMonth:'Luglio 2026',
+  selected:'Luglio 2026',
+  capitalSnapshot:1760,
+  budgetRemainingSnapshot:187,
+  fixed:800,
+  base:{benzina:476,pedaggi:50,assicurazione:106,bonifico:275,cibo:250,telefono:58,altri:35,cuscinetto:150},
+  commissions:Object.fromEntries(MONTHS.map(m=>[m,0])),
+  expenses:[
+    {category:'Benzina',amount:303.20,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Pedaggi',amount:22.40,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Bonifico personale',amount:275,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Cibo',amount:250,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Telefono/app/banca',amount:6.13,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Bar/ristoranti',amount:153.30,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Extra/acquisti',amount:15,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Altro',amount:187,month:'Luglio 2026',note:'',funding:'budget',capitalReconciled:true,budgetReconciled:true},
+    {category:'Altro',amount:180,month:'Luglio 2026',note:'Plantari',funding:'extra',capitalReconciled:true,budgetReconciled:true}
+  ]
+};
+function clone(x){return JSON.parse(JSON.stringify(x))}
+function load(){
+  try{
+    const saved=JSON.parse(localStorage.getItem(KEY)||'null');
+    if(!saved)return clone(initial);
+    return {...clone(initial),...saved,base:{...initial.base,...(saved.base||{})},commissions:{...initial.commissions,...(saved.commissions||{})},expenses:Array.isArray(saved.expenses)?saved.expenses:clone(initial.expenses)};
+  }catch(e){return clone(initial)}
+}
+let state=load();
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function money(v){
+  if(typeof v==='number')return v;
+  let s=String(v??'').trim().replace(/\s/g,'');
+  if(!s)return 0;
+  if(s.includes(',')&&s.includes('.'))s=s.lastIndexOf(',')>s.lastIndexOf('.')?s.replace(/\./g,'').replace(',','.'):s.replace(/,/g,'');
+  else if(s.includes(','))s=s.replace(',','.');
+  return Number(s)||0;
+}
+function euro(n){return new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR',minimumFractionDigits:0,maximumFractionDigits:2}).format(money(n))}
+function idx(m=state.selected){return MONTHS.indexOf(m)}
+function startIdx(){return Math.max(0,idx(state.startMonth))}
+function baseVital(){return ['benzina','pedaggi','assicurazione','bonifico','cibo','telefono','altri'].reduce((s,k)=>s+money(state.base[k]),0)}
+function target(){return baseVital()+money(state.base.cuscinetto)}
+function unreconciledCapitalExpenses(){return state.expenses.filter(e=>!e.capitalReconciled).reduce((s,e)=>s+money(e.amount),0)}
+function currentCapital(){return Math.max(0,money(state.capitalSnapshot)-unreconciledCapitalExpenses())}
+function unreconciledBudgetExpensesStart(){return state.expenses.filter(e=>e.month===state.startMonth&&e.funding==='budget'&&!e.budgetReconciled).reduce((s,e)=>s+money(e.amount),0)}
+function currentBudgetRemaining(){return Math.max(0,money(state.budgetRemainingSnapshot)-unreconciledBudgetExpensesStart())}
+function needForMonth(i){return i===startIdx()?currentBudgetRemaining():Math.max(0,target()-money(state.fixed))}
+function monthlyIncome(i){return money(state.fixed)+money(state.commissions[MONTHS[i]])}
+function sources(){
+  const arr=[{id:'capital',start:startIdx(),amount:currentCapital(),type:'capital'}];
+  MONTHS.forEach((m,i)=>{const c=money(state.commissions[m]);if(c>0)arr.push({id:'comm_'+i,start:i,amount:c,type:'commission'})});
+  arr.sort((a,b)=>a.start-b.start||(a.type==='capital'?-1:1));
+  return arr;
+}
+function model(){
+  const allocated=Object.fromEntries(MONTHS.map(m=>[m,0])), extraBySource={};
+  sources().forEach(src=>{
+    let rest=money(src.amount);
+    for(let i=src.start;i<=Math.min(src.start+3,MONTHS.length-1);i++){
+      const m=MONTHS[i], need=Math.max(0,needForMonth(i)-allocated[m]);
+      const put=Math.min(rest,need);
+      allocated[m]+=put; rest-=put;
+    }
+    extraBySource[src.id]=rest;
+  });
+  const months=MONTHS.map((m,i)=>{
+    const required=needForMonth(i), add=allocated[m]||0;
+    const total=i===startIdx()?target()-required+add:money(state.fixed)+add;
+    return {m,i,required,allocated:add,total,missing:Math.max(0,required-add),covered:add>=required,income:monthlyIncome(i)};
+  });
+  return {months,extra:Object.values(extraBySource).reduce((s,v)=>s+money(v),0),target:target()};
+}
+function selectedRow(){return model().months[idx()]}
+function selectedWindow(){return model().months.slice(idx(),Math.min(idx()+4,MONTHS.length))}
+function budgetSpentForMonth(m){
+  if(m===state.startMonth)return Math.max(0,target()-currentBudgetRemaining());
+  return state.expenses.filter(e=>e.month===m&&e.funding==='budget').reduce((s,e)=>s+money(e.amount),0);
+}
+function budgetAvailableForMonth(m){
+  if(m===state.startMonth)return currentBudgetRemaining();
+  const row=model().months[idx(m)];
+  return Math.max(0,Math.min(target(),row.total)-budgetSpentForMonth(m));
+}
+function changeMonth(step){state.selected=MONTHS[Math.max(0,Math.min(MONTHS.length-1,idx()+step))];save();render(activePage())}
+function activePage(){return document.querySelector('.tabs button.active')?.dataset.page||'home'}
+function setPage(page){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));render(page)}
+function monthNav(label){
+  return `<div class="monthnav"><button onclick="changeMonth(-1)" ${idx()===0?'disabled':''}>‹</button><div class="monthbox"><small>${label}</small><b>${state.selected}</b></div><button onclick="changeMonth(1)" ${idx()===MONTHS.length-1?'disabled':''}>›</button></div>`;
+}
+function homeHTML(){
+  const p=model(), row=selectedRow(), win=selectedWindow(), available=budgetAvailableForMonth(state.selected), spent=budgetSpentForMonth(state.selected);
+  return `${monthNav('Dashboard · fino a dicembre 2027')}
+  <section class="panel hero"><div class="eyebrow">Capitale attuale</div><div class="amount positive">${euro(currentCapital())}</div></section>
+  <section class="panel"><div class="eyebrow">Budget ${state.selected}</div><div class="amount" style="font-size:34px">${euro(p.target)} <span style="color:var(--muted);font-size:22px">/</span> <span class="amber">${euro(available)}</span></div><div class="grid" style="margin-top:14px"><div class="card"><span>Speso</span><strong>${euro(spent)}</strong></div><div class="card"><span>Disponibile</span><strong class="amber">${euro(available)}</strong></div></div><div class="bar warn"><i style="width:${Math.min(100,(spent/p.target)*100)}%"></i></div></section>
+  <div class="grid"><div class="card"><span>Entrata mese</span><strong>${euro(row.income)}</strong><small>Fisso ${euro(state.fixed)} + provvigioni ${euro(state.commissions[state.selected])}</small></div><div class="card"><span>Stato mese</span><strong class="${row.covered?'positive':'negative'}">${row.covered?'Coperto':euro(row.missing)}</strong><small>${row.covered?euro(row.total):'mancanti'}</small></div><div class="card"><span>Provvigioni mese</span><strong class="violet">${euro(state.commissions[state.selected])}</strong></div><div class="card"><span>Extra disponibile</span><strong class="violet">${euro(p.extra)}</strong></div></div>
+  <section class="panel"><h2>Prossimi 4 mesi</h2>${win.map(x=>`<div class="row"><div><b>${x.m}</b><small>Fisso ${euro(state.fixed)}${money(state.commissions[x.m])?` · provvigioni ${euro(state.commissions[x.m])}`:''}${x.allocated?` · copertura ${euro(x.allocated)}`:''}</small></div><div class="right ${x.covered?'positive':'negative'}">${x.covered?'OK':euro(x.missing)}<small>${euro(x.total)}</small></div></div>`).join('')}</section>`;
+}
+function planHTML(){
+  const p=model();
+  return `${monthNav('Piano economico')}
+  <section class="panel"><h2>Provvigioni</h2>${MONTHS.slice(startIdx()).map(m=>`<div class="row"><div><b>${m}</b><small>Fisso ${euro(state.fixed)} · copertura massima 4 mesi</small></div><div class="right"><input type="text" inputmode="decimal" style="width:120px;text-align:right" value="${state.commissions[m]||''}" placeholder="0" oninput="state.commissions['${m}']=Math.max(0,money(this.value));save()" onblur="render('plan')"></div></div>`).join('')}</section>
+  <section class="panel"><h2>Copertura fino a dicembre 2027</h2>${p.months.slice(startIdx()).map(x=>`<div class="row"><div><b>${x.m}</b><small>Entrate ${euro(x.income)}${x.allocated?` · quota allocata ${euro(x.allocated)}`:''}</small></div><div class="right ${x.covered?'positive':'negative'}">${x.covered?'OK':'-'+euro(x.missing)}<small>${euro(x.total)}</small></div></div>`).join('')}</section>`;
+}
+function expensesHTML(){
+  const cats=['Benzina','Pedaggi','Assicurazione','Bonifico personale','Cibo','Telefono/app/banca','Bar/ristoranti','Extra/acquisti','Altro'];
+  const colors=['#42d7d1','#65e99c','#f1c865','#ff7f87','#7bc4ff','#cbb8ff','#ffb86b','#7ee0a6','#f08bd1'];
+  const rows=state.expenses.filter(e=>e.month===state.selected), totalAll=rows.reduce((s,e)=>s+money(e.amount),0);
+  const grouped={}; rows.forEach(e=>{if(!grouped[e.category])grouped[e.category]={total:0,budget:0,extra:0};grouped[e.category].total+=money(e.amount);if(e.funding==='extra')grouped[e.category].extra+=money(e.amount);else grouped[e.category].budget+=money(e.amount)});
+  const breakdown=cats.map((c,i)=>({category:c,color:colors[i],...(grouped[c]||{})})).filter(x=>x.total>0);
+  let acc=0; const gradient=breakdown.length?'conic-gradient('+breakdown.map(x=>{const a=acc;acc+=(x.total/totalAll)*360;return `${x.color} ${a}deg ${acc}deg`}).join(',')+')':'conic-gradient(#16344c 0deg 360deg)';
+  return `${monthNav('Spese mensili')}
+  <section class="panel"><h2>Riassunto spese</h2><p>Solo spese di ${state.selected}.</p><div class="summarywrap"><div class="donut" style="background:${gradient}"><div class="hole"><span>Totale</span><strong>${euro(totalAll)}</strong></div></div><div>${breakdown.map(x=>`<div class="legendrow"><div class="legendleft"><span class="dot" style="background:${x.color}"></span><div class="legendtext"><b>${x.category}</b><small>${x.budget?`Budget ${euro(x.budget)}`:''}${x.budget&&x.extra?'<br>':''}${x.extra?`Extra ${euro(x.extra)}`:''}</small></div></div><div class="right">${euro(x.total)}</div></div>`).join('')||'<p>Nessuna spesa registrata.</p>'}</div></div></section>
+  <section class="panel"><h2>Aggiungi spesa</h2><div class="fields"><div class="field"><label>Categoria</label><select id="cat">${cats.map(x=>`<option>${x}</option>`).join('')}</select></div><div class="field"><label>Importo</label><input id="amount" type="text" inputmode="decimal" placeholder="es. 12,50"></div></div><div class="fields" style="margin-top:10px"><div class="field"><label>Tipo</label><select id="fund"><option value="budget">Budget mensile</option><option value="extra">Extra</option></select></div><div class="field"><label>Nota</label><input id="note" placeholder="facoltativa"></div></div><button class="primary" onclick="addExpense()">Aggiungi spesa</button></section>
+  <section class="panel"><h2>Movimenti</h2>${rows.slice().reverse().map(e=>`<div class="row"><div><b>${e.category}</b><small>${e.note||''}${e.note?' · ':''}${e.funding==='extra'?'Extra':'Budget'}</small></div><div class="right negative">-${euro(e.amount)}<br><button class="danger" onclick="removeExpense(${state.expenses.indexOf(e)})">Elimina</button></div></div>`).join('')||'<p>Nessuna spesa.</p>'}</section>`;
+}
+function baseHTML(){
+  const rows=[['benzina','Benzina'],['pedaggi','Pedaggi'],['assicurazione','Assicurazione auto'],['bonifico','Bonifico personale'],['cibo','Cibo essenziale'],['telefono','Telefono, app e banca'],['altri','Altri fissi minimi'],['cuscinetto','Cuscinetto']];
+  return `<section class="panel hero"><div class="eyebrow">Riconciliazione</div><div class="amount positive">${euro(currentCapital())}</div><div class="fields" style="margin-top:15px"><div class="field"><label>Capitale reale adesso</label><input id="capitalNow" type="text" inputmode="decimal" value="${currentCapital()}"></div><div class="field"><label>Budget disponibile ${state.startMonth}</label><input id="budgetNow" type="text" inputmode="decimal" value="${currentBudgetRemaining()}"></div></div><button class="primary" onclick="reconcile()">Salva numeri reali</button></section>
+  <section class="panel"><h2>Impostazioni principali</h2><div class="fields"><div class="field"><label>Mese in corso</label><select onchange="changeStartMonth(this.value)">${MONTHS.map(m=>`<option ${m===state.startMonth?'selected':''}>${m}</option>`).join('')}</select></div><div class="field"><label>Fisso mensile</label><input type="text" inputmode="decimal" value="${state.fixed}" oninput="state.fixed=Math.max(0,money(this.value));save()"></div></div></section>
+  <section class="panel"><h2>Spese fisse base</h2>${rows.map(([k,l])=>`<div class="row"><div><b>${l}</b><small>${k==='cuscinetto'?'Margine mensile':'Budget previsto'}</small></div><div class="right"><input type="text" inputmode="decimal" style="width:110px;text-align:right" value="${state.base[k]}" oninput="state.base['${k}']=Math.max(0,money(this.value));save()" onblur="render('base')"></div></div>`).join('')}<div class="notice">Target mensile: <b>${euro(target())}</b></div></section>
+  <section class="panel"><h2>Ripristino</h2><button class="danger" onclick="resetAll()">Ripristina dati iniziali</button></section>`;
+}
+function addExpense(){
+  const amount=money(document.getElementById('amount').value);if(!amount)return;
+  state.expenses.push({category:document.getElementById('cat').value,amount,month:state.selected,note:document.getElementById('note').value,funding:document.getElementById('fund').value,capitalReconciled:false,budgetReconciled:false});
+  save();render('expenses');
+}
+function removeExpense(i){state.expenses.splice(i,1);save();render('expenses')}
+function reconcile(){
+  state.capitalSnapshot=Math.max(0,money(document.getElementById('capitalNow').value));
+  state.budgetRemainingSnapshot=Math.max(0,money(document.getElementById('budgetNow').value));
+  state.expenses.forEach(e=>{e.capitalReconciled=true;if(e.month===state.startMonth&&e.funding==='budget')e.budgetReconciled=true});
+  save();render('base');
+}
+function changeStartMonth(m){
+  state.startMonth=m;state.selected=m;
+  state.budgetRemainingSnapshot=target();
+  state.expenses.forEach(e=>{if(e.month===m&&e.funding==='budget')e.budgetReconciled=false});
+  save();render('base');
+}
+function resetAll(){if(confirm('Ripristinare Alex Finance 2.0?')){state=clone(initial);save();render('home')}}
+function render(page='home'){document.getElementById('view').innerHTML=page==='home'?homeHTML():page==='plan'?planHTML():page==='expenses'?expensesHTML():baseHTML()}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>setPage(b.dataset.page)));
+render('home');
+</script>
+</body>
+</html>
