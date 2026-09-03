@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ArrowUpRight,
   Check,
@@ -274,10 +274,7 @@ export default function Home() {
   const [activePhase, setActivePhase] = useState<PhaseId>('costruzione');
   const [activeFormation, setActiveFormation] = useState<FormationId>('1-3-2-3');
   const active = phases[activePhase];
-  const nextPhase = useMemo(
-    () => phaseOrder[(phaseOrder.indexOf(activePhase) + 1) % phaseOrder.length],
-    [activePhase],
-  );
+  const nextPhase = phaseOrder[(phaseOrder.indexOf(activePhase) + 1) % phaseOrder.length];
 
   useEffect(() => {
     const modelContext = (

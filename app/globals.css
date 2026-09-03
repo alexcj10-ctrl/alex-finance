@@ -336,7 +336,6 @@
     stroke-dasharray: 2 1.6;
     marker-end: url(#arrow);
     opacity: 0.86;
-    animation: route-pulse 2.7s ease-in-out infinite;
   }
 
   .player-marker circle {
@@ -517,17 +516,6 @@
 
   .training-meta strong {
     color: var(--foreground);
-  }
-}
-
-@keyframes route-pulse {
-  0%,
-  100% {
-    opacity: 0.45;
-  }
-
-  50% {
-    opacity: 1;
   }
 }
 
