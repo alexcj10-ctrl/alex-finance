@@ -2,6 +2,8 @@
 
 Lavagna tattica interattiva in italiano per il calcio a 9 nella categoria Esordienti.
 
+[Apri la web app](https://alex-finance-cyan.vercel.app/)
+
 ## Esperienza
 
 - tre momenti di gioco: Costruzione, Progressione e Finalizzazione;
@@ -16,6 +18,6 @@ pnpm install
 pnpm dev
 ```
 
-Il progetto usa React, Vinext, TypeScript e Tailwind CSS. La struttura dati e il flusso
+Il progetto usa React, Vite, TypeScript e Tailwind CSS. La struttura dati e il flusso
 fase → sistema → indicazioni riprendono l'impostazione deterministica di
 `proanalyst-labs-mvp`, adattata integralmente al calcio a 9.
