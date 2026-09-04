@@ -30,23 +30,23 @@ export type Lesson = {
  */
 export const lessons = [
   {
-    id: 'demo-costruzione-uomo-libero',
-    titolo: 'Demo — Trovare l’uomo libero in uscita',
+    id: 'costruzione-creare-ampiezza',
+    titolo: 'Creare ampiezza',
     fase: 'costruzione',
     sistema: '1-3-2-3',
-    livello: 'base',
+    livello: 'entrambi',
     descrizione:
-      'Esempio dimostrativo per riconoscere una soluzione semplice quando gli avversari iniziano a pressare.',
+      'Impariamo a occupare bene la larghezza del campo per dare spazio e linee di passaggio ai compagni.',
     obiettivo:
-      'Imparare a guardare prima di ricevere e a usare portiere, ampiezza e sostegno per uscire dalla pressione.',
+      'Creare spazio e soluzioni di passaggio attraverso una corretta occupazione dell\'ampiezza.',
     puntiChiave: [
-      'Apri il campo prima che arrivi il pallone.',
-      'Controlla dove sono compagno e avversario.',
-      'Dopo il passaggio, crea subito una nuova linea di aiuto.',
+      'Apriti quando la squadra ha bisogno di spazio',
+      'Non stare sulla stessa linea del compagno',
+      'Fatti vedere con una linea di passaggio chiara',
     ],
-    percorsoVideo: '/videos/demo-costruzione-uomo-libero.mp4',
-    stato: 'prossimamente',
-    demo: true,
+    percorsoVideo: '/videos/ampiezza-costruzione.mp4',
+    stato: 'disponibile',
+    demo: false,
   },
   {
     id: 'demo-progressione-terzo-uomo',
