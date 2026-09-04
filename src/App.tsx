@@ -20,9 +20,8 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-
-type PhaseId = 'costruzione' | 'progressione' | 'finalizzazione';
-type FormationId = '1-3-2-3' | '1-4-1-3' | '1-4-1-2-1';
+import { LessonsSection } from './components/LessonsSection';
+import { lessons, type FormationId, type PhaseId } from './data/lessons';
 
 type Player = {
   number: number;
@@ -539,6 +538,8 @@ export default function App() {
             </span>
           </div>
         </section>
+
+        <LessonsSection activePhase={activePhase} lessons={lessons} />
       </div>
     </main>
   );
