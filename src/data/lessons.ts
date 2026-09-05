@@ -3,6 +3,13 @@ export type FormationId = '1-3-2-3' | '1-4-1-3' | '1-4-1-2-1';
 export type LessonLevel = 'base' | 'avanzato' | 'entrambi';
 export type LessonStatus = 'disponibile' | 'prossimamente';
 
+export type LessonVideoVariant = {
+  id: string;
+  etichetta: string;
+  percorsoVideo: `/videos/${string}.mp4`;
+  percorsoSottotitoli?: `/videos/${string}.vtt`;
+};
+
 type LessonKeyPoints =
   | readonly [string]
   | readonly [string, string]
@@ -17,8 +24,7 @@ export type Lesson = {
   descrizione: string;
   obiettivo: string;
   puntiChiave: LessonKeyPoints;
-  percorsoVideo: `/videos/${string}.mp4`;
-  percorsoSottotitoli?: `/videos/${string}.vtt`;
+  variantiVideo: readonly [LessonVideoVariant, ...LessonVideoVariant[]];
   stato: LessonStatus;
   demo: boolean;
 };
@@ -44,7 +50,18 @@ export const lessons = [
       'Mettiti dove il portiere può vederti e servirti.',
       'Lascia sempre una linea di passaggio pulita tra te e la palla.',
     ],
-    percorsoVideo: '/videos/ampiezza-costruzione.mp4',
+    variantiVideo: [
+      {
+        id: 'variante-a',
+        etichetta: 'Variante A',
+        percorsoVideo: '/videos/ampiezza-costruzione.mp4',
+      },
+      {
+        id: 'variante-b',
+        etichetta: 'Variante B',
+        percorsoVideo: '/videos/ampiezza-costruzione-variante-b.mp4',
+      },
+    ],
     stato: 'disponibile',
     demo: false,
   },
@@ -63,7 +80,13 @@ export const lessons = [
       'Gioca con pochi tocchi quando il compagno è libero.',
       'Dopo lo scarico, attacca lo spazio davanti a te.',
     ],
-    percorsoVideo: '/videos/demo-progressione-terzo-uomo.mp4',
+    variantiVideo: [
+      {
+        id: 'variante-a',
+        etichetta: 'Variante A',
+        percorsoVideo: '/videos/demo-progressione-terzo-uomo.mp4',
+      },
+    ],
     stato: 'prossimamente',
     demo: true,
   },
@@ -82,7 +105,13 @@ export const lessons = [
       'Attacca la porta con tempi diversi dai compagni.',
       'Un giocatore resta pronto fuori dall’area.',
     ],
-    percorsoVideo: '/videos/demo-finalizzazione-tre-zone.mp4',
+    variantiVideo: [
+      {
+        id: 'variante-a',
+        etichetta: 'Variante A',
+        percorsoVideo: '/videos/demo-finalizzazione-tre-zone.mp4',
+      },
+    ],
     stato: 'prossimamente',
     demo: true,
   },

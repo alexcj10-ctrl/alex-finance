@@ -1369,6 +1369,64 @@
     color: #08271b;
   }
 
+  .lesson-video-variants {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.65rem 1rem;
+    border-top: 1px solid rgb(255 255 255 / 0.08);
+    padding: 0.75rem 1rem;
+    background: #061710;
+  }
+
+  .lesson-video-variant-switcher {
+    display: inline-flex;
+    gap: 0.25rem;
+    border: 1px solid rgb(255 255 255 / 0.12);
+    border-radius: 0.75rem;
+    padding: 0.25rem;
+    background: rgb(255 255 255 / 0.045);
+  }
+
+  .lesson-video-variant-button {
+    min-height: 2.35rem;
+    border-radius: 0.55rem;
+    padding: 0.5rem 0.85rem;
+    color: rgb(255 255 255 / 0.62);
+    font-size: 0.875rem;
+    font-weight: 800;
+    transition:
+      background-color 160ms ease,
+      color 160ms ease;
+  }
+
+  .lesson-video-variant-button:hover,
+  .lesson-video-variant-button:focus-visible {
+    color: white;
+  }
+
+  .lesson-video-variant-button:focus-visible {
+    outline: 2px solid #d9ff43;
+    outline-offset: 2px;
+  }
+
+  .lesson-video-variant-button-active {
+    background: #d9ff43;
+    color: #08271b;
+  }
+
+  .lesson-video-variant-button-active:hover,
+  .lesson-video-variant-button-active:focus-visible {
+    color: #08271b;
+  }
+
+  .lesson-video-variants > p {
+    color: rgb(255 255 255 / 0.58);
+    font-size: 0.78rem;
+    line-height: 1.45;
+  }
+
   .lesson-video,
   .lesson-video-placeholder {
     display: block;

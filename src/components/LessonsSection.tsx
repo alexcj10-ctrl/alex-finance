@@ -21,43 +21,81 @@ const levelLabels: Record<LessonLevel, string> = {
 };
 
 function LessonVideo({ lesson }: { lesson: Lesson }) {
-  const [videoFailed, setVideoFailed] = useState(false);
-  const videoIsReady = lesson.stato === 'disponibile' && !videoFailed;
-
-  if (!videoIsReady) {
-    return (
-      <output className="lesson-video-placeholder" aria-live="polite">
-        <span className="lesson-video-icon" aria-hidden="true">
-          <Video className="size-6" />
-        </span>
-        <p className="lesson-video-title">Video in preparazione</p>
-        <p className="lesson-video-copy">
-          Il contributo realizzato con FM Stadio verrà mostrato qui appena disponibile.
-        </p>
-      </output>
-    );
-  }
+  const [selectedVariantId, setSelectedVariantId] = useState(
+    lesson.variantiVideo[0].id,
+  );
+  const [failedVariantIds, setFailedVariantIds] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
+  const selectedVariant =
+    lesson.variantiVideo.find((variant) => variant.id === selectedVariantId) ??
+    lesson.variantiVideo[0];
+  const videoIsReady =
+    lesson.stato === 'disponibile' && !failedVariantIds.has(selectedVariant.id);
 
   return (
-    <video
-      className="lesson-video"
-      controls
-      playsInline
-      preload="metadata"
-      aria-label={`Video della lezione ${lesson.titolo}`}
-      onError={() => setVideoFailed(true)}
-    >
-      <source src={lesson.percorsoVideo} type="video/mp4" />
-      {lesson.percorsoSottotitoli ? (
-        <track
-          kind="captions"
-          src={lesson.percorsoSottotitoli}
-          srcLang="it"
-          label="Italiano"
-        />
+    <div className="lesson-video-area">
+      {lesson.variantiVideo.length > 1 ? (
+        <div className="lesson-video-variants">
+          <fieldset className="lesson-video-variant-switcher">
+            <legend className="sr-only">Varianti video della lezione</legend>
+            {lesson.variantiVideo.map((variant) => (
+              <button
+                key={variant.id}
+                type="button"
+                className={cn(
+                  'lesson-video-variant-button',
+                  selectedVariant.id === variant.id &&
+                    'lesson-video-variant-button-active',
+                )}
+                aria-pressed={selectedVariant.id === variant.id}
+                onClick={() => setSelectedVariantId(variant.id)}
+              >
+                {variant.etichetta}
+              </button>
+            ))}
+          </fieldset>
+          <p>Due alternative valide dello stesso principio.</p>
+        </div>
       ) : null}
-      Il tuo browser non supporta la riproduzione video HTML5.
-    </video>
+
+      {videoIsReady ? (
+        <video
+          key={selectedVariant.id}
+          className="lesson-video"
+          controls
+          playsInline
+          preload="metadata"
+          aria-label={`Video ${selectedVariant.etichetta} della lezione ${lesson.titolo}`}
+          onError={() =>
+            setFailedVariantIds((current) =>
+              new Set(current).add(selectedVariant.id),
+            )
+          }
+        >
+          <source src={selectedVariant.percorsoVideo} type="video/mp4" />
+          {selectedVariant.percorsoSottotitoli ? (
+            <track
+              kind="captions"
+              src={selectedVariant.percorsoSottotitoli}
+              srcLang="it"
+              label="Italiano"
+            />
+          ) : null}
+          Il tuo browser non supporta la riproduzione video HTML5.
+        </video>
+      ) : (
+        <output className="lesson-video-placeholder" aria-live="polite">
+          <span className="lesson-video-icon" aria-hidden="true">
+            <Video className="size-6" />
+          </span>
+          <p className="lesson-video-title">Video in preparazione</p>
+          <p className="lesson-video-copy">
+            Il contributo realizzato con FM Stadio verrà mostrato qui appena disponibile.
+          </p>
+        </output>
+      )}
+    </div>
   );
 }
 
