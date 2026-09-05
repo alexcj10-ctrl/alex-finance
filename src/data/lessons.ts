@@ -31,18 +31,18 @@ export type Lesson = {
 export const lessons = [
   {
     id: 'costruzione-creare-ampiezza',
-    titolo: 'Creare ampiezza',
+    titolo: 'Massima ampiezza dalla rimessa dal fondo',
     fase: 'costruzione',
     sistema: '1-3-2-3',
     livello: 'entrambi',
     descrizione:
-      'Impariamo a occupare bene la larghezza del campo per dare spazio e linee di passaggio ai compagni.',
+      'Nel nostro 1-3-2-3, quando ripartiamo dalla rimessa dal fondo occupiamo tutta la larghezza del campo. In questo modo il portiere ha più spazio e può vedere linee di passaggio pulite verso tutti i compagni.',
     obiettivo:
-      'Creare spazio e soluzioni di passaggio attraverso una corretta occupazione dell\'ampiezza.',
+      'Aprire il campo al massimo per dare al portatore di palla, in questo caso il portiere, più linee di passaggio pulite possibili.',
     puntiChiave: [
-      'Apriti quando la squadra ha bisogno di spazio',
-      'Non stare sulla stessa linea del compagno',
-      'Fatti vedere con una linea di passaggio chiara',
+      'Apriti e occupa tutta la larghezza del campo.',
+      'Mettiti dove il portiere può vederti e servirti.',
+      'Lascia sempre una linea di passaggio pulita tra te e la palla.',
     ],
     percorsoVideo: '/videos/ampiezza-costruzione.mp4',
     stato: 'disponibile',
