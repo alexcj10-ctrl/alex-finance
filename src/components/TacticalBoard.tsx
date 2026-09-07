@@ -285,16 +285,12 @@ export function TacticalBoard({
     <div className="tactical-view view-shell">
       <section className="board-view-heading">
         <div>
-          <div className="mb-3 flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.18em] text-accent-foreground/70">
-            <Sparkles className="size-3.5 text-primary" /> Area tecnica
+          <div className="mb-3 flex items-center gap-2 text-xs font-bold uppercase tracking-[0.14em] text-emerald-800">
+            <Sparkles className="size-4" /> Esplora il gioco
           </div>
-          <h1>
-            Leggi il gioco. <span className="text-primary">Allena la scelta.</span>
-          </h1>
+          <h1>Lavagna</h1>
         </div>
-        <p>
-          Scegli il sistema, osserva le relazioni e porta in campo un focus chiaro.
-        </p>
+        <p>Scegli fase e sistema. Guarda i movimenti.</p>
       </section>
 
       <nav aria-label="Fasi di gioco" className="phase-nav mb-6">

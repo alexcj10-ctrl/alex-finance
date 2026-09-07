@@ -37,6 +37,10 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
     <div className="lesson-video-area">
       {lesson.variantiVideo.length > 1 ? (
         <div className="lesson-video-variants">
+          <div className="lesson-video-variant-copy">
+            <strong>2 modi, stessa idea</strong>
+            <span>Scegli il video</span>
+          </div>
           <fieldset className="lesson-video-variant-switcher">
             <legend className="sr-only">Varianti video della lezione</legend>
             {lesson.variantiVideo.map((variant) => (
@@ -55,7 +59,6 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
               </button>
             ))}
           </fieldset>
-          <p>Due alternative valide dello stesso principio.</p>
         </div>
       ) : null}
 
@@ -90,9 +93,7 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
             <Video className="size-6" />
           </span>
           <p className="lesson-video-title">Video in preparazione</p>
-          <p className="lesson-video-copy">
-            Il contributo realizzato con FM Stadio verrà mostrato qui appena disponibile.
-          </p>
+          <p className="lesson-video-copy">Stiamo preparando questo video. Torna presto!</p>
         </output>
       )}
     </div>
@@ -119,6 +120,9 @@ export function LessonsSection({ lessons, initialLessonId }: LessonsSectionProps
   const phaseLessons = lessons.filter((lesson) => lesson.fase === activePhase);
   const selectedLesson =
     phaseLessons.find((lesson) => lesson.id === selectedLessonId) ?? phaseLessons[0];
+  const availableLessonCount = lessons.filter(
+    (lesson) => lesson.stato === 'disponibile',
+  ).length;
 
   const selectPhase = (phase: PhaseId) => {
     const firstLesson = lessons.find((lesson) => lesson.fase === phase);
@@ -130,13 +134,13 @@ export function LessonsSection({ lessons, initialLessonId }: LessonsSectionProps
     <div className="lessons-view view-shell">
       <header className="view-heading lessons-page-heading">
         <div>
-          <p className="section-kicker text-primary">Guarda, capisci, prova</p>
+          <p className="section-kicker">Allenati con i video</p>
           <h1>Lezioni</h1>
-          <p>
-            Parti dal video, osserva i dettagli e porta in campo un’idea alla volta.
-          </p>
+          <p>Guarda. Capisci. Prova.</p>
         </div>
-        <span className="lesson-count">{lessons.length} moduli</span>
+        <span className="lesson-count">
+          {availableLessonCount} {availableLessonCount === 1 ? 'pronta' : 'pronte'}
+        </span>
       </header>
 
       <nav className="lesson-phase-switcher" aria-label="Fasi delle lezioni">
@@ -157,55 +161,14 @@ export function LessonsSection({ lessons, initialLessonId }: LessonsSectionProps
         ))}
       </nav>
 
-      <section className="lessons-section" aria-labelledby="lessons-title">
-        <header className="lessons-header">
-          <div>
-            <p className="section-kicker text-primary">Percorso didattico</p>
-            <h2 id="lessons-title" className="mt-1 text-2xl font-black tracking-[-0.035em]">
-              {phaseLabels[activePhase]}
-            </h2>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-              Scegli una lezione e concentrati sui tre punti da ricordare.
-            </p>
-          </div>
-          <span className="lesson-phase-badge">{phaseLabels[activePhase]}</span>
-        </header>
-
+      <section className="lessons-section" aria-label={`Lezioni di ${phaseLabels[activePhase]}`}>
         {selectedLesson ? (
-          <div className="lessons-workspace">
-            <div className="lesson-catalog" aria-label={`Lezioni di ${phaseLabels[activePhase]}`}>
-              {phaseLessons.map((lesson) => {
-                const isSelected = lesson.id === selectedLesson.id;
-
-                return (
-                  <button
-                    key={lesson.id}
-                    type="button"
-                    className={cn('lesson-card', isSelected && 'lesson-card-active')}
-                    aria-pressed={isSelected}
-                    aria-controls="lesson-detail"
-                    onClick={() => setSelectedLessonId(lesson.id)}
-                  >
-                    <span className="lesson-card-topline">
-                      {lesson.demo ? <span className="demo-badge">Contenuto demo</span> : null}
-                      <span className={cn('lesson-status', `lesson-status-${lesson.stato}`)}>
-                        {lesson.stato === 'disponibile' ? 'Disponibile' : 'Prossimamente'}
-                      </span>
-                    </span>
-                    <strong className="lesson-card-title">{lesson.titolo}</strong>
-                    <span className="lesson-card-description">{lesson.descrizione}</span>
-                    <span className="lesson-card-meta">
-                      <span>{lesson.sistema}</span>
-                      <span>{levelLabels[lesson.livello]}</span>
-                      <span className="lesson-open-label">
-                        Apri <ChevronRight className="size-3.5" />
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
+          <div
+            className={cn(
+              'lessons-workspace',
+              phaseLessons.length === 1 && 'lessons-workspace-single',
+            )}
+          >
             <article id="lesson-detail" className="lesson-detail" aria-labelledby="lesson-detail-title">
               <div className="lesson-detail-heading">
                 <div>
@@ -215,7 +178,6 @@ export function LessonsSection({ lessons, initialLessonId }: LessonsSectionProps
                     <span>{levelLabels[selectedLesson.livello]}</span>
                   </div>
                   <h3 id="lesson-detail-title">{selectedLesson.titolo}</h3>
-                  <p>{selectedLesson.descrizione}</p>
                 </div>
                 <span className="lesson-play-mark" aria-hidden="true">
                   <Play className="size-5 fill-current" />
@@ -253,6 +215,40 @@ export function LessonsSection({ lessons, initialLessonId }: LessonsSectionProps
                 </section>
               </div>
             </article>
+
+            {phaseLessons.length > 1 ? (
+              <div className="lesson-catalog" aria-label={`Altre lezioni di ${phaseLabels[activePhase]}`}>
+                <p className="lesson-catalog-title">Altre lezioni</p>
+                {phaseLessons.map((lesson) => {
+                  const isSelected = lesson.id === selectedLesson.id;
+
+                  return (
+                    <button
+                      key={lesson.id}
+                      type="button"
+                      className={cn('lesson-card', isSelected && 'lesson-card-active')}
+                      aria-pressed={isSelected}
+                      aria-controls="lesson-detail"
+                      onClick={() => setSelectedLessonId(lesson.id)}
+                    >
+                      <span className="lesson-card-topline">
+                        {lesson.demo ? <span className="demo-badge">Demo</span> : null}
+                        <span className={cn('lesson-status', `lesson-status-${lesson.stato}`)}>
+                          {lesson.stato === 'disponibile' ? 'Disponibile' : 'In arrivo'}
+                        </span>
+                      </span>
+                      <strong className="lesson-card-title">{lesson.titolo}</strong>
+                      <span className="lesson-card-meta">
+                        <span>{lesson.sistema}</span>
+                        <span className="lesson-open-label">
+                          Apri <ChevronRight className="size-4" />
+                        </span>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
         ) : (
           <div className="lesson-empty">Le lezioni di questa fase arriveranno presto.</div>

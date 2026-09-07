@@ -1,5 +1,5 @@
 import { useEffect, useState, type ComponentType } from 'react';
-import { BookOpen, Home, Layers3, Library } from 'lucide-react';
+import { BookOpen, CircleDot, Home, Layers3, Library, Shield } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import { ConceptLibrary } from './components/ConceptLibrary';
@@ -123,6 +123,9 @@ export default function App() {
 
   return (
     <div className="app-frame min-h-screen bg-background text-foreground">
+      <a className="skip-link" href="#main-content">
+        Vai al contenuto
+      </a>
       <header className="app-header">
         <div className="page-width app-header-inner">
           <button
@@ -132,14 +135,14 @@ export default function App() {
             onClick={() => navigateTo('home')}
           >
             <span className="brand-mark" aria-hidden="true">
-              EA
+              <Shield className="size-5" />
             </span>
             <span className="min-w-0 text-left">
-              <span className="block truncate text-sm font-black tracking-[-0.02em]">
-                ESORDIENTI ANALYST
+              <span className="brand-team">
+                Poggio Mirteto Calcio
               </span>
-              <span className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                Percorso tecnico U13
+              <span className="brand-product">
+                ESORDIENTI ANALYST
               </span>
             </span>
           </button>
@@ -159,11 +162,13 @@ export default function App() {
             ))}
           </nav>
 
-          <span className="sport-badge">Calcio a 9</span>
+          <span className="sport-badge">
+            <CircleDot className="size-3.5" aria-hidden="true" /> Calcio a 9
+          </span>
         </div>
       </header>
 
-      <main className="app-main page-width" tabIndex={-1}>
+      <main id="main-content" className="app-main page-width" tabIndex={-1}>
         {activeView === 'home' ? (
           <DashboardHome
             missionLesson={missionLesson}
