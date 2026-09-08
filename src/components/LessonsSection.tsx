@@ -1,26 +1,65 @@
 /* oxlint-disable jsx-a11y/media-has-caption */
-/* Le tracce sottotitoli sono opzionali e vengono renderizzate solo quando configurate. */
-import { useState } from 'react';
-import { BookOpen, Check, ChevronRight, Play, Video } from 'lucide-react';
+/* Le tracce sottotitoli sono opzionali e appaiono solo quando configurate. */
+import { useState, type ComponentType } from 'react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  CircleDot,
+  Clock3,
+  Lock,
+  MoveRight,
+  Play,
+  Shield,
+  Star,
+  Target,
+  Video,
+  Zap,
+} from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import type { Lesson, LessonLevel, PhaseId } from '../data/lessons';
+import {
+  macroPhaseLabels,
+  phaseLabels,
+  phaseOrderByMacro,
+  type Lesson,
+  type LessonProgressStatus,
+  type MacroPhaseId,
+  type PhaseId,
+} from '../data/lessons';
 
-const phaseLabels: Record<PhaseId, string> = {
-  costruzione: 'Costruzione',
-  progressione: 'Progressione',
-  finalizzazione: 'Finalizzazione',
+const statusLabels: Record<LessonProgressStatus, string> = {
+  da_fare: 'Da fare',
+  in_corso: 'In corso',
+  completata: 'Completata',
 };
 
-const phaseOrder: readonly PhaseId[] = ['costruzione', 'progressione', 'finalizzazione'];
+const macroOptions: readonly {
+  id: MacroPhaseId;
+  subtitle: string;
+  icon: ComponentType<{ className?: string }>;
+}[] = [
+  { id: 'possesso', subtitle: 'Fase di possesso', icon: CircleDot },
+  { id: 'non_possesso', subtitle: 'Fase di non possesso', icon: Shield },
+];
 
-const levelLabels: Record<LessonLevel, string> = {
-  base: 'Livello base',
-  avanzato: 'Livello avanzato',
-  entrambi: 'Base + avanzato',
+const phaseIcons: Record<PhaseId, ComponentType<{ className?: string }>> = {
+  costruzione: Play,
+  progressione: MoveRight,
+  finalizzazione: Target,
+  pressione_alta: Zap,
+  pressione_bassa: Shield,
 };
 
-function LessonVideo({ lesson }: { lesson: Lesson }) {
+function LessonVideo({
+  lesson,
+  onStarted,
+}: {
+  lesson: Lesson;
+  onStarted: () => void;
+}) {
   const [selectedVariantId, setSelectedVariantId] = useState(
     lesson.variantiVideo[0].id,
   );
@@ -31,37 +70,11 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
     lesson.variantiVideo.find((variant) => variant.id === selectedVariantId) ??
     lesson.variantiVideo[0];
   const videoIsReady =
-    lesson.stato === 'disponibile' && !failedVariantIds.has(selectedVariant.id);
+    lesson.disponibilita === 'disponibile' &&
+    !failedVariantIds.has(selectedVariant.id);
 
   return (
     <div className="lesson-video-area">
-      {lesson.variantiVideo.length > 1 ? (
-        <div className="lesson-video-variants">
-          <div className="lesson-video-variant-copy">
-            <strong>2 modi, stessa idea</strong>
-            <span>Scegli il video</span>
-          </div>
-          <fieldset className="lesson-video-variant-switcher">
-            <legend className="sr-only">Varianti video della lezione</legend>
-            {lesson.variantiVideo.map((variant) => (
-              <button
-                key={variant.id}
-                type="button"
-                className={cn(
-                  'lesson-video-variant-button',
-                  selectedVariant.id === variant.id &&
-                    'lesson-video-variant-button-active',
-                )}
-                aria-pressed={selectedVariant.id === variant.id}
-                onClick={() => setSelectedVariantId(variant.id)}
-              >
-                {variant.etichetta}
-              </button>
-            ))}
-          </fieldset>
-        </div>
-      ) : null}
-
       {videoIsReady ? (
         <video
           key={selectedVariant.id}
@@ -70,6 +83,7 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
           playsInline
           preload="metadata"
           aria-label={`Video ${selectedVariant.etichetta} della lezione ${lesson.titolo}`}
+          onPlay={onStarted}
           onError={() =>
             setFailedVariantIds((current) =>
               new Set(current).add(selectedVariant.id),
@@ -90,12 +104,35 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
       ) : (
         <output className="lesson-video-placeholder" aria-live="polite">
           <span className="lesson-video-icon" aria-hidden="true">
-            <Video className="size-6" />
+            <Video className="size-7" />
           </span>
-          <p className="lesson-video-title">Video in preparazione</p>
-          <p className="lesson-video-copy">Stiamo preparando questo video. Torna presto!</p>
+          <strong>Video in preparazione</strong>
+          <span>Torna presto!</span>
         </output>
       )}
+
+      {lesson.variantiVideo.length > 1 ? (
+        <fieldset className="variant-picker">
+          <legend>Due modi, stessa idea</legend>
+          <div className="variant-buttons">
+            {lesson.variantiVideo.map((variant) => (
+              <button
+                key={variant.id}
+                type="button"
+                className={cn(
+                  'variant-button',
+                  selectedVariant.id === variant.id && 'variant-button-active',
+                )}
+                aria-pressed={selectedVariant.id === variant.id}
+                onClick={() => setSelectedVariantId(variant.id)}
+              >
+                <Play className="size-4 fill-current" aria-hidden="true" />
+                {variant.etichetta}
+              </button>
+            ))}
+          </div>
+        </fieldset>
+      ) : null}
     </div>
   );
 }
@@ -103,156 +140,262 @@ function LessonVideo({ lesson }: { lesson: Lesson }) {
 type LessonsSectionProps = {
   lessons: readonly Lesson[];
   initialLessonId?: string;
+  getLessonStatus: (lessonId: string) => LessonProgressStatus;
+  onLessonStarted: (lessonId: string) => void;
+  onCompleteLesson: (lessonId: string) => void;
 };
 
-export function LessonsSection({ lessons, initialLessonId }: LessonsSectionProps) {
-  const initialLesson =
-    lessons.find((lesson) => lesson.id === initialLessonId) ??
-    lessons.find((lesson) => lesson.stato === 'disponibile') ??
-    lessons[0];
+export function LessonsSection({
+  lessons,
+  initialLessonId,
+  getLessonStatus,
+  onLessonStarted,
+  onCompleteLesson,
+}: LessonsSectionProps) {
+  const initialLesson = lessons.find((lesson) => lesson.id === initialLessonId);
+  const [activeMacro, setActiveMacro] = useState<MacroPhaseId>(
+    initialLesson?.macroFase ?? 'possesso',
+  );
   const [activePhase, setActivePhase] = useState<PhaseId>(
     initialLesson?.fase ?? 'costruzione',
   );
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(
     initialLesson?.id ?? null,
   );
-
+  const selectedLesson = lessons.find((lesson) => lesson.id === selectedLessonId);
   const phaseLessons = lessons.filter((lesson) => lesson.fase === activePhase);
-  const selectedLesson =
-    phaseLessons.find((lesson) => lesson.id === selectedLessonId) ?? phaseLessons[0];
-  const availableLessonCount = lessons.filter(
-    (lesson) => lesson.stato === 'disponibile',
-  ).length;
+
+  const selectMacro = (macro: MacroPhaseId) => {
+    setActiveMacro(macro);
+    setActivePhase(phaseOrderByMacro[macro][0]);
+    setSelectedLessonId(null);
+  };
 
   const selectPhase = (phase: PhaseId) => {
-    const firstLesson = lessons.find((lesson) => lesson.fase === phase);
     setActivePhase(phase);
-    setSelectedLessonId(firstLesson?.id ?? null);
+    setSelectedLessonId(null);
   };
+
+  if (selectedLesson) {
+    const status = getLessonStatus(selectedLesson.id);
+    const isCompleted = status === 'completata';
+    const isAvailable = selectedLesson.disponibilita === 'disponibile';
+    const visibleStatus = isAvailable ? statusLabels[status] : 'In arrivo';
+
+    return (
+      <div className="lesson-detail-view view-shell">
+        <button
+          type="button"
+          className="back-button"
+          onClick={() => setSelectedLessonId(null)}
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" /> Lezioni
+        </button>
+
+        <article className="lesson-detail" aria-labelledby="lesson-title">
+          <header className="lesson-title-block">
+            <div className="lesson-title-meta">
+              <span>{macroPhaseLabels[selectedLesson.macroFase]}</span>
+              <span>{phaseLabels[selectedLesson.fase]}</span>
+              <span>1-3-2-3</span>
+            </div>
+            <h1 id="lesson-title">{selectedLesson.titolo}</h1>
+            <span
+              className={cn(
+                'lesson-progress-label',
+                isAvailable
+                  ? `lesson-progress-${status}`
+                  : 'lesson-progress-prossimamente',
+              )}
+            >
+              {status === 'completata' ? (
+                <Check className="size-4" aria-hidden="true" />
+              ) : null}
+              {!isAvailable ? <Lock className="size-4" aria-hidden="true" /> : null}
+              {visibleStatus}
+            </span>
+          </header>
+
+          <LessonVideo
+            key={selectedLesson.id}
+            lesson={selectedLesson}
+            onStarted={() => onLessonStarted(selectedLesson.id)}
+          />
+
+          <section className="remember-card" aria-labelledby="remember-title">
+            <div className="remember-heading">
+              <span aria-hidden="true">
+                <CheckCircle2 className="size-5" />
+              </span>
+              <h2 id="remember-title">Ricordati</h2>
+            </div>
+            <ol>
+              {selectedLesson.puntiChiave.map((point, index) => (
+                <li key={point}>
+                  <span>{index + 1}</span>
+                  {point}
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <footer className="lesson-completion">
+            <div className="lesson-points">
+              <span aria-hidden="true">
+                <Star className="size-5 fill-current" />
+              </span>
+              <div>
+                <small>Punti lezione</small>
+                <strong>+{selectedLesson.punti}</strong>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              size="lg"
+              className={cn('complete-button', isCompleted && 'complete-button-done')}
+              disabled={!isAvailable || isCompleted}
+              onClick={() => onCompleteLesson(selectedLesson.id)}
+            >
+              {isCompleted ? (
+                <>
+                  <CheckCircle2 className="size-5" aria-hidden="true" /> Completata
+                </>
+              ) : isAvailable ? (
+                <>
+                  Completa lezione <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+                </>
+              ) : (
+                <>
+                  <Clock3 className="size-5" aria-hidden="true" /> In preparazione
+                </>
+              )}
+            </Button>
+          </footer>
+        </article>
+      </div>
+    );
+  }
 
   return (
     <div className="lessons-view view-shell">
-      <header className="view-heading lessons-page-heading">
+      <header className="view-heading lessons-heading">
         <div>
-          <p className="section-kicker">Allenati con i video</p>
+          <p className="section-kicker">Il tuo allenamento</p>
           <h1>Lezioni</h1>
-          <p>Guarda. Capisci. Prova.</p>
         </div>
-        <span className="lesson-count">
-          {availableLessonCount} {availableLessonCount === 1 ? 'pronta' : 'pronte'}
-        </span>
+        <span className="system-badge">1-3-2-3</span>
       </header>
 
-      <nav className="lesson-phase-switcher" aria-label="Fasi delle lezioni">
-        {phaseOrder.map((phase) => (
+      <section className="macro-picker" aria-labelledby="macro-title">
+        <h2 id="macro-title" className="sr-only">Scegli la fase</h2>
+        {macroOptions.map((macro) => (
           <button
-            key={phase}
+            key={macro.id}
             type="button"
             className={cn(
-              'lesson-phase-filter',
-              activePhase === phase && 'lesson-phase-filter-active',
+              'macro-card',
+              `macro-card-${macro.id}`,
+              activeMacro === macro.id && 'macro-card-active',
             )}
-            aria-current={activePhase === phase ? 'page' : undefined}
-            onClick={() => selectPhase(phase)}
+            aria-label={`${macroPhaseLabels[macro.id]}, ${macro.subtitle}`}
+            aria-pressed={activeMacro === macro.id}
+            onClick={() => selectMacro(macro.id)}
           >
-            {phaseLabels[phase]}
-            <span>{lessons.filter((lesson) => lesson.fase === phase).length}</span>
+            <span className="macro-icon" aria-hidden="true">
+              <macro.icon className="size-7" />
+            </span>
+            <span>
+              <strong>{macroPhaseLabels[macro.id]}</strong>
+              <small>{macro.subtitle}</small>
+            </span>
           </button>
         ))}
-      </nav>
+      </section>
 
-      <section className="lessons-section" aria-label={`Lezioni di ${phaseLabels[activePhase]}`}>
-        {selectedLesson ? (
-          <div
-            className={cn(
-              'lessons-workspace',
-              phaseLessons.length === 1 && 'lessons-workspace-single',
-            )}
-          >
-            <article id="lesson-detail" className="lesson-detail" aria-labelledby="lesson-detail-title">
-              <div className="lesson-detail-heading">
-                <div>
-                  <div className="lesson-detail-badges">
-                    <span>{phaseLabels[selectedLesson.fase]}</span>
-                    <span>{selectedLesson.sistema}</span>
-                    <span>{levelLabels[selectedLesson.livello]}</span>
-                  </div>
-                  <h3 id="lesson-detail-title">{selectedLesson.titolo}</h3>
-                </div>
-                <span className="lesson-play-mark" aria-hidden="true">
-                  <Play className="size-5 fill-current" />
-                </span>
-              </div>
+      <section className="phase-picker" aria-label={`Categorie ${macroPhaseLabels[activeMacro]}`}>
+        {phaseOrderByMacro[activeMacro].map((phase) => {
+          const PhaseIcon = phaseIcons[phase];
 
-              <LessonVideo key={selectedLesson.id} lesson={selectedLesson} />
+          return (
+            <button
+              key={phase}
+              type="button"
+              className={cn('phase-card', activePhase === phase && 'phase-card-active')}
+              aria-pressed={activePhase === phase}
+              onClick={() => selectPhase(phase)}
+            >
+              <PhaseIcon className="size-5" aria-hidden="true" />
+              <span>{phaseLabels[phase]}</span>
+            </button>
+          );
+        })}
+      </section>
 
-              <div className="lesson-learning-grid">
-                <section aria-labelledby="lesson-objective-title">
-                  <span className="lesson-learning-icon" aria-hidden="true">
-                    <BookOpen className="size-4" />
-                  </span>
-                  <div>
-                    <h4 id="lesson-objective-title">Cosa impariamo</h4>
-                    <p>{selectedLesson.obiettivo}</p>
-                  </div>
-                </section>
-
-                <section aria-labelledby="lesson-key-points-title">
-                  <span className="lesson-learning-icon" aria-hidden="true">
-                    <Check className="size-4" />
-                  </span>
-                  <div>
-                    <h4 id="lesson-key-points-title">Ricordati</h4>
-                    <ol className="lesson-key-points">
-                      {selectedLesson.puntiChiave.map((point, index) => (
-                        <li key={point}>
-                          <span>{index + 1}</span>
-                          {point}
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </section>
-              </div>
-            </article>
-
-            {phaseLessons.length > 1 ? (
-              <div className="lesson-catalog" aria-label={`Altre lezioni di ${phaseLabels[activePhase]}`}>
-                <p className="lesson-catalog-title">Altre lezioni</p>
-                {phaseLessons.map((lesson) => {
-                  const isSelected = lesson.id === selectedLesson.id;
-
-                  return (
-                    <button
-                      key={lesson.id}
-                      type="button"
-                      className={cn('lesson-card', isSelected && 'lesson-card-active')}
-                      aria-pressed={isSelected}
-                      aria-controls="lesson-detail"
-                      onClick={() => setSelectedLessonId(lesson.id)}
-                    >
-                      <span className="lesson-card-topline">
-                        {lesson.demo ? <span className="demo-badge">Demo</span> : null}
-                        <span className={cn('lesson-status', `lesson-status-${lesson.stato}`)}>
-                          {lesson.stato === 'disponibile' ? 'Disponibile' : 'In arrivo'}
-                        </span>
-                      </span>
-                      <strong className="lesson-card-title">{lesson.titolo}</strong>
-                      <span className="lesson-card-meta">
-                        <span>{lesson.sistema}</span>
-                        <span className="lesson-open-label">
-                          Apri <ChevronRight className="size-4" />
-                        </span>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            ) : null}
+      <section className="lesson-list-section" aria-labelledby="lesson-list-title">
+        <header className="section-heading">
+          <div>
+            <p className="section-kicker">{macroPhaseLabels[activeMacro]}</p>
+            <h2 id="lesson-list-title">{phaseLabels[activePhase]}</h2>
           </div>
-        ) : (
-          <div className="lesson-empty">Le lezioni di questa fase arriveranno presto.</div>
-        )}
+        </header>
+
+        <div className="lesson-list">
+          {phaseLessons.map((lesson) => {
+            const status = getLessonStatus(lesson.id);
+            const isCompleted = status === 'completata';
+            const hasVideo = lesson.disponibilita === 'disponibile';
+            const visibleStatus = hasVideo ? statusLabels[status] : 'In arrivo';
+
+            return (
+              <button
+                key={lesson.id}
+                type="button"
+                className={cn('lesson-card', isCompleted && 'lesson-card-completed')}
+                aria-label={`Apri ${lesson.titolo}, ${visibleStatus}, ${lesson.punti} punti`}
+                onClick={() => setSelectedLessonId(lesson.id)}
+              >
+                <span className="lesson-thumb" aria-hidden="true">
+                  {hasVideo ? (
+                    <video muted playsInline preload="metadata" tabIndex={-1}>
+                      <source
+                        src={`${lesson.variantiVideo[0].percorsoVideo}#t=0.1`}
+                        type="video/mp4"
+                      />
+                    </video>
+                  ) : (
+                    <Lock className="size-5" />
+                  )}
+                  {hasVideo ? <Play className="lesson-thumb-play size-5 fill-current" /> : null}
+                </span>
+
+                <span className="lesson-card-copy">
+                  <span className="lesson-card-topline">
+                    {lesson.demo ? <span className="demo-badge">Demo</span> : null}
+                    <span
+                      className={cn(
+                        'lesson-progress-label',
+                        hasVideo
+                          ? `lesson-progress-${status}`
+                          : 'lesson-progress-prossimamente',
+                      )}
+                    >
+                      {isCompleted ? <Check className="size-3.5" aria-hidden="true" /> : null}
+                      {!hasVideo ? <Lock className="size-3.5" aria-hidden="true" /> : null}
+                      {visibleStatus}
+                    </span>
+                  </span>
+                  <strong>{lesson.titolo}</strong>
+                  <small>
+                    <Star className="size-3.5 fill-current" aria-hidden="true" /> {lesson.punti} punti
+                  </small>
+                </span>
+
+                <ArrowRight className="lesson-card-arrow size-5" aria-hidden="true" />
+              </button>
+            );
+          })}
+        </div>
       </section>
     </div>
   );

@@ -1,18 +1,15 @@
-import { useEffect, useState, type ComponentType } from 'react';
-import { BookOpen, CircleDot, Home, Layers3, Library, Shield } from 'lucide-react';
+/* oxlint-disable next/no-img-element -- Vite app: the official local crest is served as a static asset. */
+import { useState, type ComponentType } from 'react';
+import { BookOpen, CircleDot, Home, Trophy } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
-import { ConceptLibrary } from './components/ConceptLibrary';
 import { DashboardHome } from './components/DashboardHome';
 import { LessonsSection } from './components/LessonsSection';
-import {
-  formationOrder,
-  phaseOrder,
-  TacticalBoard,
-} from './components/TacticalBoard';
-import { lessons, type FormationId, type PhaseId } from './data/lessons';
+import { TrophiesSection } from './components/TrophiesSection';
+import { lessons } from './data/lessons';
+import { useLearningProgress } from './hooks/useLearningProgress';
 
-type AppView = 'home' | 'lezioni' | 'biblioteca' | 'lavagna';
+type AppView = 'home' | 'lezioni' | 'trofei';
 
 type NavigationItem = {
   id: AppView;
@@ -23,20 +20,16 @@ type NavigationItem = {
 const navigationItems: readonly NavigationItem[] = [
   { id: 'home', label: 'Home', icon: Home },
   { id: 'lezioni', label: 'Lezioni', icon: BookOpen },
-  { id: 'biblioteca', label: 'Biblioteca', icon: Library },
-  { id: 'lavagna', label: 'Lavagna', icon: Layers3 },
+  { id: 'trofei', label: 'Trofei', icon: Trophy },
 ];
 
 export default function App() {
   const [activeView, setActiveView] = useState<AppView>('home');
   const [focusedLessonId, setFocusedLessonId] = useState<string | undefined>();
-  const [activePhase, setActivePhase] = useState<PhaseId>('costruzione');
-  const [activeFormation, setActiveFormation] = useState<FormationId>('1-3-2-3');
-
+  const progress = useLearningProgress(lessons);
   const missionLesson = lessons.find(
-    (lesson) => lesson.stato === 'disponibile' && lesson.demo === false,
+    (lesson) => lesson.id === progress.summary.nextLessonId,
   );
-  const availableLessons = lessons.filter((lesson) => lesson.stato === 'disponibile');
 
   const openLesson = (lessonId: string) => {
     setFocusedLessonId(lessonId);
@@ -50,82 +43,12 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  useEffect(() => {
-    const modelContext = (
-      document as Document & {
-        modelContext?: {
-          registerTool: (
-            tool: {
-              name: string;
-              title: string;
-              description: string;
-              inputSchema: object;
-              annotations: { readOnlyHint: boolean; untrustedContentHint: boolean };
-              execute: (input: unknown) => Promise<unknown>;
-            },
-            options: { signal: AbortSignal },
-          ) => void | Promise<void>;
-        };
-      }
-    ).modelContext;
-
-    if (!modelContext?.registerTool) return;
-
-    const lifecycle = new AbortController();
-    const validPhases = phaseOrder as readonly string[];
-    const validFormations = formationOrder as readonly string[];
-
-    void Promise.resolve(
-      modelContext.registerTool(
-        {
-          name: 'configura_scenario_tattico',
-          title: 'Configura scenario tattico',
-          description:
-            'Apre la Lavagna e imposta la fase e il sistema di gioco mostrati da ESORDIENTI ANALYST.',
-          inputSchema: {
-            type: 'object',
-            properties: {
-              fase: { type: 'string', enum: phaseOrder },
-              sistema: { type: 'string', enum: formationOrder },
-            },
-            required: ['fase', 'sistema'],
-            additionalProperties: false,
-          },
-          annotations: { readOnlyHint: false, untrustedContentHint: false },
-          async execute(input) {
-            const candidate = input as { fase?: string; sistema?: string };
-
-            if (!validPhases.includes(candidate.fase ?? '')) {
-              throw new Error('Fase non valida.');
-            }
-            if (!validFormations.includes(candidate.sistema ?? '')) {
-              throw new Error('Sistema non valido.');
-            }
-
-            setActivePhase(candidate.fase as PhaseId);
-            setActiveFormation(candidate.sistema as FormationId);
-            setActiveView('lavagna');
-            await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
-
-            return {
-              stato: 'configurato',
-              fase: candidate.fase,
-              sistema: candidate.sistema,
-            };
-          },
-        },
-        { signal: lifecycle.signal },
-      ),
-    ).catch(() => undefined);
-
-    return () => lifecycle.abort();
-  }, []);
-
   return (
     <div className="app-frame min-h-screen bg-background text-foreground">
       <a className="skip-link" href="#main-content">
         Vai al contenuto
       </a>
+
       <header className="app-header">
         <div className="page-width app-header-inner">
           <button
@@ -135,15 +58,11 @@ export default function App() {
             onClick={() => navigateTo('home')}
           >
             <span className="brand-mark" aria-hidden="true">
-              <Shield className="size-5" />
+              <img src="/images/poggio-mirteto-logo.png" alt="" />
             </span>
-            <span className="min-w-0 text-left">
-              <span className="brand-team">
-                Poggio Mirteto Calcio
-              </span>
-              <span className="brand-product">
-                ESORDIENTI ANALYST
-              </span>
+            <span className="brand-copy">
+              <span className="brand-team">Poggio Mirteto Calcio</span>
+              <span className="brand-product">ESORDIENTI ANALYST</span>
             </span>
           </button>
 
@@ -156,14 +75,14 @@ export default function App() {
                 aria-current={activeView === item.id ? 'page' : undefined}
                 onClick={() => navigateTo(item.id)}
               >
-                <item.icon className="size-4" />
+                <item.icon className="size-4" aria-hidden="true" />
                 {item.label}
               </button>
             ))}
           </nav>
 
           <span className="sport-badge">
-            <CircleDot className="size-3.5" aria-hidden="true" /> Calcio a 9
+            <CircleDot className="size-4" aria-hidden="true" /> 1-3-2-3
           </span>
         </div>
       </header>
@@ -171,31 +90,29 @@ export default function App() {
       <main id="main-content" className="app-main page-width" tabIndex={-1}>
         {activeView === 'home' ? (
           <DashboardHome
+            lessons={lessons}
             missionLesson={missionLesson}
-            availableLessons={availableLessons}
+            summary={progress.summary}
+            getLessonStatus={progress.getLessonStatus}
             onOpenLesson={openLesson}
             onOpenLessons={() => navigateTo('lezioni')}
-            onOpenLibrary={() => navigateTo('biblioteca')}
+            onOpenTrophies={() => navigateTo('trofei')}
           />
         ) : null}
 
         {activeView === 'lezioni' ? (
           <LessonsSection
-            key={focusedLessonId ?? 'lesson-catalog'}
+            key={focusedLessonId ?? 'lesson-hub'}
             lessons={lessons}
             initialLessonId={focusedLessonId}
+            getLessonStatus={progress.getLessonStatus}
+            onLessonStarted={progress.startLesson}
+            onCompleteLesson={progress.completeLesson}
           />
         ) : null}
 
-        {activeView === 'biblioteca' ? <ConceptLibrary /> : null}
-
-        {activeView === 'lavagna' ? (
-          <TacticalBoard
-            activePhase={activePhase}
-            activeFormation={activeFormation}
-            onPhaseChange={setActivePhase}
-            onFormationChange={setActiveFormation}
-          />
+        {activeView === 'trofei' ? (
+          <TrophiesSection progress={progress.progress} summary={progress.summary} />
         ) : null}
       </main>
 
@@ -208,7 +125,7 @@ export default function App() {
             aria-current={activeView === item.id ? 'page' : undefined}
             onClick={() => navigateTo(item.id)}
           >
-            <item.icon className="size-5" />
+            <item.icon className="size-5" aria-hidden="true" />
             <span>{item.label}</span>
           </button>
         ))}

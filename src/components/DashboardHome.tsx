@@ -1,101 +1,205 @@
-/* oxlint-disable jsx-a11y/media-has-caption */
-/* L'anteprima è decorativa; il player completo con controlli è nella lezione. */
+/* oxlint-disable jsx-a11y/media-has-caption, next/no-img-element */
+/* Le anteprime sono decorative; il player completo con controlli è nella lezione. */
 import {
   ArrowRight,
-  BookOpen,
-  CheckCircle2,
-  Flame,
-  Lock,
+  BookOpenCheck,
+  Check,
+  CircleDot,
   Play,
-  Sparkles,
+  ShieldCheck,
   Star,
   Target,
+  Trophy,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
-import type { Lesson } from '../data/lessons';
+import {
+  phaseLabels,
+  type Lesson,
+  type LessonProgressStatus,
+} from '../data/lessons';
+import type { LearningSummary } from '../lib/learning-progress';
 
-const demoStats = [
-  { label: 'Da fare', value: '1', icon: BookOpen, tone: 'blue' },
-  { label: 'Completate', value: '2', icon: CheckCircle2, tone: 'green' },
-  { label: 'Punti', value: '180', icon: Star, tone: 'orange' },
-  { label: 'Concetti', value: '2', icon: Sparkles, tone: 'lime' },
-] as const;
-
-const demoConcepts = [
-  { name: 'Ampiezza', status: 'Sbloccato', unlocked: true },
-  { name: 'Linea di passaggio', status: 'Sbloccato', unlocked: true },
-  { name: 'Terzo uomo', status: 'Da scoprire', unlocked: false },
-  { name: 'Attacco dell’area', status: 'Da scoprire', unlocked: false },
-] as const;
+const statusLabels: Record<LessonProgressStatus, string> = {
+  da_fare: 'Da fare',
+  in_corso: 'In corso',
+  completata: 'Completata',
+};
 
 type DashboardHomeProps = {
+  lessons: readonly Lesson[];
   missionLesson?: Lesson;
-  availableLessons: readonly Lesson[];
+  summary: LearningSummary;
+  getLessonStatus: (lessonId: string) => LessonProgressStatus;
   onOpenLesson: (lessonId: string) => void;
   onOpenLessons: () => void;
-  onOpenLibrary: () => void;
+  onOpenTrophies: () => void;
 };
 
 export function DashboardHome({
+  lessons,
   missionLesson,
-  availableLessons,
+  summary,
+  getLessonStatus,
   onOpenLesson,
   onOpenLessons,
-  onOpenLibrary,
+  onOpenTrophies,
 }: DashboardHomeProps) {
+  const recentLessons = lessons
+    .filter((lesson) => lesson.disponibilita === 'disponibile')
+    .slice(0, 3);
   const missionVideo = missionLesson?.variantiVideo[0];
+
+  const stats = [
+    {
+      label: 'Lezioni fatte',
+      value: summary.completedLessonCount,
+      icon: BookOpenCheck,
+      tone: 'green',
+      action: onOpenLessons,
+    },
+    {
+      label: 'Da fare',
+      value: summary.todoLessonCount,
+      icon: Target,
+      tone: 'neutral',
+      action: onOpenLessons,
+    },
+    {
+      label: 'Punti',
+      value: summary.totalPoints,
+      icon: Star,
+      tone: 'red',
+      action: onOpenTrophies,
+    },
+    {
+      label: 'Trofei',
+      value: summary.unlockedTrophyCount,
+      icon: Trophy,
+      tone: 'gold',
+      action: onOpenTrophies,
+    },
+  ] as const;
 
   return (
     <div className="dashboard-view view-shell">
-      <section className="home-intro" aria-labelledby="dashboard-title">
-        <div>
-          <p className="section-kicker">Questa settimana</p>
-          <h1 id="dashboard-title">La tua missione</h1>
+      <section className="journey-hero" aria-labelledby="journey-title">
+        <div className="journey-identity">
+          <img
+            className="journey-crest"
+            src="/images/poggio-mirteto-logo.png"
+            alt="Stemma ufficiale del Poggio Mirteto Calcio"
+          />
+          <div>
+            <p className="section-kicker section-kicker-light">Il tuo percorso</p>
+            <h1 id="journey-title">Si gioca insieme.</h1>
+          </div>
         </div>
-        <span className="home-streak">
-          <Flame className="size-4" aria-hidden="true" />
-          2 completate
-        </span>
+
+        <Progress value={summary.overallProgress} className="journey-progress">
+          <ProgressLabel>Completato</ProgressLabel>
+          <ProgressValue>{() => `${summary.overallProgress}%`}</ProgressValue>
+        </Progress>
+      </section>
+
+      <section className="home-stats" aria-label="Il tuo riepilogo">
+        {stats.map((stat) => (
+          <button
+            key={stat.label}
+            type="button"
+            className={`home-stat home-stat-${stat.tone}`}
+            aria-label={`${stat.label}: ${stat.value}`}
+            onClick={stat.action}
+          >
+            <span className="home-stat-icon" aria-hidden="true">
+              <stat.icon className="size-5" />
+            </span>
+            <span>
+              <strong>{stat.value}</strong>
+              <small>{stat.label}</small>
+            </span>
+          </button>
+        ))}
+      </section>
+
+      <section className="dashboard-section" aria-labelledby="focus-title">
+        <header className="section-heading">
+          <div>
+            <p className="section-kicker">Adesso</p>
+            <h2 id="focus-title">Stiamo lavorando su</h2>
+          </div>
+        </header>
+
+        <div className="focus-grid">
+          <article className="focus-card focus-card-ball">
+            <span className="focus-icon" aria-hidden="true">
+              <CircleDot className="size-6" />
+            </span>
+            <span>
+              <small>Fase</small>
+              <strong>Con palla</strong>
+            </span>
+          </article>
+          <article className="focus-card focus-card-build">
+            <span className="focus-icon" aria-hidden="true">
+              <ShieldCheck className="size-6" />
+            </span>
+            <span>
+              <small>Concetto</small>
+              <strong>Ampiezza</strong>
+            </span>
+          </article>
+        </div>
+      </section>
+
+      <section className="dashboard-section" aria-labelledby="recent-title">
+        <header className="section-heading section-heading-action">
+          <div>
+            <p className="section-kicker">Il tuo cammino</p>
+            <h2 id="recent-title">Ultime lezioni</h2>
+          </div>
+          <button type="button" className="text-link" onClick={onOpenLessons}>
+            Vedi tutte <ArrowRight className="size-4" aria-hidden="true" />
+          </button>
+        </header>
+
+        <div className="recent-lessons">
+          {recentLessons.map((lesson) => {
+            const status = getLessonStatus(lesson.id);
+            const isCompleted = status === 'completata';
+
+            return (
+              <button
+                key={lesson.id}
+                type="button"
+                className="recent-lesson"
+                onClick={() => onOpenLesson(lesson.id)}
+              >
+                <span
+                  className={isCompleted ? 'recent-check recent-check-done' : 'recent-check'}
+                  aria-hidden="true"
+                >
+                  {isCompleted ? <Check className="size-4" /> : null}
+                </span>
+                <span className="recent-lesson-copy">
+                  <small>{phaseLabels[lesson.fase]}</small>
+                  <strong>{lesson.titolo}</strong>
+                </span>
+                <span className={`lesson-progress-label lesson-progress-${status}`}>
+                  {statusLabels[status]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </section>
 
       {missionLesson ? (
-        <section className="weekly-mission" aria-labelledby="mission-title">
-          <div className="mission-copy">
-            <div className="mission-eyebrow">
-              <Target className="size-4" aria-hidden="true" />
-              Missione della settimana
-            </div>
-
-            <div className="mission-meta">
-              <span>{missionLesson.fase}</span>
-              <span>{missionLesson.sistema}</span>
-            </div>
-
-            <h2 id="mission-title">{missionLesson.titolo}</h2>
-            <p className="mission-prompt">{missionLesson.puntiChiave[0]}</p>
-
-            <Progress value={42} className="mission-progress">
-              <ProgressLabel>La tua settimana</ProgressLabel>
-              <ProgressValue>{() => '42%'}</ProgressValue>
-            </Progress>
-
-            <Button
-              type="button"
-              size="lg"
-              className="mission-button"
-              onClick={() => onOpenLesson(missionLesson.id)}
-            >
-              <Play className="size-5 fill-current" aria-hidden="true" />
-              Guarda la lezione
-              <ArrowRight className="ml-auto size-5" aria-hidden="true" />
-            </Button>
-          </div>
-
+        <section className="next-mission" aria-labelledby="next-mission-title">
           <button
             type="button"
-            className="mission-media"
+            className="next-mission-media"
             aria-label={`Apri la lezione ${missionLesson.titolo}`}
             onClick={() => onOpenLesson(missionLesson.id)}
           >
@@ -104,105 +208,49 @@ export function DashboardHome({
                 <source src={`${missionVideo.percorsoVideo}#t=0.1`} type="video/mp4" />
               </video>
             ) : null}
-            <span className="mission-media-label" aria-hidden="true">
-              <Play className="size-4 fill-current" />
-              {missionLesson.variantiVideo.length} varianti video
-            </span>
-            <span className="mission-play-orb" aria-hidden="true">
-              <Play className="size-7 fill-current" />
+            <span className="mission-play" aria-hidden="true">
+              <Play className="size-6 fill-current" />
             </span>
           </button>
-        </section>
-      ) : null}
 
-      <section className="journey-overview" aria-labelledby="journey-title">
-        <header className="compact-section-heading">
-          <div>
-            <p className="section-kicker">Il tuo percorso</p>
-            <h2 id="journey-title">Pronto per il campo?</h2>
-          </div>
-          <span className="demo-data-label">Demo</span>
-        </header>
-
-        <div className="stats-grid">
-          {demoStats.map((stat) => (
-            <article key={stat.label} className={`stat-card stat-card-${stat.tone}`}>
-              <span className="stat-icon" aria-hidden="true">
-                <stat.icon className="size-5" />
-              </span>
-              <span className="stat-copy">
-                <strong>{stat.value}</strong>
-                <span>{stat.label}</span>
-              </span>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="dashboard-section" aria-labelledby="continue-title">
-        <header className="dashboard-section-heading">
-          <div>
-            <p className="section-kicker">Allenati ancora</p>
-            <h2 id="continue-title">Continua</h2>
-          </div>
-          <button type="button" className="text-link" onClick={onOpenLessons}>
-            Tutte <ArrowRight className="size-4" aria-hidden="true" />
-          </button>
-        </header>
-
-        <div className="continue-grid">
-          {availableLessons.map((lesson) => (
-            <button
-              key={lesson.id}
+          <div className="next-mission-copy">
+            <p className="section-kicker section-kicker-light">Prossima missione</p>
+            <span className="mission-phase">{phaseLabels[missionLesson.fase]}</span>
+            <h2 id="next-mission-title">{missionLesson.titolo}</h2>
+            <div className="mission-reward">
+              <Star className="size-4 fill-current" aria-hidden="true" />
+              +{missionLesson.punti} punti
+            </div>
+            <Button
               type="button"
-              className="continue-card"
-              onClick={() => onOpenLesson(lesson.id)}
+              size="lg"
+              className="primary-cta"
+              onClick={() => onOpenLesson(missionLesson.id)}
             >
-              <span className="continue-play" aria-hidden="true">
-                <Play className="size-5 fill-current" />
-              </span>
-              <span className="continue-card-copy">
-                <span>
-                  {lesson.fase} · {lesson.sistema}
-                </span>
-                <strong>{lesson.titolo}</strong>
-              </span>
-              <span className="continue-action">
-                Continua <ArrowRight className="size-4" aria-hidden="true" />
-              </span>
-            </button>
-          ))}
-        </div>
-      </section>
-
-      <section className="dashboard-section concept-preview" aria-labelledby="concepts-title">
-        <header className="dashboard-section-heading">
-          <div>
-            <p className="section-kicker">La tua collezione</p>
-            <h2 id="concepts-title">Concetti</h2>
+              Continua <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+            </Button>
           </div>
-          <button type="button" className="text-link" onClick={onOpenLibrary}>
-            Biblioteca <ArrowRight className="size-4" aria-hidden="true" />
-          </button>
-        </header>
-
-        <div className="concept-preview-grid">
-          {demoConcepts.map((concept) => (
-            <article
-              key={concept.name}
-              className={concept.unlocked ? 'concept-chip concept-chip-unlocked' : 'concept-chip'}
+        </section>
+      ) : (
+        <section className="next-mission next-mission-complete" aria-labelledby="next-mission-title">
+          <span className="mission-finish-icon" aria-hidden="true">
+            <Trophy className="size-8" />
+          </span>
+          <div className="next-mission-copy">
+            <p className="section-kicker section-kicker-light">Prossima missione</p>
+            <span className="mission-phase">Percorso completato</span>
+            <h2 id="next-mission-title">Ottimo lavoro!</h2>
+            <Button
+              type="button"
+              size="lg"
+              className="primary-cta"
+              onClick={onOpenLessons}
             >
-              <span className="concept-chip-icon" aria-hidden="true">
-                {concept.unlocked ? <Sparkles className="size-5" /> : <Lock className="size-4" />}
-              </span>
-              <span>
-                <strong>{concept.name}</strong>
-                <small>{concept.status}</small>
-              </span>
-            </article>
-          ))}
-        </div>
-      </section>
+              Rivedi le lezioni <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+            </Button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
