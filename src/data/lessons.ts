@@ -89,6 +89,31 @@ export const lessons = [
     demo: false,
   },
   {
+    id: 'costruzione-attira-uomo-libero',
+    titolo: 'Attira e trova l’uomo libero',
+    macroFase: 'possesso',
+    fase: 'costruzione',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Attiriamo la pressione, usiamo il terzo uomo e troviamo il compagno libero.',
+    puntiChiave: [
+      'Attira prima di giocare.',
+      'Usa il terzo uomo.',
+      'Cerca chi è rimasto libero.',
+    ],
+    variantiVideo: [
+      {
+        id: 'terzo-uomo-dx',
+        etichetta: 'Variante DX',
+        percorsoVideo: '/videos/terzo-uomo-dx.mp4',
+      },
+    ],
+    punti: 60,
+    disponibilita: 'disponibile',
+    concetti: ['Attrazione della pressione', 'Terzo uomo', 'Uomo libero'],
+    demo: false,
+  },
+  {
     id: 'demo-progressione-terzo-uomo',
     titolo: 'Avanzare con il terzo uomo',
     macroFase: 'possesso',
@@ -135,6 +160,36 @@ export const lessons = [
     disponibilita: 'prossimamente',
     concetti: ['Attacco dell’area'],
     demo: true,
+  },
+  {
+    id: 'pressione-alta-chiudi-centro-porta-fuori',
+    titolo: 'Chiudi il centro, porta fuori',
+    macroFase: 'non_possesso',
+    fase: 'pressione_alta',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Chiudiamo il centro e accompagniamo il gioco avversario verso un lato del campo.',
+    puntiChiave: [
+      'Prima proteggi il centro.',
+      'Orienta l’avversario verso la fascia.',
+      'Muoviamoci insieme per chiudere le soluzioni.',
+    ],
+    variantiVideo: [
+      {
+        id: 'pressione-alta-dx',
+        etichetta: 'Variante DX',
+        percorsoVideo: '/videos/pressing-alto-dx.mp4',
+      },
+      {
+        id: 'pressione-alta-sx',
+        etichetta: 'Variante SX',
+        percorsoVideo: '/videos/pressing-alto-sx.mp4',
+      },
+    ],
+    punti: 50,
+    disponibilita: 'disponibile',
+    concetti: ['Chiusura del centro', 'Orientamento verso la fascia', 'Pressione coordinata'],
+    demo: false,
   },
   {
     id: 'demo-pressione-alta-squadra-corta',
