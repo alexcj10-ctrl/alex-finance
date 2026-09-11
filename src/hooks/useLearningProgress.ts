@@ -4,46 +4,26 @@ import type { Lesson } from '../data/lessons';
 import {
   completeLessonProgress,
   getLessonProgressStatus,
-  learningProgressStorageKey,
-  parseLearningProgress,
   reconcileTrophyUnlocks,
   selectLearningSummary,
   startLessonProgress,
   type StoredLearningProgress,
 } from '../lib/learning-progress';
-
-function readStoredProgress(catalog: readonly Lesson[]) {
-  try {
-    return reconcileTrophyUnlocks(
-      parseLearningProgress(window.localStorage.getItem(learningProgressStorageKey)),
-      catalog,
-    );
-  } catch {
-    return parseLearningProgress(null);
-  }
-}
+import { localLearningProgressRepository } from '../services/learning-progress-repository';
 
 export function useLearningProgress(catalog: readonly Lesson[]) {
   const [progress, setProgress] = useState<StoredLearningProgress>(() =>
-    readStoredProgress(catalog),
+    reconcileTrophyUnlocks(localLearningProgressRepository.read(), catalog),
   );
 
   useEffect(() => {
-    try {
-      window.localStorage.setItem(learningProgressStorageKey, JSON.stringify(progress));
-    } catch {
-      // L'app continua a funzionare in memoria quando lo storage non è disponibile.
-    }
+    localLearningProgressRepository.write(progress);
   }, [progress]);
 
   useEffect(() => {
-    const syncAcrossTabs = (event: StorageEvent) => {
-      if (event.key !== learningProgressStorageKey) return;
-      setProgress(reconcileTrophyUnlocks(parseLearningProgress(event.newValue), catalog));
-    };
-
-    window.addEventListener('storage', syncAcrossTabs);
-    return () => window.removeEventListener('storage', syncAcrossTabs);
+    return localLearningProgressRepository.subscribe((nextProgress) => {
+      setProgress(reconcileTrophyUnlocks(nextProgress, catalog));
+    });
   }, [catalog]);
 
   const startLesson = useCallback((lessonId: string) => {

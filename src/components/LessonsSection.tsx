@@ -29,6 +29,7 @@ import {
   type MacroPhaseId,
   type PhaseId,
 } from '../data/lessons';
+import { useVideoProgressTracking } from '../hooks/useVideoProgressTracking';
 
 const statusLabels: Record<LessonProgressStatus, string> = {
   da_fare: 'Da fare',
@@ -72,6 +73,7 @@ function LessonVideo({
   const videoIsReady =
     lesson.disponibilita === 'disponibile' &&
     !failedVariantIds.has(selectedVariant.id);
+  const videoTracking = useVideoProgressTracking(lesson.id, selectedVariant.id);
 
   return (
     <div className="lesson-video-area">
@@ -83,7 +85,13 @@ function LessonVideo({
           playsInline
           preload="metadata"
           aria-label={`Video ${selectedVariant.etichetta} della lezione ${lesson.titolo}`}
-          onPlay={onStarted}
+          onPlay={(event) => {
+            onStarted();
+            videoTracking.onPlay(event.currentTarget);
+          }}
+          onTimeUpdate={(event) => videoTracking.onTimeUpdate(event.currentTarget)}
+          onEnded={(event) => videoTracking.onEnded(event.currentTarget)}
+          onSeeking={videoTracking.onSeeking}
           onError={() =>
             setFailedVariantIds((current) =>
               new Set(current).add(selectedVariant.id),

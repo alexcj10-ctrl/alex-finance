@@ -1,3 +1,5 @@
+import type { LessonQuiz } from '../types/quiz';
+
 export type MacroPhaseId = 'possesso' | 'non_possesso';
 
 export type PhaseId =
@@ -36,6 +38,7 @@ export type Lesson = {
   disponibilita: LessonAvailability;
   trofeoCollegato?: string;
   concetti: readonly string[];
+  quiz?: LessonQuiz;
   demo: boolean;
 };
 
