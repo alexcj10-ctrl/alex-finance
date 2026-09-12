@@ -977,12 +977,12 @@ security definer
 set search_path = ''
 as $$
 declare
-  player_id uuid := auth.uid();
+  current_player_id uuid := auth.uid();
   login_bucket text;
   result public.activity_events%rowtype;
 begin
-  if player_id is null
-     or not private.is_active_member_as(p_team_id, player_id, 'player') then
+  if current_player_id is null
+     or not private.is_active_member_as(p_team_id, current_player_id, 'player') then
     raise exception 'active player membership required' using errcode = '42501';
   end if;
 
@@ -991,7 +991,7 @@ begin
   insert into public.activity_events (
     team_id, player_id, event_type, metadata, dedupe_key
   ) values (
-    p_team_id, player_id, 'login', '{}'::jsonb, login_bucket
+    p_team_id, current_player_id, 'login', '{}'::jsonb, login_bucket
   )
   on conflict (team_id, player_id, dedupe_key)
     where dedupe_key is not null
@@ -1002,7 +1002,7 @@ begin
     select ae.* into result
     from public.activity_events ae
     where ae.team_id = p_team_id
-      and ae.player_id = player_id
+      and ae.player_id = current_player_id
       and ae.dedupe_key = login_bucket;
   end if;
 
@@ -1020,12 +1020,12 @@ security definer
 set search_path = ''
 as $$
 declare
-  player_id uuid := auth.uid();
+  current_player_id uuid := auth.uid();
   assignment_time timestamptz;
   result public.lesson_progress%rowtype;
 begin
-  if player_id is null
-     or not private.player_has_active_assignment(p_team_id, player_id, p_lesson_id) then
+  if current_player_id is null
+     or not private.player_has_active_assignment(p_team_id, current_player_id, p_lesson_id) then
     raise exception 'active lesson assignment required' using errcode = '42501';
   end if;
 
@@ -1041,19 +1041,19 @@ begin
   where la.team_id = p_team_id
     and la.lesson_id = p_lesson_id
     and la.active
-    and (la.player_id is null or la.player_id = player_id);
+    and (la.player_id is null or la.player_id = current_player_id);
 
   insert into public.lesson_progress (
     team_id, player_id, lesson_id, status, progress_percent, assigned_at
   ) values (
-    p_team_id, player_id, p_lesson_id, 'da_fare', 0, assignment_time
+    p_team_id, current_player_id, p_lesson_id, 'da_fare', 0, assignment_time
   )
   on conflict (team_id, player_id, lesson_id) do nothing;
 
   select lp.* into result
   from public.lesson_progress lp
   where lp.team_id = p_team_id
-    and lp.player_id = player_id
+    and lp.player_id = current_player_id
     and lp.lesson_id = p_lesson_id
   for update;
 
@@ -1061,7 +1061,7 @@ begin
     update public.lesson_progress lp
     set status = 'in_corso', progress_percent = greatest(lp.progress_percent, 1)
     where lp.team_id = p_team_id
-      and lp.player_id = player_id
+      and lp.player_id = current_player_id
       and lp.lesson_id = p_lesson_id
     returning lp.* into result;
 
@@ -1069,7 +1069,7 @@ begin
       team_id, player_id, lesson_id, event_type, metadata, dedupe_key
     ) values (
       p_team_id,
-      player_id,
+      current_player_id,
       p_lesson_id,
       'lesson_started',
       '{}'::jsonb,
@@ -1098,7 +1098,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  player_id uuid := auth.uid();
+  current_player_id uuid := auth.uid();
   event_name text;
   result public.video_progress%rowtype;
 begin
@@ -1123,7 +1123,7 @@ begin
     completed
   ) values (
     p_team_id,
-    player_id,
+    current_player_id,
     p_lesson_id,
     p_variant_id,
     p_watched_percent,
@@ -1150,7 +1150,7 @@ begin
         least(p_watched_percent, 99)
       )
   where lp.team_id = p_team_id
-    and lp.player_id = player_id
+    and lp.player_id = current_player_id
     and lp.lesson_id = p_lesson_id
     and lp.status = 'in_corso';
 
@@ -1166,7 +1166,7 @@ begin
     team_id, player_id, lesson_id, event_type, metadata, dedupe_key
   ) values (
     p_team_id,
-    player_id,
+    current_player_id,
     p_lesson_id,
     event_name,
     jsonb_build_object(
@@ -1193,7 +1193,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  player_id uuid := auth.uid();
+  current_player_id uuid := auth.uid();
   rule private.lesson_rules%rowtype;
   result public.lesson_progress%rowtype;
   best_video smallint;
@@ -1212,7 +1212,7 @@ begin
   select lp.* into result
   from public.lesson_progress lp
   where lp.team_id = p_team_id
-    and lp.player_id = player_id
+    and lp.player_id = current_player_id
     and lp.lesson_id = p_lesson_id
   for update;
 
@@ -1223,7 +1223,7 @@ begin
   select coalesce(max(vp.watched_percent), 0)::smallint into best_video
   from public.video_progress vp
   where vp.team_id = p_team_id
-    and vp.player_id = player_id
+    and vp.player_id = current_player_id
     and vp.lesson_id = p_lesson_id;
 
   if best_video < rule.minimum_video_percent then
@@ -1234,7 +1234,7 @@ begin
     select max(qa.score) into best_quiz
     from public.quiz_attempts qa
     where qa.team_id = p_team_id
-      and qa.player_id = player_id
+      and qa.player_id = current_player_id
       and qa.lesson_id = p_lesson_id;
 
     if best_quiz is null or best_quiz < rule.minimum_quiz_percent then
@@ -1250,7 +1250,7 @@ begin
         else lp.points_earned
       end
   where lp.team_id = p_team_id
-    and lp.player_id = player_id
+    and lp.player_id = current_player_id
     and lp.lesson_id = p_lesson_id
   returning lp.* into result;
 
@@ -1258,7 +1258,7 @@ begin
     team_id, player_id, lesson_id, event_type, metadata, dedupe_key
   ) values (
     p_team_id,
-    player_id,
+    current_player_id,
     p_lesson_id,
     'lesson_completed',
     jsonb_build_object('pointsEarned', result.points_earned),
@@ -1268,7 +1268,7 @@ begin
     where dedupe_key is not null
     do nothing;
 
-  perform private.award_player_trophies(p_team_id, player_id);
+  perform private.award_player_trophies(p_team_id, current_player_id);
 
   return result;
 end;
@@ -1286,7 +1286,7 @@ security definer
 set search_path = ''
 as $$
 declare
-  player_id uuid := auth.uid();
+  current_player_id uuid := auth.uid();
   result public.quiz_attempts%rowtype;
   question record;
   selected_choice text;
@@ -1303,8 +1303,8 @@ begin
     raise exception 'answers must be a JSON object' using errcode = '22023';
   end if;
 
-  if player_id is null
-     or not private.player_has_active_assignment(p_team_id, player_id, p_lesson_id) then
+  if current_player_id is null
+     or not private.player_has_active_assignment(p_team_id, current_player_id, p_lesson_id) then
     raise exception 'active lesson assignment required' using errcode = '42501';
   end if;
 
@@ -1312,7 +1312,7 @@ begin
     select qa.* into result
     from public.quiz_attempts qa
     where qa.team_id = p_team_id
-      and qa.player_id = player_id
+      and qa.player_id = current_player_id
       and qa.client_attempt_id = p_client_attempt_id;
 
     if found then
@@ -1411,7 +1411,7 @@ begin
   select coalesce(max(qa.attempt_number), 0) + 1 into next_attempt
   from public.quiz_attempts qa
   where qa.team_id = p_team_id
-    and qa.player_id = player_id
+    and qa.player_id = current_player_id
     and qa.lesson_id = p_lesson_id;
 
   insert into public.quiz_attempts (
@@ -1425,7 +1425,7 @@ begin
     points_earned
   ) values (
     p_team_id,
-    player_id,
+    current_player_id,
     p_lesson_id,
     total_count,
     correct_count,
@@ -1467,7 +1467,7 @@ begin
     ) values (
       result.id,
       p_team_id,
-      player_id,
+      current_player_id,
       p_lesson_id,
       question.id,
       selected_choice,
@@ -1479,7 +1479,7 @@ begin
   update public.lesson_progress lp
   set progress_percent = greatest(lp.progress_percent, 99)
   where lp.team_id = p_team_id
-    and lp.player_id = player_id
+    and lp.player_id = current_player_id
     and lp.lesson_id = p_lesson_id
     and lp.status = 'in_corso';
 
@@ -1487,7 +1487,7 @@ begin
     team_id, player_id, lesson_id, event_type, metadata, dedupe_key
   ) values (
     p_team_id,
-    player_id,
+    current_player_id,
     p_lesson_id,
     'quiz_completed',
     jsonb_build_object(
@@ -1514,7 +1514,7 @@ exception
       select qa.* into result
       from public.quiz_attempts qa
       where qa.team_id = p_team_id
-        and qa.player_id = player_id
+        and qa.player_id = current_player_id
         and qa.client_attempt_id = p_client_attempt_id;
 
       if found then
@@ -1560,11 +1560,11 @@ security definer
 set search_path = ''
 as $$
 declare
-  player_id uuid := auth.uid();
+  current_player_id uuid := auth.uid();
   lesson_item jsonb;
   video_item jsonb;
-  lesson_id text;
-  variant_id text;
+  current_lesson_id text;
+  current_variant_id text;
   watched_percent smallint;
   checkpoint smallint;
   last_position numeric;
@@ -1574,8 +1574,8 @@ declare
   skipped integer := 0;
   imported_at timestamptz;
 begin
-  if player_id is null
-     or not private.is_active_member_as(p_team_id, player_id, 'player') then
+  if current_player_id is null
+     or not private.is_active_member_as(p_team_id, current_player_id, 'player') then
     raise exception 'active player membership required' using errcode = '42501';
   end if;
 
@@ -1589,7 +1589,7 @@ begin
 
   select p.local_progress_imported_at into imported_at
   from public.profiles p
-  where p.id = player_id
+  where p.id = current_player_id
   for update;
 
   if imported_at is not null then
@@ -1605,19 +1605,19 @@ begin
 
   for lesson_item in select value from jsonb_array_elements(p_lessons)
   loop
-    lesson_id := lesson_item ->> 'lessonId';
+    current_lesson_id := lesson_item ->> 'lessonId';
     if jsonb_typeof(lesson_item) <> 'object'
-       or lesson_id is null
-       or not private.player_has_active_assignment(p_team_id, player_id, lesson_id)
+       or current_lesson_id is null
+       or not private.player_has_active_assignment(p_team_id, current_player_id, current_lesson_id)
        or not exists (
          select 1 from private.lesson_rules lr
-         where lr.lesson_id = lesson_id and lr.active
+         where lr.lesson_id = current_lesson_id and lr.active
        ) then
       skipped := skipped + 1;
       continue;
     end if;
 
-    perform public.start_lesson(p_team_id, lesson_id);
+    perform public.start_lesson(p_team_id, current_lesson_id);
     lessons_started := lessons_started + 1;
   end loop;
 
@@ -1628,8 +1628,8 @@ begin
       continue;
     end if;
 
-    lesson_id := video_item ->> 'lessonId';
-    variant_id := video_item ->> 'variantId';
+    current_lesson_id := video_item ->> 'lessonId';
+    current_variant_id := video_item ->> 'variantId';
 
     begin
       watched_percent := (video_item ->> 'watchedPercent')::smallint;
@@ -1639,14 +1639,14 @@ begin
       continue;
     end;
 
-    if lesson_id is null
-       or variant_id is null
+    if current_lesson_id is null
+       or current_variant_id is null
        or watched_percent not between 0 and 100
        or last_position not between 0 and 86400
-       or not private.player_has_active_assignment(p_team_id, player_id, lesson_id)
+       or not private.player_has_active_assignment(p_team_id, current_player_id, current_lesson_id)
        or not exists (
          select 1 from private.lesson_rules lr
-         where lr.lesson_id = lesson_id and lr.active
+         where lr.lesson_id = current_lesson_id and lr.active
        ) then
       skipped := skipped + 1;
       continue;
@@ -1665,8 +1665,8 @@ begin
 
     perform public.record_video_checkpoint(
       p_team_id,
-      lesson_id,
-      variant_id,
+      current_lesson_id,
+      current_variant_id,
       checkpoint,
       watched_percent,
       last_position
@@ -1676,16 +1676,16 @@ begin
 
   for lesson_item in select value from jsonb_array_elements(p_lessons)
   loop
-    lesson_id := lesson_item ->> 'lessonId';
+    current_lesson_id := lesson_item ->> 'lessonId';
     if jsonb_typeof(lesson_item) <> 'object'
-       or lesson_id is null
+       or current_lesson_id is null
        or nullif(lesson_item ->> 'completedAt', '') is null
-       or not private.player_has_active_assignment(p_team_id, player_id, lesson_id) then
+       or not private.player_has_active_assignment(p_team_id, current_player_id, current_lesson_id) then
       continue;
     end if;
 
     begin
-      perform public.complete_lesson(p_team_id, lesson_id);
+      perform public.complete_lesson(p_team_id, current_lesson_id);
       lessons_completed := lessons_completed + 1;
     exception when invalid_parameter_value then
       skipped := skipped + 1;
@@ -1694,7 +1694,7 @@ begin
 
   update public.profiles p
   set local_progress_imported_at = now()
-  where p.id = player_id
+  where p.id = current_player_id
   returning p.local_progress_imported_at into imported_at;
 
   return jsonb_build_object(

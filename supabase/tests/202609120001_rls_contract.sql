@@ -2,7 +2,7 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select extensions.plan(17);
+select extensions.plan(18);
 
 insert into auth.users (
   id,
@@ -186,8 +186,8 @@ select extensions.lives_ok(
     '30000000-0000-4000-8000-000000000001',
     'costruzione-creare-ampiezza',
     'variante-a',
-    100,
-    100,
+    100::smallint,
+    100::smallint,
     42.5
   )$$,
   'assigned player can record their own completed video checkpoint'
