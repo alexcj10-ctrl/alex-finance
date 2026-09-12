@@ -3,7 +3,6 @@ import type { MouseEvent } from 'react';
 import { ArrowLeft, LoaderCircle } from 'lucide-react';
 
 import type { CoachRepository } from '../services/coach-repository';
-import { mockCoachRepository } from '../services/mock-coach-repository';
 import { CoachShell } from './components/CoachShell';
 import { useCoachData } from './hooks/useCoachData';
 import { CoachLessonsPage } from './pages/CoachLessonsPage';
@@ -21,9 +20,11 @@ function handleOverview(event: MouseEvent<HTMLAnchorElement>) {
 }
 
 export function CoachApp({
-  repository = mockCoachRepository,
+  repository,
+  onLogout,
 }: {
-  repository?: CoachRepository;
+  repository: CoachRepository;
+  onLogout: () => Promise<void>;
 }) {
   const route = useCoachRoute();
   const data = useCoachData(repository);
@@ -55,7 +56,7 @@ export function CoachApp({
       page = <CoachOverviewPage model={model} />;
       break;
     case 'players':
-      page = <CoachPlayersPage model={model} />;
+      page = <CoachPlayersPage model={model} onDataChanged={data.refresh} />;
       break;
     case 'player': {
       const detail = model.getPlayerDetail(route.playerId);
@@ -81,7 +82,7 @@ export function CoachApp({
       break;
     }
     case 'lessons':
-      page = <CoachLessonsPage model={model} />;
+      page = <CoachLessonsPage model={model} onDataChanged={data.refresh} />;
       break;
     case 'results':
       page = <CoachResultsPage model={model} />;
@@ -101,7 +102,12 @@ export function CoachApp({
   }
 
   return (
-    <CoachShell route={route} team={model.team} coachName={model.coachName}>
+    <CoachShell
+      route={route}
+      team={model.team}
+      coachName={model.coachName}
+      onLogout={onLogout}
+    >
       {page}
     </CoachShell>
   );

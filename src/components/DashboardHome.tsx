@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 import {
+  macroPhaseLabels,
   phaseLabels,
   type Lesson,
   type LessonProgressStatus,
@@ -138,7 +139,7 @@ export function DashboardHome({
             </span>
             <span>
               <small>Fase</small>
-              <strong>Con palla</strong>
+              <strong>{missionLesson ? macroPhaseLabels[missionLesson.macroFase] : 'In attesa'}</strong>
             </span>
           </article>
           <article className="focus-card focus-card-build">
@@ -147,7 +148,7 @@ export function DashboardHome({
             </span>
             <span>
               <small>Concetto</small>
-              <strong>Ampiezza</strong>
+              <strong>{missionLesson?.concetti[0] ?? 'Da assegnare'}</strong>
             </span>
           </article>
         </div>
@@ -165,6 +166,13 @@ export function DashboardHome({
         </header>
 
         <div className="recent-lessons">
+          {recentLessons.length === 0 ? (
+            <div className="lessons-empty-state">
+              <BookOpenCheck className="size-5" aria-hidden="true" />
+              <strong>Nessuna lezione assegnata</strong>
+              <span>Il coach sta preparando il tuo prossimo allenamento.</span>
+            </div>
+          ) : null}
           {recentLessons.map((lesson) => {
             const status = getLessonStatus(lesson.id);
             const isCompleted = status === 'completata';
@@ -231,7 +239,7 @@ export function DashboardHome({
             </Button>
           </div>
         </section>
-      ) : (
+      ) : summary.availableLessonCount > 0 ? (
         <section className="next-mission next-mission-complete" aria-labelledby="next-mission-title">
           <span className="mission-finish-icon" aria-hidden="true">
             <Trophy className="size-8" />
@@ -248,6 +256,17 @@ export function DashboardHome({
             >
               Rivedi le lezioni <ArrowRight className="ml-auto size-5" aria-hidden="true" />
             </Button>
+          </div>
+        </section>
+      ) : (
+        <section className="next-mission next-mission-complete" aria-labelledby="next-mission-title">
+          <span className="mission-finish-icon" aria-hidden="true">
+            <Target className="size-8" />
+          </span>
+          <div className="next-mission-copy">
+            <p className="section-kicker section-kicker-light">Prossima missione</p>
+            <span className="mission-phase">In preparazione</span>
+            <h2 id="next-mission-title">Aspetta l’assegnazione del coach</h2>
           </div>
         </section>
       )}

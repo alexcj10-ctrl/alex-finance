@@ -1,6 +1,6 @@
 /* oxlint-disable jsx-a11y/media-has-caption */
 /* Le tracce sottotitoli sono opzionali e appaiono solo quando configurate. */
-import { useState, type ComponentType } from 'react';
+import { useMemo, useState, type ComponentType } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -30,6 +30,12 @@ import {
   type PhaseId,
 } from '../data/lessons';
 import { useVideoProgressTracking } from '../hooks/useVideoProgressTracking';
+import type { VideoProgressRepository } from '../services/video-progress-repository';
+import type {
+  StoredVideoProgress,
+  VideoProgressCheckpointInput,
+} from '../types/video-progress';
+import { LessonQuiz } from './LessonQuiz';
 
 const statusLabels: Record<LessonProgressStatus, string> = {
   da_fare: 'Da fare',
@@ -57,9 +63,15 @@ const phaseIcons: Record<PhaseId, ComponentType<{ className?: string }>> = {
 function LessonVideo({
   lesson,
   onStarted,
+  getVideoProgress,
+  onVideoCheckpoint,
+  onSyncError,
 }: {
   lesson: Lesson;
-  onStarted: () => void;
+  onStarted: () => Promise<void>;
+  getVideoProgress: (lessonId: string, variantId: string) => StoredVideoProgress | undefined;
+  onVideoCheckpoint: (input: VideoProgressCheckpointInput) => Promise<StoredVideoProgress>;
+  onSyncError: (message: string) => void;
 }) {
   const [selectedVariantId, setSelectedVariantId] = useState(
     lesson.variantiVideo[0].id,
@@ -73,7 +85,17 @@ function LessonVideo({
   const videoIsReady =
     lesson.disponibilita === 'disponibile' &&
     !failedVariantIds.has(selectedVariant.id);
-  const videoTracking = useVideoProgressTracking(lesson.id, selectedVariant.id);
+  const repository = useMemo<VideoProgressRepository>(() => ({
+    get: getVideoProgress,
+    recordCheckpoint: onVideoCheckpoint,
+  }), [getVideoProgress, onVideoCheckpoint]);
+  const videoProgress = getVideoProgress(lesson.id, selectedVariant.id);
+  const videoTracking = useVideoProgressTracking(
+    lesson.id,
+    selectedVariant.id,
+    repository,
+    onSyncError,
+  );
 
   return (
     <div className="lesson-video-area">
@@ -86,7 +108,7 @@ function LessonVideo({
           preload="metadata"
           aria-label={`Video ${selectedVariant.etichetta} della lezione ${lesson.titolo}`}
           onPlay={(event) => {
-            onStarted();
+            void onStarted().catch(() => undefined);
             videoTracking.onPlay(event.currentTarget);
           }}
           onTimeUpdate={(event) => videoTracking.onTimeUpdate(event.currentTarget)}
@@ -119,6 +141,12 @@ function LessonVideo({
         </output>
       )}
 
+      {videoProgress ? (
+        <p className="video-sync-status" aria-live="polite">
+          Video sincronizzato: <strong>{videoProgress.watchedPercent}%</strong>
+        </p>
+      ) : null}
+
       {lesson.variantiVideo.length > 1 ? (
         <fieldset className="variant-picker">
           <legend>Due modi, stessa idea</legend>
@@ -149,16 +177,26 @@ type LessonsSectionProps = {
   lessons: readonly Lesson[];
   initialLessonId?: string;
   getLessonStatus: (lessonId: string) => LessonProgressStatus;
-  onLessonStarted: (lessonId: string) => void;
-  onCompleteLesson: (lessonId: string) => void;
+  getVideoProgress: (lessonId: string, variantId: string) => StoredVideoProgress | undefined;
+  onVideoCheckpoint: (input: VideoProgressCheckpointInput) => Promise<StoredVideoProgress>;
+  onLessonStarted: (lessonId: string) => Promise<void>;
+  onCompleteLesson: (lessonId: string) => Promise<void>;
+  onQuizSubmitted: () => Promise<void>;
+  teamId: string;
+  actionError?: string;
 };
 
 export function LessonsSection({
   lessons,
   initialLessonId,
   getLessonStatus,
+  getVideoProgress,
+  onVideoCheckpoint,
   onLessonStarted,
   onCompleteLesson,
+  onQuizSubmitted,
+  teamId,
+  actionError,
 }: LessonsSectionProps) {
   const initialLesson = lessons.find((lesson) => lesson.id === initialLessonId);
   const [activeMacro, setActiveMacro] = useState<MacroPhaseId>(
@@ -170,6 +208,7 @@ export function LessonsSection({
   const [selectedLessonId, setSelectedLessonId] = useState<string | null>(
     initialLesson?.id ?? null,
   );
+  const [completing, setCompleting] = useState(false);
   const selectedLesson = lessons.find((lesson) => lesson.id === selectedLessonId);
   const phaseLessons = lessons.filter((lesson) => lesson.fase === activePhase);
 
@@ -228,6 +267,9 @@ export function LessonsSection({
             key={selectedLesson.id}
             lesson={selectedLesson}
             onStarted={() => onLessonStarted(selectedLesson.id)}
+            getVideoProgress={getVideoProgress}
+            onVideoCheckpoint={onVideoCheckpoint}
+            onSyncError={() => undefined}
           />
 
           <section className="remember-card" aria-labelledby="remember-title">
@@ -247,6 +289,16 @@ export function LessonsSection({
             </ol>
           </section>
 
+          <LessonQuiz
+            lessonId={selectedLesson.id}
+            teamId={teamId}
+            onSubmitted={onQuizSubmitted}
+          />
+
+          {actionError ? (
+            <p className="lesson-action-error" role="alert">{actionError}</p>
+          ) : null}
+
           <footer className="lesson-completion">
             <div className="lesson-points">
               <span aria-hidden="true">
@@ -262,12 +314,19 @@ export function LessonsSection({
               type="button"
               size="lg"
               className={cn('complete-button', isCompleted && 'complete-button-done')}
-              disabled={!isAvailable || isCompleted}
-              onClick={() => onCompleteLesson(selectedLesson.id)}
+              disabled={!isAvailable || isCompleted || completing}
+              onClick={() => {
+                setCompleting(true);
+                void onCompleteLesson(selectedLesson.id).finally(() => setCompleting(false));
+              }}
             >
               {isCompleted ? (
                 <>
                   <CheckCircle2 className="size-5" aria-hidden="true" /> Completata
+                </>
+              ) : completing ? (
+                <>
+                  <Clock3 className="size-5" aria-hidden="true" /> Sincronizzazione…
                 </>
               ) : isAvailable ? (
                 <>
@@ -349,6 +408,13 @@ export function LessonsSection({
         </header>
 
         <div className="lesson-list">
+          {phaseLessons.length === 0 ? (
+            <div className="lessons-empty-state">
+              <Lock className="size-5" aria-hidden="true" />
+              <strong>Nessuna lezione assegnata in questa fase</strong>
+              <span>Il coach aggiungerà qui il prossimo contenuto.</span>
+            </div>
+          ) : null}
           {phaseLessons.map((lesson) => {
             const status = getLessonStatus(lesson.id);
             const isCompleted = status === 'completata';

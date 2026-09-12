@@ -17,7 +17,9 @@ const checkpointOrder: readonly VideoProgressCheckpoint[] = [
 
 export type VideoProgressRepository = {
   get: (lessonId: string, variantId: string) => StoredVideoProgress | undefined;
-  recordCheckpoint: (input: VideoProgressCheckpointInput) => StoredVideoProgress;
+  recordCheckpoint: (
+    input: VideoProgressCheckpointInput,
+  ) => StoredVideoProgress | Promise<StoredVideoProgress>;
 };
 
 function recordKey(lessonId: string, variantId: string) {

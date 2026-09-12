@@ -11,7 +11,7 @@ export type StoredLessonProgress = {
 
 export type StoredLearningProgress = {
   schemaVersion: 1;
-  ownerId: 'local-device';
+  ownerId: string;
   lessonProgress: Record<string, StoredLessonProgress>;
   trophyUnlocks: Record<string, { unlockedAt: string }>;
   updatedAt: string;

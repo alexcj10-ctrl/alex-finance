@@ -1,8 +1,9 @@
 /* oxlint-disable next/no-img-element -- Vite app: the official local crest is served as a static asset. */
 import { useState, type ComponentType } from 'react';
-import { BookOpen, CircleDot, Home, Trophy } from 'lucide-react';
+import { BookOpen, CircleDot, Home, LoaderCircle, LogOut, Trophy } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
+import type { AuthIdentity } from './auth/auth-types';
 import { DashboardHome } from './components/DashboardHome';
 import { LessonsSection } from './components/LessonsSection';
 import { TrophiesSection } from './components/TrophiesSection';
@@ -23,11 +24,17 @@ const navigationItems: readonly NavigationItem[] = [
   { id: 'trofei', label: 'Trofei', icon: Trophy },
 ];
 
-export default function App() {
+export default function App({
+  identity,
+  onLogout,
+}: {
+  identity: AuthIdentity;
+  onLogout: () => Promise<void>;
+}) {
   const [activeView, setActiveView] = useState<AppView>('home');
   const [focusedLessonId, setFocusedLessonId] = useState<string | undefined>();
-  const progress = useLearningProgress(lessons);
-  const missionLesson = lessons.find(
+  const progress = useLearningProgress(lessons, identity);
+  const missionLesson = progress.assignedLessons.find(
     (lesson) => lesson.id === progress.summary.nextLessonId,
   );
 
@@ -84,13 +91,29 @@ export default function App() {
           <span className="sport-badge">
             <CircleDot className="size-4" aria-hidden="true" /> 1-3-2-3
           </span>
+          <button
+            type="button"
+            className="player-logout-button"
+            onClick={() => void onLogout()}
+            aria-label={`Esci dall’account di ${identity.displayName}`}
+          >
+            <span>{identity.displayName}</span>
+            <LogOut className="size-4" aria-hidden="true" />
+          </button>
         </div>
       </header>
 
       <main id="main-content" className="app-main page-width" tabIndex={-1}>
-        {activeView === 'home' ? (
+        {progress.loading ? (
+          <output className="player-loading-state" aria-live="polite">
+            <LoaderCircle className="size-6 auth-spinner" aria-hidden="true" />
+            <strong>Prepariamo il tuo percorso…</strong>
+          </output>
+        ) : null}
+
+        {!progress.loading && activeView === 'home' ? (
           <DashboardHome
-            lessons={lessons}
+            lessons={progress.assignedLessons}
             missionLesson={missionLesson}
             summary={progress.summary}
             getLessonStatus={progress.getLessonStatus}
@@ -100,18 +123,23 @@ export default function App() {
           />
         ) : null}
 
-        {activeView === 'lezioni' ? (
+        {!progress.loading && activeView === 'lezioni' ? (
           <LessonsSection
             key={focusedLessonId ?? 'lesson-hub'}
-            lessons={lessons}
+            lessons={progress.assignedLessons}
             initialLessonId={focusedLessonId}
             getLessonStatus={progress.getLessonStatus}
+            getVideoProgress={progress.getVideoProgress}
+            onVideoCheckpoint={progress.recordVideoCheckpoint}
             onLessonStarted={progress.startLesson}
             onCompleteLesson={progress.completeLesson}
+            onQuizSubmitted={progress.refresh}
+            teamId={identity.teamId}
+            actionError={progress.error}
           />
         ) : null}
 
-        {activeView === 'trofei' ? (
+        {!progress.loading && activeView === 'trofei' ? (
           <TrophiesSection progress={progress.progress} summary={progress.summary} />
         ) : null}
       </main>

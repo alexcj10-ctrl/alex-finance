@@ -10,6 +10,7 @@ type CoachDataState =
 
 export function useCoachData(repository: CoachRepository) {
   const [state, setState] = useState<CoachDataState>({ status: 'loading' });
+  const [revision, setRevision] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -30,7 +31,10 @@ export function useCoachData(repository: CoachRepository) {
     return () => {
       cancelled = true;
     };
-  }, [repository]);
+  }, [repository, revision]);
 
-  return state;
+  return {
+    ...state,
+    refresh: () => setRevision((current) => current + 1),
+  };
 }

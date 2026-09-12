@@ -1,4 +1,4 @@
-import { AlertTriangle, BarChart3, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -27,7 +27,7 @@ function ResultRows({ attempts }: { attempts: readonly CoachQuizAttemptView[] })
     return (
       <div className="coach-empty-state">
         <strong>Nessun tentativo registrato</strong>
-        <span>I risultati compariranno qui quando i quiz saranno attivi.</span>
+        <span>I risultati compariranno qui dopo il primo quiz completato.</span>
       </div>
     );
   }
@@ -83,7 +83,7 @@ export function CoachResultsPage({ model }: { model: CoachReadModel }) {
       <CoachPageHeader
         eyebrow="Fondazione quiz"
         title="Risultati"
-        description="Una base pronta per leggere punteggi e tentativi, senza introdurre ancora questionari reali."
+        description="Tentativi e punteggi sincronizzati dai quiz completati dai giocatori."
         action={model.source === 'mock' ? <DemoDataBadge /> : undefined}
       />
 
@@ -98,14 +98,6 @@ export function CoachResultsPage({ model }: { model: CoachReadModel }) {
           <CardContent><span>Risultati sotto 60%</span><strong>{lowResults}</strong></CardContent>
         </Card>
       </div>
-
-      <aside className="coach-foundation-note">
-        <BarChart3 className="size-5" aria-hidden="true" />
-        <div>
-          <strong>Struttura pronta, quiz reali non ancora attivi</strong>
-          <span>I valori mostrati servono esclusivamente a validare la lettura Coach.</span>
-        </div>
-      </aside>
 
       <section className="coach-list-panel" aria-labelledby="results-list-title">
         <header className="coach-list-toolbar">

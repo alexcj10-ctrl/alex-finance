@@ -11,7 +11,7 @@
     "build": "tsc --noEmit && vite build",
     "start": "vite preview --host 0.0.0.0",
     "preview": "vite preview",
-    "lint": "oxlint src components/ui/button.tsx components/ui/card.tsx lib vite.config.ts",
+    "lint": "oxlint src api components/ui/button.tsx components/ui/card.tsx lib vite.config.ts",
     "format": "oxfmt"
   },
   "dependencies": {

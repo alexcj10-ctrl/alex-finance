@@ -21,6 +21,7 @@
     }
   },
   "include": [
+    "api",
     "src",
     "components/ui/button.tsx",
     "components/ui/card.tsx",

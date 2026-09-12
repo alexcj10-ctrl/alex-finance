@@ -1,56 +1,174 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import type { AuthIdentity } from '../auth/auth-types';
 import type { Lesson } from '../data/lessons';
 import {
-  completeLessonProgress,
+  createInitialLearningProgress,
   getLessonProgressStatus,
-  reconcileTrophyUnlocks,
   selectLearningSummary,
-  startLessonProgress,
-  type StoredLearningProgress,
 } from '../lib/learning-progress';
-import { localLearningProgressRepository } from '../services/learning-progress-repository';
+import {
+  completePlayerLesson,
+  loadPlayerLearningSnapshot,
+  recordPlayerLogin,
+  recordPlayerVideoCheckpoint,
+  startPlayerLesson,
+  type PlayerLearningSnapshot,
+} from '../services/supabase/supabase-player-repository';
+import type { VideoProgressCheckpointInput } from '../types/video-progress';
 
-export function useLearningProgress(catalog: readonly Lesson[]) {
-  const [progress, setProgress] = useState<StoredLearningProgress>(() =>
-    reconcileTrophyUnlocks(localLearningProgressRepository.read(), catalog),
-  );
+const emptySnapshot: PlayerLearningSnapshot = {
+  progress: createInitialLearningProgress(),
+  assignedLessonIds: [],
+  videos: [],
+};
 
-  useEffect(() => {
-    localLearningProgressRepository.write(progress);
-  }, [progress]);
+export function useLearningProgress(
+  catalog: readonly Lesson[],
+  identity: AuthIdentity,
+) {
+  const [snapshot, setSnapshot] = useState<PlayerLearningSnapshot>(emptySnapshot);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string>();
+  const mountedRef = useRef(true);
 
-  useEffect(() => {
-    return localLearningProgressRepository.subscribe((nextProgress) => {
-      setProgress(reconcileTrophyUnlocks(nextProgress, catalog));
-    });
-  }, [catalog]);
-
-  const startLesson = useCallback((lessonId: string) => {
-    setProgress((current) => startLessonProgress(current, lessonId));
+  useEffect(() => () => {
+    mountedRef.current = false;
   }, []);
 
-  const completeLesson = useCallback(
-    (lessonId: string) => {
-      setProgress((current) => completeLessonProgress(current, lessonId, catalog));
-    },
-    [catalog],
-  );
+  const refresh = useCallback(async () => {
+    try {
+      const next = await loadPlayerLearningSnapshot(identity);
+      if (!mountedRef.current) return;
+      setSnapshot(next);
+      setError(undefined);
+    } catch (loadError) {
+      if (!mountedRef.current) return;
+      setError(
+        loadError instanceof Error
+          ? loadError.message
+          : 'Impossibile caricare il tuo percorso.',
+      );
+    } finally {
+      if (mountedRef.current) setLoading(false);
+    }
+  }, [identity]);
 
+  useEffect(() => {
+    void loadPlayerLearningSnapshot(identity).then(
+      (next) => {
+        if (!mountedRef.current) return;
+        setSnapshot(next);
+        setError(undefined);
+        setLoading(false);
+      },
+      (loadError: unknown) => {
+        if (!mountedRef.current) return;
+        setError(
+          loadError instanceof Error
+            ? loadError.message
+            : 'Impossibile caricare il tuo percorso.',
+        );
+        setLoading(false);
+      },
+    );
+    void recordPlayerLogin(identity).catch(() => {
+      // Il riepilogo resta utilizzabile se la telemetria di accesso non parte.
+    });
+  }, [identity]);
+
+  const startLesson = useCallback(async (lessonId: string) => {
+    setError(undefined);
+    try {
+      await startPlayerLesson(identity, lessonId);
+      await refresh();
+    } catch (mutationError) {
+      setError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Non siamo riusciti ad avviare la lezione.',
+      );
+      throw mutationError;
+    }
+  }, [identity, refresh]);
+
+  const completeLesson = useCallback(async (lessonId: string) => {
+    setError(undefined);
+    try {
+      await completePlayerLesson(identity, lessonId);
+      await refresh();
+    } catch (mutationError) {
+      setError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Non siamo riusciti a completare la lezione.',
+      );
+      throw mutationError;
+    }
+  }, [identity, refresh]);
+
+  const recordVideoCheckpoint = useCallback(async (
+    input: VideoProgressCheckpointInput,
+  ) => {
+    setError(undefined);
+    try {
+      const record = await recordPlayerVideoCheckpoint(identity, input);
+      if (mountedRef.current) {
+        setSnapshot((current) => ({
+          ...current,
+          videos: [
+            ...current.videos.filter(
+              (video) =>
+                video.lessonId !== record.lessonId || video.variantId !== record.variantId,
+            ),
+            record,
+          ],
+        }));
+      }
+      return record;
+    } catch (mutationError) {
+      setError(
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Non siamo riusciti a sincronizzare il video.',
+      );
+      throw mutationError;
+    }
+  }, [identity]);
+
+  const assignedIds = useMemo(
+    () => new Set(snapshot.assignedLessonIds),
+    [snapshot.assignedLessonIds],
+  );
+  const assignedLessons = useMemo(
+    () => catalog.filter((lesson) => assignedIds.has(lesson.id)),
+    [assignedIds, catalog],
+  );
   const getLessonStatus = useCallback(
-    (lessonId: string) => getLessonProgressStatus(progress, lessonId),
-    [progress],
+    (lessonId: string) => getLessonProgressStatus(snapshot.progress, lessonId),
+    [snapshot.progress],
   );
-
+  const getVideoProgress = useCallback(
+    (lessonId: string, variantId: string) => snapshot.videos.find(
+      (video) => video.lessonId === lessonId && video.variantId === variantId,
+    ),
+    [snapshot.videos],
+  );
   const summary = useMemo(
-    () => selectLearningSummary(progress, catalog),
-    [catalog, progress],
+    () => selectLearningSummary(snapshot.progress, assignedLessons),
+    [assignedLessons, snapshot.progress],
   );
 
   return {
-    progress,
+    progress: snapshot.progress,
+    assignedLessons,
     summary,
+    loading,
+    error,
     getLessonStatus,
+    getVideoProgress,
+    recordVideoCheckpoint,
+    refresh,
     startLesson,
     completeLesson,
   };

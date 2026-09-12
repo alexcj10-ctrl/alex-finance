@@ -1,6 +1,6 @@
 /* oxlint-disable next/no-img-element, next/no-html-link-for-pages -- App Vite con routing History API. */
 import type { MouseEvent, ReactNode } from 'react';
-import { BarChart3, BookOpen, LayoutDashboard, Users } from 'lucide-react';
+import { BarChart3, BookOpen, LayoutDashboard, LogOut, Users } from 'lucide-react';
 
 import type { CoachTeamRecord } from '../../types/coach';
 import { navigateCoach, type CoachRoute } from '../routes';
@@ -28,11 +28,13 @@ export function CoachShell({
   route,
   team,
   coachName,
+  onLogout,
   children,
 }: {
   route: CoachRoute;
   team: CoachTeamRecord;
   coachName: string;
+  onLogout: () => Promise<void>;
   children: ReactNode;
 }) {
   const activeId = activeNavigationId(route);
@@ -97,6 +99,15 @@ export function CoachShell({
               <strong>{coachName}</strong>
               <small>Allenatore</small>
             </span>
+            <button
+              type="button"
+              className="coach-logout-button"
+              onClick={() => void onLogout()}
+              aria-label="Esci dall’Area Coach"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+              <span>Esci</span>
+            </button>
           </div>
         </aside>
 
@@ -109,6 +120,14 @@ export function CoachShell({
               <strong>ESORDIENTI ANALYST</strong>
               <small>Area Coach</small>
             </span>
+            <button
+              type="button"
+              className="coach-logout-button"
+              onClick={() => void onLogout()}
+              aria-label="Esci dall’Area Coach"
+            >
+              <LogOut className="size-4" aria-hidden="true" />
+            </button>
           </header>
 
           <main id="coach-main" className="coach-main" tabIndex={-1}>

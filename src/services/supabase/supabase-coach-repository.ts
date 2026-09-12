@@ -145,7 +145,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
   const [coachResult, teamResult, coachMembershipResult] = await Promise.all([
     client
       .from('profiles')
-      .select('id, display_name, role, avatar_path, created_at')
+      .select('*')
       .eq('id', coachId)
       .maybeSingle(),
     client
@@ -188,7 +188,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
   const [profilesResult, progressResult, videosResult, quizzesResult, trophiesResult, activitiesResult] = await Promise.all([
     client
       .from('profiles')
-      .select('id, display_name, role, avatar_path, created_at')
+      .select('*')
       .in('id', profileIds),
     client
       .from('lesson_progress')
@@ -200,7 +200,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
       .eq('team_id', teamId),
     client
       .from('quiz_attempts')
-      .select('id, team_id, player_id, lesson_id, score, total_questions, correct_answers, completed_at')
+      .select('*')
       .eq('team_id', teamId),
     client
       .from('player_trophies')
@@ -208,7 +208,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
       .eq('team_id', teamId),
     client
       .from('activity_events')
-      .select('id, team_id, player_id, lesson_id, event_type, metadata, created_at')
+      .select('*')
       .eq('team_id', teamId)
       .order('created_at', { ascending: false }),
   ]);

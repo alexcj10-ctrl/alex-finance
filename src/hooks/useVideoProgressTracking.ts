@@ -12,6 +12,7 @@ export function useVideoProgressTracking(
   lessonId: string,
   variantId: string,
   repository: VideoProgressRepository = localVideoProgressRepository,
+  onSyncError?: (message: string) => void,
 ) {
   const reachedRef = useRef<Set<VideoProgressCheckpoint>>(new Set());
   const activeKeyRef = useRef('');
@@ -64,7 +65,7 @@ export function useVideoProgressTracking(
 
       reachedRef.current.add(checkpoint);
       const playback = readPlayback(video);
-      repository.recordCheckpoint({
+      const write = repository.recordCheckpoint({
         lessonId,
         variantId,
         checkpoint,
@@ -72,8 +73,19 @@ export function useVideoProgressTracking(
         lastPositionSeconds: playback.position,
       });
       storedPercentRef.current = checkpoint === 100 ? 100 : playback.watchedPercent;
+
+      if (write instanceof Promise) {
+        void write.catch((error: unknown) => {
+          reachedRef.current.delete(checkpoint);
+          onSyncError?.(
+            error instanceof Error
+              ? error.message
+              : 'Non siamo riusciti a sincronizzare il video.',
+          );
+        });
+      }
     },
-    [ensureActiveVariant, lessonId, readPlayback, repository, variantId],
+    [ensureActiveVariant, lessonId, onSyncError, readPlayback, repository, variantId],
   );
 
   const onPlay = useCallback(
