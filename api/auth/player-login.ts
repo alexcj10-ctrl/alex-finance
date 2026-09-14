@@ -79,7 +79,7 @@ async function handlePost(request: Request) {
   });
 }
 
-export default async function handler(request: Request) {
+export async function POST(request: Request) {
   try {
     assertPost(request);
     return await handlePost(request);

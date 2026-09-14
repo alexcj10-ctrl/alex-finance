@@ -69,13 +69,13 @@ async function handleBootstrap(request: Request) {
   let createdUser = false;
   let user = await findUserByEmail(admin, credentials.email);
 
-  if (user?.app_metadata?.qa_bootstrap_consumed === true) {
+  if (user?.app_metadata?.qa_bootstrap_retrieved === true) {
     throw new ApiError(410, 'QA_BOOTSTRAP_CONSUMED', 'Bootstrap QA già utilizzato.');
   }
 
   if (!user) {
     const { data, error } = await admin.auth.admin.createUser({
-      app_metadata: { qa_bootstrap_consumed: false, role: 'coach' },
+      app_metadata: { qa_bootstrap_retrieved: false, role: 'coach' },
       email: credentials.email,
       email_confirm: true,
       password: credentials.password,
@@ -91,7 +91,7 @@ async function handleBootstrap(request: Request) {
   }
 
   const { error: passwordError } = await admin.auth.admin.updateUserById(user.id, {
-    app_metadata: { qa_bootstrap_consumed: false, role: 'coach' },
+    app_metadata: { qa_bootstrap_retrieved: false, role: 'coach' },
     password: credentials.password,
     user_metadata: { display_name: displayName },
   });
@@ -142,7 +142,7 @@ async function handleBootstrap(request: Request) {
   }
 
   const { error: consumeError } = await admin.auth.admin.updateUserById(user.id, {
-    app_metadata: { qa_bootstrap_consumed: true, role: 'coach' },
+    app_metadata: { qa_bootstrap_retrieved: true, role: 'coach' },
   });
   if (consumeError) {
     throw new ApiError(500, 'QA_CONSUME_FAILED', 'Bootstrap QA non riuscito.');
@@ -163,7 +163,7 @@ async function handleBootstrap(request: Request) {
   });
 }
 
-export default async function handler(request: Request) {
+export async function POST(request: Request) {
   try {
     return await handleBootstrap(request);
   } catch (error) {
