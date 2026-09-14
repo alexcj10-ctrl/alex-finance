@@ -110,6 +110,13 @@ async function handlePost(request: Request) {
   });
 
   if (provisioningError) {
+    console.error('Player profile provisioning failed.', {
+      code: provisioningError.code,
+      details: provisioningError.details,
+      hint: provisioningError.hint,
+      message: provisioningError.message,
+    });
+
     const { error: cleanupError } = await admin.auth.admin.deleteUser(userId);
 
     if (cleanupError) {
