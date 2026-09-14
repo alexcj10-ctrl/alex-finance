@@ -16,17 +16,15 @@ export function useVideoProgressTracking(
 ) {
   const reachedRef = useRef<Set<VideoProgressCheckpoint>>(new Set());
   const activeKeyRef = useRef('');
-  const activeRepositoryRef = useRef<VideoProgressRepository | undefined>(undefined);
   const lastPlaybackTimeRef = useRef<number | undefined>(undefined);
   const watchedSecondsRef = useRef<number | undefined>(undefined);
   const storedPercentRef = useRef(0);
   const activeKey = `${lessonId}::${variantId}`;
 
   const ensureActiveVariant = useCallback(() => {
-    if (activeKeyRef.current === activeKey && activeRepositoryRef.current === repository) return;
+    if (activeKeyRef.current === activeKey) return;
     const stored = repository.get(lessonId, variantId);
     activeKeyRef.current = activeKey;
-    activeRepositoryRef.current = repository;
     reachedRef.current = new Set(stored?.reachedCheckpoints ?? []);
     storedPercentRef.current = stored?.watchedPercent ?? 0;
     watchedSecondsRef.current = undefined;
