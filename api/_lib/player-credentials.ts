@@ -1,7 +1,7 @@
 import { createHash, createHmac } from 'node:crypto';
 
-import { ApiError } from './http';
-import { getServerConfig } from './supabase-admin';
+import { ApiError } from './http.js';
+import { getServerConfig } from './supabase-admin.js';
 
 const PLAYER_CODE_PATTERN = /^[A-Z0-9]{4,20}$/;
 const PLAYER_PIN_PATTERN = /^\d{4,8}$/;

@@ -1,4 +1,4 @@
-import { requireCoach, requireCoachTeamAccess } from '../_lib/coach-auth';
+import { requireCoach, requireCoachTeamAccess } from '../_lib/coach-auth.js';
 import {
   ApiError,
   assertPost,
@@ -6,13 +6,13 @@ import {
   errorResponse,
   jsonResponse,
   readJsonObject,
-} from '../_lib/http';
+} from '../_lib/http.js';
 import {
   buildPlayerAliasEmail,
   derivePlayerPassword,
   parsePlayerCode,
   parsePlayerPin,
-} from '../_lib/player-credentials';
+} from '../_lib/player-credentials.js';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;

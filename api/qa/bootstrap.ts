@@ -5,8 +5,8 @@ import {
   errorResponse,
   jsonResponse,
   readBearerToken,
-} from '../_lib/http';
-import { getServerConfig, getSupabaseAdmin } from '../_lib/supabase-admin';
+} from '../_lib/http.js';
+import { getServerConfig, getSupabaseAdmin } from '../_lib/supabase-admin.js';
 
 const BOOTSTRAP_TOKEN_HASH =
   '97738fde789f9358938dbc36928acdbd99dd39c7f81bf36be9a243988a133d4d';

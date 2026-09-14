@@ -1,4 +1,4 @@
-import { ApiError } from './http';
+import { ApiError } from './http.js';
 
 const WINDOW_MS = 10 * 60 * 1000;
 const MAX_ATTEMPTS = 8;

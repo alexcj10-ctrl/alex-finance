@@ -1,5 +1,5 @@
-import { ApiError, readBearerToken } from './http';
-import { getSupabaseAdmin } from './supabase-admin';
+import { ApiError, readBearerToken } from './http.js';
+import { getSupabaseAdmin } from './supabase-admin.js';
 
 export async function requireCoach(request: Request) {
   const accessToken = readBearerToken(request);

@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
-import { ApiError } from './http';
+import { ApiError } from './http.js';
 
 type ServerConfig = {
   supabasePublishableKey: string;

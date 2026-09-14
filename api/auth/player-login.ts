@@ -5,15 +5,18 @@ import {
   errorResponse,
   jsonResponse,
   readJsonObject,
-} from '../_lib/http';
-import { clearLoginAttempts, consumeLoginAttempt } from '../_lib/login-rate-limit';
+} from '../_lib/http.js';
+import { clearLoginAttempts, consumeLoginAttempt } from '../_lib/login-rate-limit.js';
 import {
   anonymousLoginBucket,
   derivePlayerPassword,
   parsePlayerCode,
   parsePlayerPin,
-} from '../_lib/player-credentials';
-import { createSupabasePasswordClient, getSupabaseAdmin } from '../_lib/supabase-admin';
+} from '../_lib/player-credentials.js';
+import {
+  createSupabasePasswordClient,
+  getSupabaseAdmin,
+} from '../_lib/supabase-admin.js';
 
 const UNKNOWN_USER_ID = '00000000-0000-0000-0000-000000000000';
 const UNKNOWN_PLAYER_EMAIL = 'unknown@players.esordienti.invalid';
