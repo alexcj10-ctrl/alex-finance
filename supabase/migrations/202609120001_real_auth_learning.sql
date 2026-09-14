@@ -685,10 +685,6 @@ declare
   result public.profiles%rowtype;
   inserted_player record;
 begin
-  if current_setting('request.jwt.claim.role', true) is distinct from 'service_role' then
-    raise exception 'service role required' using errcode = '42501';
-  end if;
-
   if p_display_name is null
      or char_length(btrim(p_display_name)) not between 1 and 50 then
     raise exception 'invalid display name' using errcode = '22023';

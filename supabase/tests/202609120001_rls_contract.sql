@@ -2,7 +2,25 @@ begin;
 
 create extension if not exists pgtap with schema extensions;
 
-select extensions.plan(18);
+select extensions.plan(20);
+
+select extensions.ok(
+  not has_function_privilege(
+    'authenticated',
+    'public.provision_player_profile(uuid,text,text,uuid,boolean,uuid)',
+    'execute'
+  ),
+  'authenticated cannot execute server-side player provisioning'
+);
+
+select extensions.ok(
+  has_function_privilege(
+    'service_role',
+    'public.provision_player_profile(uuid,text,text,uuid,boolean,uuid)',
+    'execute'
+  ),
+  'service role can execute server-side player provisioning'
+);
 
 insert into auth.users (
   id,
