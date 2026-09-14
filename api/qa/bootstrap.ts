@@ -1,17 +1,19 @@
-import { createHash, timingSafeEqual } from 'node:crypto';
+import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 
-import { ApiError, errorResponse, jsonResponse } from '../_lib/http';
-import { getSupabaseAdmin } from '../_lib/supabase-admin';
+import {
+  ApiError,
+  errorResponse,
+  jsonResponse,
+  readBearerToken,
+} from '../_lib/http';
+import { getServerConfig, getSupabaseAdmin } from '../_lib/supabase-admin';
 
 const BOOTSTRAP_TOKEN_HASH =
   '97738fde789f9358938dbc36928acdbd99dd39c7f81bf36be9a243988a133d4d';
 const QA_TEAM_ID = '6d3a09d8-f909-4769-adb7-532dba9f640f';
 
 function readValidToken(request: Request) {
-  const token = new URL(request.url).searchParams.get('token')?.trim();
-  if (!token) {
-    throw new ApiError(404, 'NOT_FOUND', 'Risorsa non disponibile.');
-  }
+  const token = readBearerToken(request);
 
   const actualHash = createHash('sha256').update(token).digest();
   const expectedHash = Buffer.from(BOOTSTRAP_TOKEN_HASH, 'hex');
@@ -27,7 +29,8 @@ function readValidToken(request: Request) {
 
 function deriveCredentials(token: string) {
   const tokenHash = createHash('sha256').update(token).digest('hex');
-  const passwordHash = createHash('sha256')
+  const { supabaseSecretKey } = getServerConfig();
+  const passwordHash = createHmac('sha256', supabaseSecretKey)
     .update(`coach-password:${token}`)
     .digest('base64url');
 
@@ -54,7 +57,7 @@ async function findUserByEmail(
 }
 
 async function handleBootstrap(request: Request) {
-  if (process.env.VERCEL_ENV !== 'preview' || request.method !== 'GET') {
+  if (process.env.VERCEL_ENV !== 'preview' || request.method !== 'POST') {
     throw new ApiError(404, 'NOT_FOUND', 'Risorsa non disponibile.');
   }
 
@@ -66,9 +69,13 @@ async function handleBootstrap(request: Request) {
   let createdUser = false;
   let user = await findUserByEmail(admin, credentials.email);
 
+  if (user?.app_metadata?.qa_bootstrap_consumed === true) {
+    throw new ApiError(410, 'QA_BOOTSTRAP_CONSUMED', 'Bootstrap QA già utilizzato.');
+  }
+
   if (!user) {
     const { data, error } = await admin.auth.admin.createUser({
-      app_metadata: { role: 'coach' },
+      app_metadata: { qa_bootstrap_consumed: false, role: 'coach' },
       email: credentials.email,
       email_confirm: true,
       password: credentials.password,
@@ -84,6 +91,7 @@ async function handleBootstrap(request: Request) {
   }
 
   const { error: passwordError } = await admin.auth.admin.updateUserById(user.id, {
+    app_metadata: { qa_bootstrap_consumed: false, role: 'coach' },
     password: credentials.password,
     user_metadata: { display_name: displayName },
   });
@@ -131,6 +139,13 @@ async function handleBootstrap(request: Request) {
   );
   if (membershipError) {
     throw new ApiError(500, 'QA_MEMBERSHIP_FAILED', 'Bootstrap QA non riuscito.');
+  }
+
+  const { error: consumeError } = await admin.auth.admin.updateUserById(user.id, {
+    app_metadata: { qa_bootstrap_consumed: true, role: 'coach' },
+  });
+  if (consumeError) {
+    throw new ApiError(500, 'QA_CONSUME_FAILED', 'Bootstrap QA non riuscito.');
   }
 
   return jsonResponse({
