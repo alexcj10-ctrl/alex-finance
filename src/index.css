@@ -316,6 +316,11 @@ svg {
   text-align: center;
 }
 
+.auth-password-requirements {
+  margin-top: -7px;
+  text-align: left;
+}
+
 .auth-state-card {
   justify-items: start;
 }

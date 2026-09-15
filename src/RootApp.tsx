@@ -4,6 +4,7 @@ import App from './App';
 import { AccessDeniedPage } from './auth/AccessDeniedPage';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { LoginPage } from './auth/LoginPage';
+import { PasswordSetupPage } from './auth/PasswordSetupPage';
 import { createSupabaseCoachRepository } from './services/supabase/supabase-coach-repository';
 
 const CoachApp = lazy(() =>
@@ -37,6 +38,10 @@ function AuthenticatedApp() {
 
   if (state.status === 'configuration-error') {
     return <div className="auth-loading" role="alert">{state.message}</div>;
+  }
+
+  if (state.status === 'password-setup') {
+    return <PasswordSetupPage />;
   }
 
   if (state.status === 'anonymous') {

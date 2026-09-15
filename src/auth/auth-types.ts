@@ -16,6 +16,7 @@ export type LoginCredentials = {
 
 export type AuthState =
   | { status: 'loading' }
+  | { status: 'password-setup' }
   | { status: 'anonymous'; message?: string }
   | { status: 'authenticated'; identity: AuthIdentity }
   | { status: 'configuration-error'; message: string };

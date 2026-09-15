@@ -10,7 +10,11 @@ import {
 } from 'react';
 import type { Session } from '@supabase/supabase-js';
 
-import { requireSupabaseClient, supabaseConfigured } from '../services/supabase/client';
+import {
+  requireSupabaseClient,
+  supabaseAuthCallbackType,
+  supabaseConfigured,
+} from '../services/supabase/client';
 import type { AuthIdentity, AuthState, LoginCredentials } from './auth-types';
 
 type PlayerLoginResponse = {
@@ -23,6 +27,7 @@ type PlayerLoginResponse = {
 type AuthContextValue = {
   state: AuthState;
   login: (credentials: LoginCredentials) => Promise<void>;
+  setNewPassword: (password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
 
@@ -88,6 +93,17 @@ function genericLoginError() {
   return new Error('Credenziali non valide. Controlla i dati e riprova.');
 }
 
+function validateNewPassword(password: string) {
+  if (
+    password.length < 8 ||
+    !/[a-z]/.test(password) ||
+    !/[A-Z]/.test(password) ||
+    !/\d/.test(password)
+  ) {
+    throw new Error('Usa almeno 8 caratteri, con maiuscola, minuscola e numero.');
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<AuthState>(() =>
     supabaseConfigured
@@ -98,11 +114,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
   );
   const hydrationId = useRef(0);
+  const passwordSetup = useRef(
+    supabaseAuthCallbackType === 'invite' ||
+      supabaseAuthCallbackType === 'recovery' ||
+      supabaseAuthCallbackType === 'signup',
+  );
 
   const applySession = useCallback(async (session: Session | null) => {
     const requestId = ++hydrationId.current;
     if (!session) {
       setState({ status: 'anonymous' });
+      return;
+    }
+
+    if (passwordSetup.current) {
+      setState({ status: 'password-setup' });
       return;
     }
 
@@ -128,7 +154,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!cancelled) void applySession(data.session);
     });
 
-    const { data: subscription } = client.auth.onAuthStateChange((_event, session) => {
+    const { data: subscription } = client.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY') passwordSetup.current = true;
       window.setTimeout(() => {
         if (!cancelled) void applySession(session);
       }, 0);
@@ -173,13 +200,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await applySession(data.session);
   }, [applySession]);
 
+  const setNewPassword = useCallback(async (password: string) => {
+    validateNewPassword(password);
+    const client = requireSupabaseClient();
+    const { error } = await client.auth.updateUser({ password });
+    if (error) {
+      throw new Error('Non è stato possibile impostare la password. Richiedi un nuovo link e riprova.');
+    }
+
+    passwordSetup.current = false;
+    window.history.replaceState({}, '', window.location.pathname || '/');
+    const { data } = await client.auth.getSession();
+    if (!data.session) {
+      setState({ status: 'anonymous', message: 'Password impostata. Ora puoi accedere.' });
+      return;
+    }
+    await applySession(data.session);
+  }, [applySession]);
+
   const logout = useCallback(async () => {
     hydrationId.current += 1;
     if (supabaseConfigured) await requireSupabaseClient().auth.signOut();
     setState({ status: 'anonymous' });
   }, []);
 
-  const value = useMemo<AuthContextValue>(() => ({ state, login, logout }), [login, logout, state]);
+  const value = useMemo<AuthContextValue>(
+    () => ({ state, login, setNewPassword, logout }),
+    [login, logout, setNewPassword, state],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
