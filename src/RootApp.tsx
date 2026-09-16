@@ -5,6 +5,7 @@ import { AccessDeniedPage } from './auth/AccessDeniedPage';
 import { AuthProvider, useAuth } from './auth/AuthProvider';
 import { LoginPage } from './auth/LoginPage';
 import { PasswordSetupPage } from './auth/PasswordSetupPage';
+import { PlayerProfileCreatedPage } from './auth/PlayerProfileCreatedPage';
 import { createSupabaseCoachRepository } from './services/supabase/supabase-coach-repository';
 
 const CoachApp = lazy(() =>
@@ -12,7 +13,7 @@ const CoachApp = lazy(() =>
 );
 
 function AuthenticatedApp() {
-  const { state, logout } = useAuth();
+  const { continuePlayerProfile, state, logout } = useAuth();
   const [pathname, setPathname] = useState(() => window.location.pathname);
 
   useEffect(() => {
@@ -42,6 +43,23 @@ function AuthenticatedApp() {
 
   if (state.status === 'password-setup') {
     return <PasswordSetupPage />;
+  }
+
+  if (state.status === 'player-created') {
+    return (
+      <PlayerProfileCreatedPage
+        connecting={state.connecting}
+        credentials={state.credentials}
+        message={state.message}
+        onContinue={() => {
+          if (isCoachPath) {
+            window.history.replaceState({}, '', '/');
+            setPathname('/');
+          }
+          return continuePlayerProfile();
+        }}
+      />
+    );
   }
 
   if (state.status === 'anonymous') {

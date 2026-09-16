@@ -211,6 +211,7 @@ export function buildCoachReadModel(
       const summary: CoachPlayerSummary = {
         playerId,
         displayName: profile.displayName,
+        ...(profile.playerCode ? { playerCode: profile.playerCode } : {}),
         initials: getInitials(profile.displayName),
         progressPercent: roundedAverage(playerProgress.map((item) => item.progressPercent)) ?? 0,
         points: playerProgress.reduce((total, item) => total + item.pointsEarned, 0),

@@ -19,6 +19,7 @@ export type CoachProfileRecord = {
   id: string;
   displayName: string;
   role: AppRole;
+  playerCode?: string;
   avatarPath?: string;
   createdAt: string;
 };
@@ -111,6 +112,7 @@ export type AttentionItem = {
 export type CoachPlayerSummary = {
   playerId: string;
   displayName: string;
+  playerCode?: string;
   initials: string;
   progressPercent: number;
   points: number;

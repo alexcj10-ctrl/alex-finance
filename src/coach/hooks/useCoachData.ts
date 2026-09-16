@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { CoachRepository } from '../../services/coach-repository';
 import type { CoachReadModel } from '../../types/coach';
@@ -10,31 +10,57 @@ type CoachDataState =
 
 export function useCoachData(repository: CoachRepository) {
   const [state, setState] = useState<CoachDataState>({ status: 'loading' });
-  const [revision, setRevision] = useState(0);
+  const mountedRef = useRef(true);
+  const inFlightRef = useRef<Promise<void> | null>(null);
 
-  useEffect(() => {
-    let cancelled = false;
+  const load = useCallback(() => {
+    if (inFlightRef.current) return inFlightRef.current;
 
-    repository.getReadModel().then(
+    const request = repository.getReadModel().then(
       (model) => {
-        if (!cancelled) setState({ status: 'ready', model });
+        if (mountedRef.current) setState({ status: 'ready', model });
       },
       (error: unknown) => {
-        if (cancelled) return;
+        if (!mountedRef.current) return;
         setState({
           status: 'error',
           message: error instanceof Error ? error.message : 'Impossibile caricare i dati Coach.',
         });
       },
-    );
+    ).finally(() => {
+      inFlightRef.current = null;
+    });
 
+    inFlightRef.current = request;
+    return request;
+  }, [repository]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    void load();
     return () => {
-      cancelled = true;
+      mountedRef.current = false;
     };
-  }, [repository, revision]);
+  }, [load]);
+
+  useEffect(() => {
+    const refreshVisibleData = () => {
+      if (document.visibilityState === 'visible') void load();
+    };
+    const interval = window.setInterval(refreshVisibleData, 10_000);
+    window.addEventListener('focus', refreshVisibleData);
+    document.addEventListener('visibilitychange', refreshVisibleData);
+    return () => {
+      window.clearInterval(interval);
+      window.removeEventListener('focus', refreshVisibleData);
+      document.removeEventListener('visibilitychange', refreshVisibleData);
+    };
+  }, [load]);
 
   return {
     ...state,
-    refresh: () => setRevision((current) => current + 1),
+    refresh: () => {
+      void load();
+    },
   };
 }

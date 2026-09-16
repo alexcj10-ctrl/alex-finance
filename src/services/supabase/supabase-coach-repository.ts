@@ -43,6 +43,7 @@ function mapProfile(row: ProfileRow) {
     id: row.id,
     displayName: row.display_name,
     role: row.role,
+    ...(row.player_code ? { playerCode: row.player_code } : {}),
     ...(row.avatar_path ? { avatarPath: row.avatar_path } : {}),
     createdAt: row.created_at,
   };

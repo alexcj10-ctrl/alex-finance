@@ -15,7 +15,12 @@ import {
   supabaseAuthCallbackType,
   supabaseConfigured,
 } from '../services/supabase/client';
-import type { AuthIdentity, AuthState, LoginCredentials } from './auth-types';
+import type {
+  AuthIdentity,
+  AuthState,
+  LoginCredentials,
+  PlayerSignupInput,
+} from './auth-types';
 
 type PlayerLoginResponse = {
   session?: {
@@ -24,9 +29,26 @@ type PlayerLoginResponse = {
   };
 };
 
+type PlayerSignupResponse = {
+  player?: {
+    displayName?: string;
+    playerCode?: string;
+    pin?: string;
+  };
+  session?: {
+    accessToken?: string;
+    refreshToken?: string;
+  };
+  error?: {
+    message?: string;
+  };
+};
+
 type AuthContextValue = {
   state: AuthState;
   login: (credentials: LoginCredentials) => Promise<void>;
+  createPlayerProfile: (input: PlayerSignupInput) => Promise<void>;
+  continuePlayerProfile: () => Promise<void>;
   setNewPassword: (password: string) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -114,6 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
   );
   const hydrationId = useRef(0);
+  const playerCreationPending = useRef(false);
   const passwordSetup = useRef(
     supabaseAuthCallbackType === 'invite' ||
       supabaseAuthCallbackType === 'recovery' ||
@@ -121,6 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 
   const applySession = useCallback(async (session: Session | null) => {
+    if (playerCreationPending.current) return;
     const requestId = ++hydrationId.current;
     if (!session) {
       setState({ status: 'anonymous' });
@@ -168,6 +192,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [applySession]);
 
   const login = useCallback(async ({ identifier, password }: LoginCredentials) => {
+    playerCreationPending.current = false;
     const client = requireSupabaseClient();
     const normalizedIdentifier = identifier.trim();
     if (!normalizedIdentifier || !password) throw genericLoginError();
@@ -200,6 +225,102 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await applySession(data.session);
   }, [applySession]);
 
+  const createPlayerProfile = useCallback(async ({
+    firstName,
+    lastName,
+  }: PlayerSignupInput) => {
+    const normalizedFirstName = firstName.trim();
+    const normalizedLastName = lastName.trim();
+    if (!normalizedFirstName || !normalizedLastName) {
+      throw new Error('Inserisci nome e cognome.');
+    }
+
+    const response = await fetch('/api/auth/player-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        firstName: normalizedFirstName,
+        lastName: normalizedLastName,
+      }),
+    });
+    const payload = (await response.json().catch(() => null)) as PlayerSignupResponse | null;
+    const accessToken = payload?.session?.accessToken;
+    const refreshToken = payload?.session?.refreshToken;
+    const displayName = payload?.player?.displayName;
+    const playerCode = payload?.player?.playerCode;
+    const pin = payload?.player?.pin;
+
+    if (!response.ok) {
+      throw new Error(payload?.error?.message ?? 'Creazione del profilo non riuscita. Riprova.');
+    }
+    if (!accessToken || !refreshToken || !displayName || !playerCode || !pin) {
+      throw new Error('Profilo creato, ma accesso non completato. Chiedi aiuto al tuo allenatore.');
+    }
+
+    const client = requireSupabaseClient();
+    playerCreationPending.current = true;
+    const credentials = { displayName, playerCode, pin };
+    setState({
+      status: 'player-created',
+      connecting: true,
+      credentials,
+    });
+    try {
+      const { data, error } = await client.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
+      if (error || !data.session) {
+        throw new Error('Accesso automatico non riuscito. Conserva il codice e il PIN.');
+      }
+
+      const identity = await readIdentity(data.session);
+      if (identity.role !== 'player') {
+        throw new Error('Il profilo creato non è un account giocatore valido.');
+      }
+
+      setState({
+        status: 'player-created',
+        connecting: false,
+        identity,
+        credentials,
+      });
+    } catch {
+      await client.auth.signOut({ scope: 'local' });
+      setState({
+        status: 'player-created',
+        connecting: false,
+        credentials,
+        message: 'Il profilo è pronto. Premi Continua per completare l’accesso.',
+      });
+    }
+  }, []);
+
+  const continuePlayerProfile = useCallback(async () => {
+    if (state.status !== 'player-created' || state.connecting) return;
+    if (state.identity) {
+      playerCreationPending.current = false;
+      setState({ status: 'authenticated', identity: state.identity });
+      return;
+    }
+
+    const credentials = state.credentials;
+    setState({ ...state, connecting: true, message: undefined });
+    try {
+      await login({
+        identifier: credentials.playerCode,
+        password: credentials.pin,
+      });
+    } catch {
+      setState({
+        status: 'player-created',
+        connecting: false,
+        credentials,
+        message: 'Accesso non riuscito. Conserva codice e PIN e riprova tra poco.',
+      });
+    }
+  }, [login, state]);
+
   const setNewPassword = useCallback(async (password: string) => {
     validateNewPassword(password);
     const client = requireSupabaseClient();
@@ -220,13 +341,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(async () => {
     hydrationId.current += 1;
+    playerCreationPending.current = false;
     if (supabaseConfigured) await requireSupabaseClient().auth.signOut();
     setState({ status: 'anonymous' });
   }, []);
 
   const value = useMemo<AuthContextValue>(
-    () => ({ state, login, setNewPassword, logout }),
-    [login, logout, setNewPassword, state],
+    () => ({
+      state,
+      login,
+      createPlayerProfile,
+      continuePlayerProfile,
+      setNewPassword,
+      logout,
+    }),
+    [
+      continuePlayerProfile,
+      createPlayerProfile,
+      login,
+      logout,
+      setNewPassword,
+      state,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

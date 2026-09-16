@@ -54,7 +54,10 @@ export function CoachPlayerDetailPage({
           </Avatar>
           <div>
             <strong>{summary.displayName}</strong>
-            <span>Profilo interno · nessun dato personale aggiuntivo</span>
+            <span>
+              {summary.playerCode ? `Codice ${summary.playerCode}` : 'Profilo interno'}
+              {' · nessun dato personale aggiuntivo'}
+            </span>
           </div>
         </div>
         <div className="coach-player-hero-progress">

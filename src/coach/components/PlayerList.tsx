@@ -33,7 +33,11 @@ function PlayerIdentity({ player }: { player: CoachPlayerSummary }) {
       </Avatar>
       <span>
         <strong>{player.displayName}</strong>
-        <small>ID {player.playerId.replace('mock-player-', '#')}</small>
+        <small>
+          {player.playerCode
+            ? `Codice ${player.playerCode}`
+            : `ID ${player.playerId.replace('mock-player-', '#')}`}
+        </small>
       </span>
     </span>
   );
