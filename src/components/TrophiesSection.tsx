@@ -8,7 +8,6 @@ import {
   ShieldCheck,
   Star,
   Trophy,
-  Users,
   type LucideIcon,
 } from 'lucide-react';
 
@@ -28,21 +27,6 @@ const trophyIcons: Record<TrophyIconId, LucideIcon> = {
   star: Star,
   shield: ShieldCheck,
 };
-
-type DemoRankingPlayer = {
-  position: number;
-  name: string;
-  points: number;
-  trophies: number;
-  lessons: number;
-  current?: boolean;
-};
-
-const demoRanking: readonly DemoRankingPlayer[] = [
-  { position: 1, name: 'Giocatore A', points: 180, trophies: 4, lessons: 6 },
-  { position: 2, name: 'Tu', points: 120, trophies: 3, lessons: 4, current: true },
-  { position: 3, name: 'Giocatore B', points: 95, trophies: 2, lessons: 3 },
-] as const;
 
 type TrophiesSectionProps = {
   progress: StoredLearningProgress;
@@ -150,41 +134,6 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
         </div>
       </section>
 
-      <section className="ranking-preview" aria-labelledby="ranking-title">
-        <header className="ranking-header">
-          <span className="ranking-icon" aria-hidden="true">
-            <Users className="size-6" />
-          </span>
-          <div>
-            <span className="coming-soon-badge">Anteprima · In arrivo</span>
-            <h2 id="ranking-title">Classifica squadra</h2>
-          </div>
-        </header>
-
-        <table className="ranking-table" aria-label="Esempio futuro della classifica squadra">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Giocatore</th>
-              <th scope="col">PT</th>
-              <th scope="col">TR</th>
-              <th scope="col">LEZ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {demoRanking.map((player) => (
-              <tr key={player.position} className={player.current ? 'ranking-row-current' : undefined}>
-                <td><strong>{player.position}</strong></td>
-                <td>{player.name}</td>
-                <td>{player.points}</td>
-                <td>{player.trophies}</td>
-                <td>{player.lessons}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="ranking-note">Dati dimostrativi · Nessun giocatore reale</p>
-      </section>
     </div>
   );
 }

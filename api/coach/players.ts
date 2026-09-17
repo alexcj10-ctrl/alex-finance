@@ -8,11 +8,16 @@ import {
   readJsonObject,
 } from '../_lib/http.js';
 import {
+  PLAYER_CREDENTIAL_VERSION,
   buildPlayerAliasEmail,
   derivePlayerPassword,
   parsePlayerCode,
   parsePlayerPin,
 } from '../_lib/player-credentials.js';
+import {
+  getPlayerSignupEnvironment,
+  playerDisplayNameForEnvironment,
+} from '../_lib/player-signup-window.js';
 
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -57,7 +62,11 @@ function isConflictCode(code: string | undefined) {
 async function handlePost(request: Request) {
   assertSameOrigin(request);
   const body = await readJsonObject(request);
-  const displayName = parseDisplayName(body.displayName);
+  const signupEnvironment = getPlayerSignupEnvironment();
+  const displayName = playerDisplayNameForEnvironment(
+    parseDisplayName(body.displayName),
+    signupEnvironment,
+  );
   const playerCode = parsePlayerCode(body.playerCode);
   const pin = parsePlayerPin(body.pin);
   const teamId = parseTeamId(body.teamId);
@@ -81,6 +90,11 @@ async function handlePost(request: Request) {
   }
 
   const { data: authData, error: createAuthError } = await admin.auth.admin.createUser({
+    app_metadata: {
+      origin_environment: signupEnvironment,
+      player_credential_version: PLAYER_CREDENTIAL_VERSION,
+      role: 'player',
+    },
     email: buildPlayerAliasEmail(playerCode),
     email_confirm: true,
     password: derivePlayerPassword(playerCode, pin),

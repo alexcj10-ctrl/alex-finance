@@ -8,7 +8,9 @@ import {
 } from '../_lib/http.js';
 import { clearLoginAttempts, consumeLoginAttempt } from '../_lib/login-rate-limit.js';
 import {
+  PLAYER_CREDENTIAL_VERSION,
   anonymousLoginBucket,
+  deriveLegacyPlayerPassword,
   derivePlayerPassword,
   parsePlayerCode,
   parsePlayerPin,
@@ -49,12 +51,19 @@ async function handlePost(request: Request) {
     eligible ? profile.id : UNKNOWN_USER_ID,
   );
   const email = userData.user?.email || UNKNOWN_PLAYER_EMAIL;
+  const usesCurrentCredentials =
+    userData.user?.app_metadata?.player_credential_version ===
+    PLAYER_CREDENTIAL_VERSION;
+  const currentPassword = derivePlayerPassword(playerCode, pin);
+  const attemptedPassword = usesCurrentCredentials
+    ? currentPassword
+    : deriveLegacyPlayerPassword(playerCode, pin);
 
   const passwordClient = createSupabasePasswordClient();
-  const { data: signInData, error: signInError } =
+  let { data: signInData, error: signInError } =
     await passwordClient.auth.signInWithPassword({
       email,
-      password: derivePlayerPassword(playerCode, pin),
+      password: attemptedPassword,
     });
 
   if (
@@ -65,6 +74,45 @@ async function handlePost(request: Request) {
     signInData.user.id !== profile.id
   ) {
     throw invalidCredentials();
+  }
+
+  if (!usesCurrentCredentials) {
+    const { error: migrationError } = await admin.auth.admin.updateUserById(profile.id, {
+      app_metadata: {
+        ...userData.user?.app_metadata,
+        player_credential_version: PLAYER_CREDENTIAL_VERSION,
+        role: 'player',
+      },
+      password: currentPassword,
+    });
+
+    if (migrationError) {
+      throw new ApiError(
+        503,
+        'PLAYER_CREDENTIAL_MIGRATION_FAILED',
+        'Accesso temporaneamente non disponibile. Riprova tra poco.',
+      );
+    }
+
+    const migratedSignIn = await passwordClient.auth.signInWithPassword({
+      email,
+      password: currentPassword,
+    });
+
+    if (
+      migratedSignIn.error ||
+      !migratedSignIn.data.session ||
+      migratedSignIn.data.user.id !== profile.id
+    ) {
+      throw new ApiError(
+        503,
+        'PLAYER_CREDENTIAL_MIGRATION_FAILED',
+        'Accesso temporaneamente non disponibile. Riprova tra poco.',
+      );
+    }
+
+    signInData = migratedSignIn.data;
+    signInError = null;
   }
 
   clearLoginAttempts(request, loginBucket);

@@ -1,7 +1,12 @@
-import { useMemo, useState, type SyntheticEvent } from 'react';
-import { CheckCircle2, LoaderCircle, Plus, X } from 'lucide-react';
+import { useEffect, useMemo, useState, type SyntheticEvent } from 'react';
+import { CheckCircle2, Clock3, LoaderCircle, LockKeyhole, Plus, UserRoundPlus, X } from 'lucide-react';
 
-import { createPlayerAccount } from '../../services/supabase/supabase-coach-actions';
+import {
+  createPlayerAccount,
+  getPlayerSignupWindow,
+  setPlayerSignupWindow,
+  type PlayerSignupWindow,
+} from '../../services/supabase/supabase-coach-actions';
 import type { CoachReadModel } from '../../types/coach';
 import { CoachPageHeader } from '../components/CoachPageHeader';
 import { PlayerList } from '../components/PlayerList';
@@ -22,6 +27,9 @@ export function CoachPlayersPage({
   const [pin, setPin] = useState('');
   const [createStatus, setCreateStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [createError, setCreateError] = useState<string>();
+  const [signupWindow, setSignupWindow] = useState<PlayerSignupWindow>();
+  const [signupWindowStatus, setSignupWindowStatus] = useState<'loading' | 'idle' | 'updating'>('loading');
+  const [signupWindowError, setSignupWindowError] = useState<string>();
   const players = useMemo(() => {
     const filtered = filter === 'attention'
       ? model.players.filter((player) => player.attention.length > 0)
@@ -33,6 +41,59 @@ export function CoachPlayersPage({
         left.displayName.localeCompare(right.displayName, 'it'),
     );
   }, [filter, model.players]);
+
+  useEffect(() => {
+    let cancelled = false;
+    void getPlayerSignupWindow(model.team.id).then(
+      (windowState) => {
+        if (cancelled) return;
+        setSignupWindow(windowState);
+        setSignupWindowError(undefined);
+        setSignupWindowStatus('idle');
+      },
+      (error: unknown) => {
+        if (cancelled) return;
+        setSignupWindowError(
+          error instanceof Error ? error.message : 'Stato registrazioni non disponibile.',
+        );
+        setSignupWindowStatus('idle');
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [model.team.id]);
+
+  useEffect(() => {
+    if (!signupWindow?.isOpen || !signupWindow.closesAt) return;
+    const closesIn = new Date(signupWindow.closesAt).getTime() - Date.now();
+    const timeout = window.setTimeout(() => {
+      setSignupWindow((current) => current
+        ? { ...current, closesAt: null, isOpen: false, remainingSignups: 0 }
+        : current);
+    }, Math.max(0, closesIn) + 100);
+
+    return () => window.clearTimeout(timeout);
+  }, [signupWindow?.closesAt, signupWindow?.isOpen]);
+
+  const updateSignupWindow = async (open: boolean) => {
+    setSignupWindowStatus('updating');
+    setSignupWindowError(undefined);
+    try {
+      setSignupWindow(await setPlayerSignupWindow(model.team.id, open));
+    } catch (error) {
+      setSignupWindowError(
+        error instanceof Error ? error.message : 'Aggiornamento registrazioni non riuscito.',
+      );
+    } finally {
+      setSignupWindowStatus('idle');
+    }
+  };
+
+  const signupClosesAt = signupWindow?.closesAt
+    ? new Intl.DateTimeFormat('it-IT', { hour: '2-digit', minute: '2-digit' })
+      .format(new Date(signupWindow.closesAt))
+    : undefined;
 
   const submitPlayer = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -79,6 +140,54 @@ export function CoachPlayersPage({
           </button>
         )}
       />
+
+      <section
+        className={signupWindow?.isOpen ? 'coach-signup-window coach-signup-window-open' : 'coach-signup-window'}
+        aria-labelledby="signup-window-title"
+      >
+        <div className="coach-signup-window-copy">
+          <span className="coach-signup-window-icon" aria-hidden="true">
+            {signupWindow?.isOpen ? <UserRoundPlus className="size-5" /> : <LockKeyhole className="size-5" />}
+          </span>
+          <div>
+            <p className="coach-create-kicker">Registrazione autonoma</p>
+            <h2 id="signup-window-title">
+              {signupWindow?.isOpen ? 'Registrazioni aperte' : 'Registrazioni chiuse'}
+            </h2>
+            <p>
+              {signupWindow?.isOpen
+                ? `I ragazzi possono registrarsi con solo Nome e Cognome${signupClosesAt ? ` fino alle ${signupClosesAt}` : ''}. Restano ${signupWindow.remainingSignups} posti.`
+                : 'Apri una finestra di 30 minuti quando la squadra è insieme.'}
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="coach-signup-window-action"
+          disabled={signupWindowStatus !== 'idle'}
+          onClick={() => void updateSignupWindow(!signupWindow?.isOpen)}
+        >
+          {signupWindowStatus !== 'idle' ? (
+            <LoaderCircle className="size-4 coach-loading-icon" aria-hidden="true" />
+          ) : signupWindow?.isOpen ? (
+            <LockKeyhole className="size-4" aria-hidden="true" />
+          ) : (
+            <Clock3 className="size-4" aria-hidden="true" />
+          )}
+          {signupWindowStatus === 'loading'
+            ? 'Controllo…'
+            : signupWindowStatus === 'updating'
+              ? 'Aggiornamento…'
+              : signupWindow?.isOpen
+                ? 'Chiudi ora'
+                : 'Apri per 30 minuti'}
+        </button>
+        {signupWindowError ? (
+          <p className="coach-create-error coach-signup-window-error" role="alert">
+            {signupWindowError}
+          </p>
+        ) : null}
+      </section>
 
       {showCreate ? (
         <section className="coach-create-panel" aria-labelledby="create-player-title">

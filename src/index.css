@@ -1880,112 +1880,6 @@ svg {
   background: var(--pm-green);
 }
 
-.ranking-preview {
-  display: grid;
-  gap: 15px;
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: 22px;
-  background: var(--surface);
-  box-shadow: var(--shadow-sm);
-}
-
-.ranking-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.ranking-icon {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  flex: 0 0 46px;
-  place-items: center;
-  border-radius: 15px;
-  background: var(--pm-red-soft);
-  color: var(--pm-red);
-}
-
-.coming-soon-badge {
-  margin-bottom: 4px;
-  background: var(--pm-red-soft);
-  color: var(--pm-red-dark);
-}
-
-.ranking-header h2 {
-  margin: 0;
-  color: var(--pm-ink);
-  font-size: 21px;
-  font-weight: 950;
-  letter-spacing: -0.025em;
-}
-
-.ranking-table {
-  width: 100%;
-  border-collapse: separate;
-  border-spacing: 0 5px;
-  table-layout: fixed;
-}
-
-.ranking-table th,
-.ranking-table td {
-  padding: 7px 9px;
-  text-align: center;
-}
-
-.ranking-table th {
-  color: #858a84;
-  font-size: 12px;
-  font-weight: 850;
-}
-
-.ranking-table td {
-  color: #4f554f;
-  font-size: 13px;
-  font-weight: 750;
-}
-
-.ranking-table th:first-child,
-.ranking-table td:first-child {
-  width: 34px;
-}
-
-.ranking-table th:nth-child(2),
-.ranking-table td:nth-child(2) {
-  width: auto;
-  text-align: left;
-}
-
-.ranking-table th:nth-child(n + 3),
-.ranking-table td:nth-child(n + 3) {
-  width: 46px;
-}
-
-.ranking-table td:first-child {
-  border-radius: 11px 0 0 11px;
-}
-
-.ranking-table td:last-child {
-  border-radius: 0 11px 11px 0;
-}
-
-.ranking-row-current td {
-  background: var(--pm-green-soft);
-  color: var(--pm-green-dark);
-}
-
-.ranking-table strong {
-  font-weight: 950;
-}
-
-.ranking-note {
-  margin: 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  font-weight: 650;
-}
-
 /* Navigation */
 .mobile-navigation {
   position: fixed;
@@ -2170,10 +2064,6 @@ svg {
 
   .trophy-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .ranking-preview {
-    padding: 24px;
   }
 
 }

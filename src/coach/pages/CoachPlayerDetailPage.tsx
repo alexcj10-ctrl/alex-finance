@@ -1,7 +1,27 @@
 /* oxlint-disable next/no-html-link-for-pages -- App Vite con routing History API. */
-import type { MouseEvent } from 'react';
-import { ArrowLeft, BookOpen, PlayCircle, Star, Trophy } from 'lucide-react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
+import {
+  ArrowLeft,
+  BookOpen,
+  KeyRound,
+  LoaderCircle,
+  PlayCircle,
+  ShieldCheck,
+  Star,
+  Trophy,
+} from 'lucide-react';
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
 import {
@@ -9,6 +29,10 @@ import {
   phaseLabels,
   phaseOrderByMacro,
 } from '../../data/lessons';
+import {
+  regeneratePlayerPin,
+  type PlayerPinReceipt,
+} from '../../services/supabase/supabase-coach-actions';
 import type { CoachPlayerDetail } from '../../types/coach';
 import { AttentionList } from '../components/AttentionList';
 import { CoachPageHeader, DemoDataBadge } from '../components/CoachPageHeader';
@@ -27,12 +51,41 @@ export function CoachPlayerDetailPage({
   detail,
   referenceDate,
   showDemoBadge,
+  teamId,
 }: {
   detail: CoachPlayerDetail;
   referenceDate: string;
   showDemoBadge: boolean;
+  teamId: string;
 }) {
   const { summary } = detail;
+  const [confirmPinReset, setConfirmPinReset] = useState(false);
+  const [pinResetStatus, setPinResetStatus] = useState<'idle' | 'submitting'>('idle');
+  const [pinResetError, setPinResetError] = useState<string>();
+  const [pinReceipt, setPinReceipt] = useState<PlayerPinReceipt>();
+  const receiptRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (pinReceipt) receiptRef.current?.focus();
+  }, [pinReceipt]);
+
+  const resetPlayerPin = async () => {
+    setPinResetStatus('submitting');
+    setPinResetError(undefined);
+
+    try {
+      const receipt = await regeneratePlayerPin(teamId, summary.playerId);
+      setPinReceipt(receipt);
+      setConfirmPinReset(false);
+    } catch (error) {
+      setPinResetError(
+        error instanceof Error ? error.message : 'Rigenerazione del PIN non riuscita.',
+      );
+      setConfirmPinReset(false);
+    } finally {
+      setPinResetStatus('idle');
+    }
+  };
 
   return (
     <div className="coach-page coach-player-detail-page">
@@ -71,6 +124,97 @@ export function CoachPlayerDetailPage({
         <Card><CardContent><span><Trophy className="size-4" aria-hidden="true" /> Trofei</span><strong>{summary.trophyCount}</strong></CardContent></Card>
         <Card><CardContent><span>Ultima attività</span><strong>{formatRelativeDate(summary.lastActivityAt, referenceDate)}</strong></CardContent></Card>
       </div>
+
+      <section className="coach-pin-management" aria-labelledby="player-access-title">
+        <div className="coach-pin-management-copy">
+          <span className="coach-pin-management-icon" aria-hidden="true">
+            <KeyRound className="size-5" />
+          </span>
+          <div>
+            <p className="coach-eyebrow">Accesso giocatore</p>
+            <h2 id="player-access-title">Codice e PIN</h2>
+            <p>
+              Se il giocatore perde il PIN, puoi generarne uno nuovo. Il PIN precedente
+              smetterà subito di funzionare.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="coach-pin-reset-button"
+          disabled={pinResetStatus === 'submitting'}
+          onClick={() => {
+            setPinResetError(undefined);
+            setConfirmPinReset(true);
+          }}
+        >
+          {pinResetStatus === 'submitting' ? (
+            <LoaderCircle className="size-4 coach-loading-icon" aria-hidden="true" />
+          ) : (
+            <KeyRound className="size-4" aria-hidden="true" />
+          )}
+          Rigenera PIN
+        </button>
+
+        {pinResetError ? (
+          <p className="coach-create-error coach-pin-management-message" role="alert">
+            {pinResetError}
+          </p>
+        ) : null}
+
+        {pinReceipt ? (
+          <div
+            ref={receiptRef}
+            className="coach-pin-receipt"
+            tabIndex={-1}
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            <div className="coach-pin-receipt-heading">
+              <ShieldCheck className="size-5" aria-hidden="true" />
+              <div>
+                <strong>Nuovo PIN creato</strong>
+                <span>Consegnalo direttamente al giocatore.</span>
+              </div>
+            </div>
+            <dl>
+              <div><dt>Codice</dt><dd>{pinReceipt.playerCode}</dd></div>
+              <div><dt>PIN</dt><dd>{pinReceipt.pin}</dd></div>
+            </dl>
+            <p>Queste credenziali vengono mostrate solo in questa schermata.</p>
+            <button type="button" onClick={() => setPinReceipt(undefined)}>
+              Ho consegnato le credenziali
+            </button>
+          </div>
+        ) : null}
+      </section>
+
+      <AlertDialog
+        open={confirmPinReset}
+        onOpenChange={(open) => setConfirmPinReset(open)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia><KeyRound aria-hidden="true" /></AlertDialogMedia>
+            <AlertDialogTitle>Rigenerare il PIN?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Il PIN attuale di {summary.displayName} non funzionerà più. Il nuovo PIN
+              comparirà una sola volta nella scheda.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={pinResetStatus === 'submitting'}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={pinResetStatus === 'submitting'}
+              onClick={() => void resetPlayerPin()}
+            >
+              {pinResetStatus === 'submitting' ? 'Rigenerazione…' : 'Rigenera PIN'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {summary.attention.length > 0 ? (
         <section className="coach-detail-section" aria-labelledby="player-attention-title">

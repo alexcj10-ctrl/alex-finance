@@ -1087,7 +1087,8 @@
 
 .coach-standalone-state span,
 .coach-not-found p { margin: 0; color: var(--text-muted); font-size: 13px; }
-.coach-loading-icon { margin-bottom: 10px; color: var(--pm-red); animation: coach-spin 900ms linear infinite; }
+.coach-loading-icon { color: var(--pm-red); animation: coach-spin 900ms linear infinite; }
+.coach-standalone-state .coach-loading-icon { margin-bottom: 10px; }
 
 .coach-not-found { min-height: 65vh; }
 .coach-not-found > span { color: var(--pm-red); font-size: 13px; font-weight: 900; letter-spacing: 0.15em; }
@@ -1222,6 +1223,141 @@
   color: #424843;
 }
 
+.coach-signup-window {
+  display: grid;
+  gap: 14px;
+  padding: 17px;
+  border: 1px solid #dfe4df;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(20 28 21 / 5%);
+}
+
+.coach-signup-window-open {
+  border-color: rgb(0 112 72 / 24%);
+  background: linear-gradient(135deg, #fff 0%, #f0faf5 100%);
+}
+
+.coach-signup-window-copy {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.coach-signup-window-icon {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--pm-red-soft);
+  color: var(--pm-red);
+}
+
+.coach-signup-window-open .coach-signup-window-icon {
+  background: var(--pm-green-soft);
+  color: var(--pm-green);
+}
+
+.coach-signup-window h2 { margin: 2px 0 0; font-size: 18px; }
+.coach-signup-window-copy p:last-child { margin: 5px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.45; }
+
+.coach-signup-window-action {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid #d9dfda;
+  border-radius: 11px;
+  background: #111713;
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.coach-signup-window-open .coach-signup-window-action { background: var(--pm-red); }
+.coach-signup-window-action:disabled { cursor: wait; opacity: .6; }
+.coach-signup-window-error { grid-column: 1 / -1; margin: 0; }
+
+.coach-pin-management {
+  display: grid;
+  gap: 14px;
+  padding: 17px;
+  border: 1px solid #dfe4df;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 30px rgb(20 28 21 / 5%);
+}
+
+.coach-pin-management-copy,
+.coach-pin-receipt-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.coach-pin-management-icon {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--pm-green-soft);
+  color: var(--pm-green);
+}
+
+.coach-pin-management h2 { margin: 2px 0 0; font-size: 18px; }
+.coach-pin-management-copy p:last-child { margin: 5px 0 0; color: var(--text-muted); font-size: 11px; line-height: 1.45; }
+
+.coach-pin-reset-button {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 14px;
+  border: 1px solid #d9dfda;
+  border-radius: 11px;
+  background: #111713;
+  color: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 850;
+}
+
+.coach-pin-reset-button:disabled { cursor: wait; opacity: .6; }
+.coach-pin-management-message { grid-column: 1 / -1; margin: 0; }
+
+.coach-pin-receipt {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgb(0 112 72 / 24%);
+  border-radius: 13px;
+  background: #f0faf5;
+  outline: none;
+}
+
+.coach-pin-receipt:focus-visible { box-shadow: 0 0 0 3px rgb(0 112 72 / 18%); }
+.coach-pin-receipt-heading { color: var(--pm-green); }
+.coach-pin-receipt-heading div { display: grid; gap: 2px; }
+.coach-pin-receipt-heading strong { color: #111713; font-size: 13px; }
+.coach-pin-receipt-heading span,
+.coach-pin-receipt > p { margin: 0; color: var(--text-muted); font-size: 11px; }
+.coach-pin-receipt dl { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; margin: 0; }
+.coach-pin-receipt dl > div { padding: 10px; border-radius: 10px; background: #fff; }
+.coach-pin-receipt dt { color: var(--text-muted); font-size: 9px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.coach-pin-receipt dd { overflow-wrap: anywhere; margin: 4px 0 0; color: #111713; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 16px; font-weight: 900; letter-spacing: .08em; }
+.coach-pin-receipt > button { justify-self: start; border: 0; background: transparent; color: var(--pm-green); cursor: pointer; font-size: 11px; font-weight: 850; text-decoration: underline; text-underline-offset: 3px; }
+
 .coach-primary-action,
 .coach-create-panel form button {
   display: inline-flex;
@@ -1307,6 +1443,9 @@
 .coach-assignment-actions button:disabled { cursor: wait; opacity: .62; }
 
 @media (min-width: 680px) {
+  .coach-signup-window { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .coach-pin-management { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+  .coach-pin-receipt dl { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .coach-create-panel form { grid-template-columns: 1.2fr 1fr .7fr auto; align-items: end; }
   .coach-assignment-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

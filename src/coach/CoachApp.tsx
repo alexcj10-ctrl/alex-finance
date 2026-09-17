@@ -65,6 +65,7 @@ export function CoachApp({
           detail={detail}
           referenceDate={model.generatedAt}
           showDemoBadge={model.source === 'mock'}
+          teamId={model.team.id}
         />
       ) : (
         <section className="coach-not-found">
