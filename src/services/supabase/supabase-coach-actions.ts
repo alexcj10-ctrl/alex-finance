@@ -94,6 +94,22 @@ export async function regeneratePlayerPin(teamId: string, playerId: string) {
   return payload.credentials;
 }
 
+export async function deletePlayerAccount(
+  teamId: string,
+  playerId: string,
+  confirmation: string,
+) {
+  const response = await fetch('/api/coach/player-delete', {
+    method: 'DELETE',
+    headers: {
+      ...await coachAuthorizationHeader(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ confirmation, playerId, teamId }),
+  });
+  if (!response.ok) throw new Error(await readError(response));
+}
+
 export async function assignLessonToTeam(teamId: string, lessonId: string) {
   const { data, error } = await requireSupabaseClient().rpc('assign_lesson', {
     p_team_id: teamId,

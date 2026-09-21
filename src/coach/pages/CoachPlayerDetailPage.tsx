@@ -8,6 +8,7 @@ import {
   PlayCircle,
   ShieldCheck,
   Star,
+  Trash2,
   Trophy,
 } from 'lucide-react';
 
@@ -24,12 +25,14 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import {
   macroPhaseLabels,
   phaseLabels,
   phaseOrderByMacro,
 } from '../../data/lessons';
 import {
+  deletePlayerAccount,
   regeneratePlayerPin,
   type PlayerPinReceipt,
 } from '../../services/supabase/supabase-coach-actions';
@@ -63,6 +66,10 @@ export function CoachPlayerDetailPage({
   const [pinResetStatus, setPinResetStatus] = useState<'idle' | 'submitting'>('idle');
   const [pinResetError, setPinResetError] = useState<string>();
   const [pinReceipt, setPinReceipt] = useState<PlayerPinReceipt>();
+  const [confirmPlayerDelete, setConfirmPlayerDelete] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleteStatus, setDeleteStatus] = useState<'idle' | 'submitting'>('idle');
+  const [deleteError, setDeleteError] = useState<string>();
   const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -86,6 +93,25 @@ export function CoachPlayerDetailPage({
       setPinResetStatus('idle');
     }
   };
+
+  const deletePlayer = async () => {
+    setDeleteStatus('submitting');
+    setDeleteError(undefined);
+
+    try {
+      await deletePlayerAccount(teamId, summary.playerId, deleteConfirmation);
+      window.location.replace('/coach/giocatori');
+    } catch (error) {
+      setDeleteError(
+        error instanceof Error ? error.message : 'Eliminazione del giocatore non riuscita.',
+      );
+      setDeleteStatus('idle');
+    }
+  };
+
+  const deleteConfirmationMatches =
+    deleteConfirmation.trim() === summary.displayName ||
+    deleteConfirmation.trim() === 'ELIMINA';
 
   return (
     <div className="coach-page coach-player-detail-page">
@@ -302,6 +328,87 @@ export function CoachPlayerDetailPage({
           ))}
         </div>
       </section>
+
+      <section
+        className="coach-pin-management coach-account-management"
+        aria-labelledby="player-account-management-title"
+      >
+        <div className="coach-pin-management-copy">
+          <span className="coach-pin-management-icon" aria-hidden="true">
+            <Trash2 className="size-5" />
+          </span>
+          <div>
+            <p className="coach-eyebrow">Gestione account</p>
+            <h2 id="player-account-management-title">Elimina giocatore</h2>
+            <p>
+              Rimuove definitivamente account, accesso e tutti i progressi del giocatore.
+            </p>
+          </div>
+        </div>
+        <button
+          type="button"
+          className="coach-delete-player-button"
+          onClick={() => {
+            setDeleteConfirmation('');
+            setDeleteError(undefined);
+            setConfirmPlayerDelete(true);
+          }}
+        >
+          <Trash2 className="size-4" aria-hidden="true" />
+          Elimina giocatore
+        </button>
+      </section>
+
+      <AlertDialog
+        open={confirmPlayerDelete}
+        onOpenChange={(open) => {
+          if (deleteStatus !== 'submitting') setConfirmPlayerDelete(open);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia className="coach-delete-dialog-media">
+              <Trash2 aria-hidden="true" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>Eliminare definitivamente {summary.displayName}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              L’operazione è irreversibile: account, accesso, lezioni, video, quiz, punti
+              e trofei verranno cancellati.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="coach-delete-dialog-field">
+            <label htmlFor="player-delete-confirmation">
+              Digita <strong>{summary.displayName}</strong> oppure <strong>ELIMINA</strong>
+            </label>
+            <Input
+              id="player-delete-confirmation"
+              value={deleteConfirmation}
+              disabled={deleteStatus === 'submitting'}
+              autoComplete="off"
+              aria-invalid={Boolean(deleteError)}
+              onChange={(event) => {
+                setDeleteConfirmation(event.target.value);
+                setDeleteError(undefined);
+              }}
+            />
+            {deleteError ? (
+              <p className="coach-delete-dialog-error" role="alert">{deleteError}</p>
+            ) : null}
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteStatus === 'submitting'}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              variant="destructive"
+              disabled={!deleteConfirmationMatches || deleteStatus === 'submitting'}
+              onClick={() => void deletePlayer()}
+            >
+              {deleteStatus === 'submitting' ? 'Eliminazione…' : 'Elimina definitivamente'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

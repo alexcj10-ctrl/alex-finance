@@ -66,6 +66,12 @@ export function assertPost(request: Request) {
   }
 }
 
+export function assertDelete(request: Request) {
+  if (request.method !== 'DELETE') {
+    throw new ApiError(405, 'METHOD_NOT_ALLOWED', 'Metodo non consentito.');
+  }
+}
+
 export function assertSameOrigin(request: Request) {
   const origin = request.headers.get('origin');
   let requestOrigin: string;
