@@ -277,16 +277,24 @@ export function buildCoachReadModel(
             validVariantIds.has(video.variantId),
         );
         const latestQuizAttempt = latestQuizByPlayerLesson.get(`${playerId}::${lesson.id}`);
+        const completedVideoCount = lesson.variantiVideo.filter((variant) =>
+          videos.some((video) => video.variantId === variant.id && video.completed),
+        ).length;
 
         return {
           lesson,
           progress,
           videos,
           maxWatchedPercent: Math.max(0, ...videos.map((video) => video.watchedPercent)),
+          completedVideoCount,
+          requiredVideoCount: lesson.variantiVideo.length,
+          allVideosCompleted: completedVideoCount === lesson.variantiVideo.length,
           latestQuizAttempt,
           quizAttempts: relevantQuizzes.filter(
             (attempt) => attempt.playerId === playerId && attempt.lessonId === lesson.id,
           ).length,
+          quizCompleted: Boolean(latestQuizAttempt),
+          lessonCompleted: progress.status === 'completata',
         };
       })
       .filter((view): view is NonNullable<typeof view> => Boolean(view));

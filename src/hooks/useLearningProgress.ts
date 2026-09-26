@@ -16,11 +16,13 @@ import {
   type PlayerLearningSnapshot,
 } from '../services/supabase/supabase-player-repository';
 import type { VideoProgressCheckpointInput } from '../types/video-progress';
+import type { StoredQuizAttempt } from '../types/quiz';
 
 const emptySnapshot: PlayerLearningSnapshot = {
   progress: createInitialLearningProgress(),
   assignedLessonIds: [],
   videos: [],
+  quizAttempts: [],
 };
 
 export function useLearningProgress(
@@ -154,6 +156,11 @@ export function useLearningProgress(
     ),
     [snapshot.videos],
   );
+  const getLatestQuizAttempt = useCallback(
+    (lessonId: string): StoredQuizAttempt | undefined =>
+      snapshot.quizAttempts.find((attempt) => attempt.lessonId === lessonId),
+    [snapshot.quizAttempts],
+  );
   const summary = useMemo(
     () => selectLearningSummary(snapshot.progress, assignedLessons),
     [assignedLessons, snapshot.progress],
@@ -167,6 +174,7 @@ export function useLearningProgress(
     error,
     getLessonStatus,
     getVideoProgress,
+    getLatestQuizAttempt,
     recordVideoCheckpoint,
     refresh,
     startLesson,

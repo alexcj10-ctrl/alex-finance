@@ -5,16 +5,19 @@ import type {
   StoredVideoProgress,
   VideoProgressCheckpointInput,
 } from '../../types/video-progress';
+import type { StoredQuizAttempt } from '../../types/quiz';
 import { requireSupabaseClient } from './client';
 
 type Tables = Database['public']['Tables'];
 type LessonProgressRow = Tables['lesson_progress']['Row'];
 type VideoProgressRow = Tables['video_progress']['Row'];
+type QuizAttemptRow = Tables['quiz_attempts']['Row'];
 
 export type PlayerLearningSnapshot = {
   progress: StoredLearningProgress;
   assignedLessonIds: readonly string[];
   videos: readonly StoredVideoProgress[];
+  quizAttempts: readonly StoredQuizAttempt[];
 };
 
 function mapVideoProgress(row: VideoProgressRow): StoredVideoProgress {
@@ -31,6 +34,17 @@ function mapVideoProgress(row: VideoProgressRow): StoredVideoProgress {
     completed: row.completed,
     reachedCheckpoints: reached,
     updatedAt: row.updated_at,
+  };
+}
+
+function mapQuizAttempt(row: QuizAttemptRow): StoredQuizAttempt {
+  return {
+    lessonId: row.lesson_id,
+    score: Number(row.score),
+    totalQuestions: row.total_questions,
+    correctAnswers: row.correct_answers,
+    attemptNumber: row.attempt_number,
+    completedAt: row.completed_at,
   };
 }
 
@@ -69,11 +83,21 @@ function assertPlayer(identity: AuthIdentity) {
 }
 
 function friendlyMutationError(message: string) {
-  if (message.includes('required video progress')) {
-    return new Error('Guarda il video fino alla fine prima di completare la lezione.');
+  if (message.includes('quiz') && message.includes('video')) {
+    return new Error('Guarda tutti i video prima di iniziare il quiz.');
   }
-  if (message.includes('required quiz score')) {
-    return new Error('Completa il quiz con almeno il 50% di risposte corrette.');
+  if (message.includes('required video progress')) {
+    return new Error('Guarda tutti i video fino alla fine prima di continuare.');
+  }
+  if (message.includes('required videos') || message.includes('video checkpoint')) {
+    return new Error('Guarda tutti i video in ordine, senza saltare fino alla fine.');
+  }
+  if (
+    message.includes('required quiz') ||
+    message.includes('quiz completion') ||
+    message.includes('quiz must be completed')
+  ) {
+    return new Error('Completa il quiz prima di completare la lezione.');
   }
   if (message.includes('assignment')) {
     return new Error('Questa lezione non è ancora stata assegnata dal coach.');
@@ -86,7 +110,7 @@ export async function loadPlayerLearningSnapshot(
 ): Promise<PlayerLearningSnapshot> {
   assertPlayer(identity);
   const client = requireSupabaseClient();
-  const [progressResult, videosResult, trophiesResult] = await Promise.all([
+  const [progressResult, videosResult, quizzesResult, trophiesResult] = await Promise.all([
     client
       .from('lesson_progress')
       .select('*')
@@ -99,13 +123,20 @@ export async function loadPlayerLearningSnapshot(
       .eq('team_id', identity.teamId)
       .eq('player_id', identity.userId),
     client
+      .from('quiz_attempts')
+      .select('*')
+      .eq('team_id', identity.teamId)
+      .eq('player_id', identity.userId)
+      .order('completed_at', { ascending: false }),
+    client
       .from('player_trophies')
       .select('*')
       .eq('team_id', identity.teamId)
       .eq('player_id', identity.userId),
   ]);
 
-  const error = progressResult.error ?? videosResult.error ?? trophiesResult.error;
+  const error =
+    progressResult.error ?? videosResult.error ?? quizzesResult.error ?? trophiesResult.error;
   if (error) throw new Error(`Lettura progressi non riuscita: ${error.message}`);
 
   const lessonRows = progressResult.data ?? [];
@@ -113,6 +144,7 @@ export async function loadPlayerLearningSnapshot(
     progress: mapLearningProgress(identity, lessonRows, trophiesResult.data ?? []),
     assignedLessonIds: lessonRows.map((row) => row.lesson_id),
     videos: (videosResult.data ?? []).map(mapVideoProgress),
+    quizAttempts: (quizzesResult.data ?? []).map(mapQuizAttempt),
   };
 }
 

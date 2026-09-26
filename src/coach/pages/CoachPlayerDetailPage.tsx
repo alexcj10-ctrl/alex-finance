@@ -303,8 +303,8 @@ export function CoachPlayerDetailPage({
               <CoachProgress value={item.progress.progressPercent} label="Avanzamento lezione" />
               <div className="coach-lesson-evidence-grid">
                 <div>
-                  <span className="coach-evidence-label"><PlayCircle className="size-4" aria-hidden="true" /> Video visto</span>
-                  <strong>{item.maxWatchedPercent}%</strong>
+                  <span className="coach-evidence-label"><PlayCircle className="size-4" aria-hidden="true" /> Video completati</span>
+                  <strong>{item.completedVideoCount} / {item.requiredVideoCount}</strong>
                   <small>
                     {item.lesson.variantiVideo.map((variant) => {
                       const progress = item.videos.find((video) => video.variantId === variant.id);
@@ -314,14 +314,34 @@ export function CoachPlayerDetailPage({
                 </div>
                 <div>
                   <span className="coach-evidence-label">Quiz</span>
-                  {item.latestQuizAttempt ? (
+                  {item.quizCompleted && item.latestQuizAttempt ? (
                     <>
-                      <strong>{Math.round(item.latestQuizAttempt.score)}%</strong>
+                      <strong>Completato · {Math.round(item.latestQuizAttempt.score)}%</strong>
                       <small>{item.latestQuizAttempt.correctAnswers} / {item.latestQuizAttempt.totalQuestions} corrette · {item.quizAttempts} {item.quizAttempts === 1 ? 'tentativo' : 'tentativi'}</small>
                     </>
                   ) : (
-                    <><strong>—</strong><small>Nessun tentativo</small></>
+                    <>
+                      <strong>{item.allVideosCompleted ? 'Da completare' : 'Non disponibile'}</strong>
+                      <small>{item.allVideosCompleted ? 'Nessun tentativo inviato' : 'Richiede tutti i video'}</small>
+                    </>
                   )}
+                </div>
+                <div>
+                  <span className="coach-evidence-label">Lezione</span>
+                  <strong>
+                    {item.lessonCompleted
+                      ? 'Completata'
+                      : item.allVideosCompleted && item.quizCompleted
+                        ? 'Da confermare'
+                        : 'Non completata'}
+                  </strong>
+                  <small>
+                    {item.lessonCompleted
+                      ? 'Passaggio finale confermato'
+                      : item.allVideosCompleted && item.quizCompleted
+                        ? 'Il giocatore deve premere “Completa lezione”'
+                        : 'Percorso ancora in corso'}
+                  </small>
                 </div>
               </div>
             </article>

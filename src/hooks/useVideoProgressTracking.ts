@@ -19,6 +19,7 @@ export function useVideoProgressTracking(
   const lastPlaybackTimeRef = useRef<number | undefined>(undefined);
   const watchedSecondsRef = useRef<number | undefined>(undefined);
   const storedPercentRef = useRef(0);
+  const syncQueueRef = useRef<Promise<void>>(Promise.resolve());
   const activeKey = `${lessonId}::${variantId}`;
 
   const ensureActiveVariant = useCallback(() => {
@@ -63,27 +64,33 @@ export function useVideoProgressTracking(
 
       reachedRef.current.add(checkpoint);
       const playback = readPlayback(video);
-      const write = repository.recordCheckpoint({
+      const checkpointKey = activeKey;
+      const input = {
         lessonId,
         variantId,
         checkpoint,
         watchedPercent: checkpoint === 100 ? 100 : playback.watchedPercent,
         lastPositionSeconds: playback.position,
-      });
+      } as const;
       storedPercentRef.current = checkpoint === 100 ? 100 : playback.watchedPercent;
 
-      if (write instanceof Promise) {
-        void write.catch((error: unknown) => {
-          reachedRef.current.delete(checkpoint);
+      syncQueueRef.current = syncQueueRef.current
+        .catch(() => undefined)
+        .then(async () => {
+          await repository.recordCheckpoint(input);
+        })
+        .catch((error: unknown) => {
+          if (activeKeyRef.current === checkpointKey) {
+            reachedRef.current.delete(checkpoint);
+          }
           onSyncError?.(
             error instanceof Error
               ? error.message
               : 'Non siamo riusciti a sincronizzare il video.',
           );
         });
-      }
     },
-    [ensureActiveVariant, lessonId, onSyncError, readPlayback, repository, variantId],
+    [activeKey, ensureActiveVariant, lessonId, onSyncError, readPlayback, repository, variantId],
   );
 
   const onPlay = useCallback(
@@ -110,7 +117,7 @@ export function useVideoProgressTracking(
     (video: HTMLVideoElement) => {
       ensureActiveVariant();
       const { watchedPercent } = readPlayback(video);
-      if (watchedPercent >= 95) persist(100, video);
+      if (watchedPercent >= 99) persist(100, video);
     },
     [ensureActiveVariant, persist, readPlayback],
   );

@@ -2294,6 +2294,17 @@ svg {
   font-size: 13px;
 }
 
+.lesson-quiz-locked {
+  background: #f4f6f4;
+}
+
+.lesson-quiz-gate-copy {
+  margin: 0;
+  color: #5e665f;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .lesson-quiz-heading {
   display: flex;
   align-items: center;

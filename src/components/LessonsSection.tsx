@@ -35,6 +35,7 @@ import type {
   StoredVideoProgress,
   VideoProgressCheckpointInput,
 } from '../types/video-progress';
+import type { StoredQuizAttempt } from '../types/quiz';
 import { LessonQuiz } from './LessonQuiz';
 
 const statusLabels: Record<LessonProgressStatus, string> = {
@@ -143,7 +144,8 @@ function LessonVideo({
 
       {videoProgress ? (
         <p className="video-sync-status" aria-live="polite">
-          Video sincronizzato: <strong>{videoProgress.watchedPercent}%</strong>
+          {videoProgress.completed ? 'Video completato: ' : 'Video sincronizzato: '}
+          <strong>{videoProgress.watchedPercent}%</strong>
         </p>
       ) : null}
 
@@ -151,21 +153,29 @@ function LessonVideo({
         <fieldset className="variant-picker">
           <legend>Due modi, stessa idea</legend>
           <div className="variant-buttons">
-            {lesson.variantiVideo.map((variant) => (
-              <button
-                key={variant.id}
-                type="button"
-                className={cn(
-                  'variant-button',
-                  selectedVariant.id === variant.id && 'variant-button-active',
-                )}
-                aria-pressed={selectedVariant.id === variant.id}
-                onClick={() => setSelectedVariantId(variant.id)}
-              >
-                <Play className="size-4 fill-current" aria-hidden="true" />
-                {variant.etichetta}
-              </button>
-            ))}
+            {lesson.variantiVideo.map((variant) => {
+              const progress = getVideoProgress(lesson.id, variant.id);
+              return (
+                <button
+                  key={variant.id}
+                  type="button"
+                  className={cn(
+                    'variant-button',
+                    selectedVariant.id === variant.id && 'variant-button-active',
+                  )}
+                  aria-label={`${variant.etichetta}${progress?.completed ? ', completata' : ''}`}
+                  aria-pressed={selectedVariant.id === variant.id}
+                  onClick={() => setSelectedVariantId(variant.id)}
+                >
+                  {progress?.completed ? (
+                    <Check className="size-4" aria-hidden="true" />
+                  ) : (
+                    <Play className="size-4 fill-current" aria-hidden="true" />
+                  )}
+                  {variant.etichetta}
+                </button>
+              );
+            })}
           </div>
         </fieldset>
       ) : null}
@@ -178,6 +188,7 @@ type LessonsSectionProps = {
   initialLessonId?: string;
   getLessonStatus: (lessonId: string) => LessonProgressStatus;
   getVideoProgress: (lessonId: string, variantId: string) => StoredVideoProgress | undefined;
+  getLatestQuizAttempt: (lessonId: string) => StoredQuizAttempt | undefined;
   onVideoCheckpoint: (input: VideoProgressCheckpointInput) => Promise<StoredVideoProgress>;
   onLessonStarted: (lessonId: string) => Promise<void>;
   onCompleteLesson: (lessonId: string) => Promise<void>;
@@ -191,6 +202,7 @@ export function LessonsSection({
   initialLessonId,
   getLessonStatus,
   getVideoProgress,
+  getLatestQuizAttempt,
   onVideoCheckpoint,
   onLessonStarted,
   onCompleteLesson,
@@ -228,6 +240,12 @@ export function LessonsSection({
     const isCompleted = status === 'completata';
     const isAvailable = selectedLesson.disponibilita === 'disponibile';
     const visibleStatus = isAvailable ? statusLabels[status] : 'In arrivo';
+    const allVideosCompleted = selectedLesson.variantiVideo.every(
+      (variant) => getVideoProgress(selectedLesson.id, variant.id)?.completed === true,
+    );
+    const latestQuizAttempt = getLatestQuizAttempt(selectedLesson.id);
+    const quizCompleted = Boolean(latestQuizAttempt);
+    const canComplete = isAvailable && allVideosCompleted && quizCompleted;
 
     return (
       <div className="lesson-detail-view view-shell">
@@ -290,8 +308,11 @@ export function LessonsSection({
           </section>
 
           <LessonQuiz
+            key={selectedLesson.id}
             lessonId={selectedLesson.id}
             teamId={teamId}
+            unlocked={allVideosCompleted}
+            previousAttempt={latestQuizAttempt}
             onSubmitted={onQuizSubmitted}
           />
 
@@ -314,7 +335,7 @@ export function LessonsSection({
               type="button"
               size="lg"
               className={cn('complete-button', isCompleted && 'complete-button-done')}
-              disabled={!isAvailable || isCompleted || completing}
+              disabled={!canComplete || isCompleted || completing}
               onClick={() => {
                 setCompleting(true);
                 void onCompleteLesson(selectedLesson.id).finally(() => setCompleting(false));
@@ -329,9 +350,21 @@ export function LessonsSection({
                   <Clock3 className="size-5" aria-hidden="true" /> Sincronizzazione…
                 </>
               ) : isAvailable ? (
-                <>
-                  Completa lezione <ArrowRight className="ml-auto size-5" aria-hidden="true" />
-                </>
+                allVideosCompleted ? (
+                  quizCompleted ? (
+                    <>
+                      Completa lezione <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="size-5" aria-hidden="true" /> Completa prima il quiz
+                    </>
+                  )
+                ) : (
+                  <>
+                    <Lock className="size-5" aria-hidden="true" /> Guarda tutti i video
+                  </>
+                )
               ) : (
                 <>
                   <Clock3 className="size-5" aria-hidden="true" /> In preparazione

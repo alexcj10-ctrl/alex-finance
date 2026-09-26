@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CheckCircle2, CircleHelp, LoaderCircle, RotateCcw, XCircle } from 'lucide-react';
+import {
+  CheckCircle2,
+  CircleHelp,
+  LoaderCircle,
+  Lock,
+  RotateCcw,
+  XCircle,
+} from 'lucide-react';
 
 import type { Json } from '../types/database';
 import type {
@@ -7,12 +14,15 @@ import type {
   QuizAttemptResult,
   QuizChoice,
   QuizQuestion,
+  StoredQuizAttempt,
 } from '../types/quiz';
 import { requireSupabaseClient } from '../services/supabase/client';
 
 type LessonQuizProps = {
   lessonId: string;
   teamId: string;
+  unlocked: boolean;
+  previousAttempt?: StoredQuizAttempt;
   onSubmitted: () => Promise<void>;
 };
 
@@ -86,14 +96,23 @@ function parseAttemptResult(value: Json): QuizAttemptResult | null {
   };
 }
 
-export function LessonQuiz({ lessonId, teamId, onSubmitted }: LessonQuizProps) {
+export function LessonQuiz({
+  lessonId,
+  teamId,
+  unlocked,
+  previousAttempt,
+  onSubmitted,
+}: LessonQuizProps) {
   const [questions, setQuestions] = useState<readonly QuizQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<QuizAttemptResult>();
   const [status, setStatus] = useState<'loading' | 'ready' | 'submitting' | 'error'>('loading');
   const [error, setError] = useState<string>();
+  const [retrying, setRetrying] = useState(false);
 
   useEffect(() => {
+    if (!unlocked) return;
+
     let cancelled = false;
 
     void requireSupabaseClient()
@@ -123,12 +142,27 @@ export function LessonQuiz({ lessonId, teamId, onSubmitted }: LessonQuizProps) {
     return () => {
       cancelled = true;
     };
-  }, [lessonId]);
+  }, [lessonId, unlocked]);
 
   const canSubmit = useMemo(
     () => questions.length >= 2 && questions.every((question) => answers[question.id]),
     [answers, questions],
   );
+
+  if (!unlocked) {
+    return (
+      <section className="lesson-quiz lesson-quiz-locked" aria-labelledby={`quiz-title-${lessonId}`}>
+        <header className="lesson-quiz-heading">
+          <span aria-hidden="true"><Lock className="size-5" /></span>
+          <div>
+            <small>Passaggio successivo</small>
+            <h2 id={`quiz-title-${lessonId}`}>Quiz bloccato</h2>
+          </div>
+        </header>
+        <p className="lesson-quiz-gate-copy">Guarda tutti i video per sbloccare il quiz.</p>
+      </section>
+    );
+  }
 
   if (status === 'loading') {
     return (
@@ -138,7 +172,22 @@ export function LessonQuiz({ lessonId, teamId, onSubmitted }: LessonQuizProps) {
     );
   }
 
-  if (questions.length === 0 && status !== 'error') return null;
+  if (questions.length === 0 && status !== 'error') {
+    return (
+      <section className="lesson-quiz" aria-labelledby={`quiz-title-${lessonId}`}>
+        <header className="lesson-quiz-heading">
+          <span aria-hidden="true"><CircleHelp className="size-5" /></span>
+          <div>
+            <small>Passaggio successivo</small>
+            <h2 id={`quiz-title-${lessonId}`}>Quiz in preparazione</h2>
+          </div>
+        </header>
+        <p className="lesson-quiz-gate-copy">
+          Il quiz di questa lezione non è ancora disponibile.
+        </p>
+      </section>
+    );
+  }
 
   const submit = async () => {
     if (!canSubmit || status === 'submitting') return;
@@ -159,6 +208,7 @@ export function LessonQuiz({ lessonId, teamId, onSubmitted }: LessonQuizProps) {
     }
 
     setResult(parsed);
+    setRetrying(false);
     setStatus('ready');
     await onSubmitted();
   };
@@ -167,8 +217,36 @@ export function LessonQuiz({ lessonId, teamId, onSubmitted }: LessonQuizProps) {
     setAnswers({});
     setResult(undefined);
     setError(undefined);
+    setRetrying(true);
     setStatus('ready');
   };
+
+  if (previousAttempt && !result && !retrying) {
+    return (
+      <section className="lesson-quiz" aria-labelledby={`quiz-title-${lessonId}`}>
+        <header className="lesson-quiz-heading">
+          <span aria-hidden="true"><CheckCircle2 className="size-5" /></span>
+          <div>
+            <small>Passaggio completato</small>
+            <h2 id={`quiz-title-${lessonId}`}>Quiz completato</h2>
+          </div>
+        </header>
+        <output className="lesson-quiz-result">
+          <strong>{Math.round(previousAttempt.score)}%</strong>
+          <span>
+            {previousAttempt.correctAnswers} risposte corrette su {previousAttempt.totalQuestions}
+          </span>
+        </output>
+        <button
+          type="button"
+          className="quiz-submit-button quiz-retry-button"
+          onClick={() => setRetrying(true)}
+        >
+          <RotateCcw className="size-4" aria-hidden="true" /> Riprova il quiz
+        </button>
+      </section>
+    );
+  }
 
   return (
     <section className="lesson-quiz" aria-labelledby={`quiz-title-${lessonId}`}>

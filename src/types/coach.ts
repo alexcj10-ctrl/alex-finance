@@ -158,8 +158,13 @@ export type CoachPlayerLessonView = {
   progress: CoachLessonProgressRecord;
   videos: readonly CoachVideoProgressRecord[];
   maxWatchedPercent: number;
+  completedVideoCount: number;
+  requiredVideoCount: number;
+  allVideosCompleted: boolean;
   latestQuizAttempt?: CoachQuizAttemptRecord;
   quizAttempts: number;
+  quizCompleted: boolean;
+  lessonCompleted: boolean;
 };
 
 export type CoachPlayerDetail = {

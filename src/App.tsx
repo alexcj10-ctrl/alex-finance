@@ -130,6 +130,7 @@ export default function App({
             initialLessonId={focusedLessonId}
             getLessonStatus={progress.getLessonStatus}
             getVideoProgress={progress.getVideoProgress}
+            getLatestQuizAttempt={progress.getLatestQuizAttempt}
             onVideoCheckpoint={progress.recordVideoCheckpoint}
             onLessonStarted={progress.startLesson}
             onCompleteLesson={progress.completeLesson}

@@ -31,3 +31,12 @@ export type QuizAttemptResult = {
   completedAt: string;
   answers: readonly QuizAnswerResult[];
 };
+
+export type StoredQuizAttempt = {
+  lessonId: string;
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  attemptNumber: number;
+  completedAt: string;
+};

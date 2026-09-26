@@ -112,6 +112,10 @@ insert into public.team_members (team_id, profile_id, role, active) values
   ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000004', 'coach', true),
   ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000005', 'player', true);
 
+update private.lesson_video_requirements
+set duration_seconds = 0.500
+where lesson_id = 'costruzione-creare-ampiezza';
+
 set local role authenticated;
 select set_config(
   'request.jwt.claims',
@@ -200,15 +204,41 @@ select extensions.lives_ok(
 );
 
 select extensions.lives_ok(
-  $$select public.record_video_checkpoint(
-    '30000000-0000-4000-8000-000000000001',
-    'costruzione-creare-ampiezza',
-    'variante-a',
-    100::smallint,
-    100::smallint,
-    42.5
-  )$$,
-  'assigned player can record their own completed video checkpoint'
+  $test$
+  do $body$
+  declare
+    variant text;
+  begin
+    foreach variant in array array['variante-a', 'variante-b'] loop
+      perform public.record_video_checkpoint(
+        '30000000-0000-4000-8000-000000000001',
+        'costruzione-creare-ampiezza', variant, 0::smallint, 0::smallint, 0
+      );
+      perform pg_sleep(0.120);
+      perform public.record_video_checkpoint(
+        '30000000-0000-4000-8000-000000000001',
+        'costruzione-creare-ampiezza', variant, 25::smallint, 25::smallint, 10
+      );
+      perform pg_sleep(0.120);
+      perform public.record_video_checkpoint(
+        '30000000-0000-4000-8000-000000000001',
+        'costruzione-creare-ampiezza', variant, 50::smallint, 50::smallint, 20
+      );
+      perform pg_sleep(0.120);
+      perform public.record_video_checkpoint(
+        '30000000-0000-4000-8000-000000000001',
+        'costruzione-creare-ampiezza', variant, 75::smallint, 75::smallint, 30
+      );
+      perform pg_sleep(0.120);
+      perform public.record_video_checkpoint(
+        '30000000-0000-4000-8000-000000000001',
+        'costruzione-creare-ampiezza', variant, 100::smallint, 100::smallint, 42.5
+      );
+    end loop;
+  end
+  $body$;
+  $test$,
+  'assigned player completes both required variants in checkpoint order'
 );
 
 select extensions.lives_ok(
