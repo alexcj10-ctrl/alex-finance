@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto';
 
-import { requireCoach, requireCoachTeamAccess } from '../_lib/coach-auth.js';
+import { requireCoach, requireCoachTeamAdminAccess } from '../_lib/coach-auth.js';
 import {
   ApiError,
   assertPost,
@@ -47,7 +47,7 @@ async function handlePost(request: Request) {
   const { playerId, teamId } = parseResetRequest(body);
   const { admin, coachId } = await requireCoach(request);
 
-  await requireCoachTeamAccess(coachId, teamId);
+  await requireCoachTeamAdminAccess(coachId, teamId);
 
   const [profileResult, membershipResult, authResult] = await Promise.all([
     admin

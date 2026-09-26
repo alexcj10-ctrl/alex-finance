@@ -1,4 +1,8 @@
-import { requireCoach, requireCoachTeamAccess } from '../_lib/coach-auth.js';
+import {
+  requireCoach,
+  requireCoachTeamAccess,
+  requireCoachTeamAdminAccess,
+} from '../_lib/coach-auth.js';
 import {
   ApiError,
   assertSameOrigin,
@@ -112,7 +116,7 @@ async function handlePost(request: Request) {
   const body = await readJsonObject(request);
   const update = parseUpdate(body);
   const { admin, coachId } = await requireCoach(request);
-  await requireCoachTeamAccess(coachId, update.teamId);
+  await requireCoachTeamAdminAccess(coachId, update.teamId);
   const environment = getPlayerSignupEnvironment();
 
   const { data, error } = await admin

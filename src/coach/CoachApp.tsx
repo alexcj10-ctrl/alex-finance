@@ -3,8 +3,10 @@ import type { MouseEvent } from 'react';
 import { ArrowLeft, LoaderCircle } from 'lucide-react';
 
 import type { CoachRepository } from '../services/coach-repository';
+import type { CoachAccessLevel } from '../types/database';
 import { CoachShell } from './components/CoachShell';
 import { useCoachData } from './hooks/useCoachData';
+import { CoachLessonDetailPage } from './pages/CoachLessonDetailPage';
 import { CoachLessonsPage } from './pages/CoachLessonsPage';
 import { CoachOverviewPage } from './pages/CoachOverviewPage';
 import { CoachPlayerDetailPage } from './pages/CoachPlayerDetailPage';
@@ -21,13 +23,16 @@ function handleOverview(event: MouseEvent<HTMLAnchorElement>) {
 
 export function CoachApp({
   repository,
+  accessLevel,
   onLogout,
 }: {
   repository: CoachRepository;
+  accessLevel: CoachAccessLevel;
   onLogout: () => Promise<void>;
 }) {
   const route = useCoachRoute();
   const data = useCoachData(repository);
+  const canManage = accessLevel === 'admin';
 
   if (data.status === 'loading') {
     return (
@@ -56,7 +61,13 @@ export function CoachApp({
       page = <CoachOverviewPage model={model} />;
       break;
     case 'players':
-      page = <CoachPlayersPage model={model} onDataChanged={data.refresh} />;
+      page = (
+        <CoachPlayersPage
+          model={model}
+          canManage={canManage}
+          onDataChanged={data.refresh}
+        />
+      );
       break;
     case 'player': {
       const detail = model.getPlayerDetail(route.playerId);
@@ -66,6 +77,7 @@ export function CoachApp({
           referenceDate={model.generatedAt}
           showDemoBadge={model.source === 'mock'}
           teamId={model.team.id}
+          canManage={canManage}
         />
       ) : (
         <section className="coach-not-found">
@@ -83,8 +95,35 @@ export function CoachApp({
       break;
     }
     case 'lessons':
-      page = <CoachLessonsPage model={model} onDataChanged={data.refresh} />;
+      page = (
+        <CoachLessonsPage
+          model={model}
+          canManage={canManage}
+          onDataChanged={data.refresh}
+        />
+      );
       break;
+    case 'lesson': {
+      const aggregate = model.lessonAggregates.find(
+        (item) => item.lesson.id === route.lessonId,
+      );
+      page = aggregate ? (
+        <CoachLessonDetailPage aggregate={aggregate} />
+      ) : (
+        <section className="coach-not-found">
+          <span>404</span>
+          <h1>Lezione non trovata</h1>
+          <p>La lezione richiesta non è disponibile nel catalogo Coach.</p>
+          <a href="/coach/lezioni" onClick={(event) => {
+            event.preventDefault();
+            navigateCoach('/coach/lezioni');
+          }}>
+            <ArrowLeft className="size-4" aria-hidden="true" /> Torna alle lezioni
+          </a>
+        </section>
+      );
+      break;
+    }
     case 'results':
       page = <CoachResultsPage model={model} />;
       break;
@@ -107,6 +146,7 @@ export function CoachApp({
       route={route}
       team={model.team}
       coachName={model.coachName}
+      accessLevel={accessLevel}
       onLogout={onLogout}
     >
       {page}

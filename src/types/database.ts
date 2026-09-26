@@ -7,6 +7,7 @@ export type Json =
   | Json[];
 
 export type AppRole = 'player' | 'coach';
+export type CoachAccessLevel = 'admin' | 'viewer';
 export type DatabaseLessonStatus = 'da_fare' | 'in_corso' | 'completata';
 export type VideoCheckpoint = 0 | 25 | 50 | 75 | 100;
 
@@ -68,16 +69,19 @@ export type Database = {
           profile_id: string;
           role: AppRole;
           active: boolean;
+          coach_access_level: CoachAccessLevel | null;
         };
         Insert: {
           team_id: string;
           profile_id: string;
           role: AppRole;
           active?: boolean;
+          coach_access_level?: CoachAccessLevel | null;
         };
         Update: {
           role?: AppRole;
           active?: boolean;
+          coach_access_level?: CoachAccessLevel | null;
         };
         Relationships: [];
       };

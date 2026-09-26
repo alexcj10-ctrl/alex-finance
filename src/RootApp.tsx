@@ -92,6 +92,7 @@ function AuthenticatedApp() {
     >
       <CoachApp
         repository={createSupabaseCoachRepository(identity.teamId)}
+        accessLevel={identity.coachAccessLevel ?? 'viewer'}
         onLogout={logout}
       />
     </Suspense>

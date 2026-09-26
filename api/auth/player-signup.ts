@@ -137,6 +137,7 @@ async function resolveActiveCoach(teamId: string) {
     .eq('team_id', teamId)
     .eq('role', 'coach')
     .eq('active', true)
+    .eq('coach_access_level', 'admin')
     .limit(20);
 
   if (membershipError || !memberships?.length) {

@@ -50,3 +50,28 @@ export async function requireCoachTeamAccess(coachId: string, teamId: string) {
     throw new ApiError(403, 'TEAM_ACCESS_DENIED', 'Accesso alla squadra negato.');
   }
 }
+
+export async function requireCoachTeamAdminAccess(coachId: string, teamId: string) {
+  const admin = getSupabaseAdmin();
+  const { data: membership, error } = await admin
+    .from('team_members')
+    .select('team_id')
+    .eq('team_id', teamId)
+    .eq('profile_id', coachId)
+    .eq('role', 'coach')
+    .eq('active', true)
+    .eq('coach_access_level', 'admin')
+    .maybeSingle();
+
+  if (error) {
+    throw new ApiError(500, 'TEAM_LOOKUP_FAILED', 'Squadra non disponibile.');
+  }
+
+  if (!membership) {
+    throw new ApiError(
+      403,
+      'COACH_ADMIN_REQUIRED',
+      'Operazione riservata al Coach Amministratore.',
+    );
+  }
+}

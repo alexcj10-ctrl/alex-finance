@@ -3,6 +3,7 @@ import type { MouseEvent, ReactNode } from 'react';
 import { BarChart3, BookOpen, LayoutDashboard, LogOut, Users } from 'lucide-react';
 
 import type { CoachTeamRecord } from '../../types/coach';
+import type { CoachAccessLevel } from '../../types/database';
 import { navigateCoach, type CoachRoute } from '../routes';
 
 const navigation = [
@@ -14,6 +15,7 @@ const navigation = [
 
 function activeNavigationId(route: CoachRoute) {
   if (route.name === 'player') return 'players';
+  if (route.name === 'lesson') return 'lessons';
   if (route.name === 'not-found') return undefined;
   return route.name;
 }
@@ -28,12 +30,14 @@ export function CoachShell({
   route,
   team,
   coachName,
+  accessLevel,
   onLogout,
   children,
 }: {
   route: CoachRoute;
   team: CoachTeamRecord;
   coachName: string;
+  accessLevel: CoachAccessLevel;
   onLogout: () => Promise<void>;
   children: ReactNode;
 }) {
@@ -97,7 +101,7 @@ export function CoachShell({
             </span>
             <span>
               <strong>{coachName}</strong>
-              <small>Allenatore</small>
+              <small>{accessLevel === 'admin' ? 'Coach Amministratore' : 'Coach Osservatore'}</small>
             </span>
             <button
               type="button"
@@ -118,7 +122,7 @@ export function CoachShell({
             </span>
             <span>
               <strong>ESORDIENTI ANALYST</strong>
-              <small>Area Coach</small>
+              <small>{accessLevel === 'admin' ? 'Coach Admin' : 'Sola lettura'}</small>
             </span>
             <button
               type="button"

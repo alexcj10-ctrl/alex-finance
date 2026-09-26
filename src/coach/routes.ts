@@ -5,6 +5,7 @@ export type CoachRoute =
   | { name: 'players' }
   | { name: 'player'; playerId: string }
   | { name: 'lessons' }
+  | { name: 'lesson'; lessonId: string }
   | { name: 'results' }
   | { name: 'not-found' };
 
@@ -19,6 +20,15 @@ export function parseCoachPath(pathname: string): CoachRoute {
   if (playerMatch) {
     try {
       return { name: 'player', playerId: decodeURIComponent(playerMatch[1]) };
+    } catch {
+      return { name: 'not-found' };
+    }
+  }
+
+  const lessonMatch = normalized.match(/^\/coach\/lezioni\/([^/]+)$/);
+  if (lessonMatch) {
+    try {
+      return { name: 'lesson', lessonId: decodeURIComponent(lessonMatch[1]) };
     } catch {
       return { name: 'not-found' };
     }

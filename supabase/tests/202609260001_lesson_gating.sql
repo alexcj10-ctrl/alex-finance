@@ -74,11 +74,13 @@ insert into public.teams (id, name, season) values
   ('61000000-0000-4000-8000-000000000001', 'Gating Team A', '2026/27'),
   ('61000000-0000-4000-8000-000000000002', 'Gating Team B', '2026/27');
 
-insert into public.team_members (team_id, profile_id, role, active) values
-  ('61000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000001', 'coach', true),
-  ('61000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000002', 'player', true),
-  ('61000000-0000-4000-8000-000000000002', '60000000-0000-4000-8000-000000000003', 'coach', true),
-  ('61000000-0000-4000-8000-000000000002', '60000000-0000-4000-8000-000000000004', 'player', true);
+insert into public.team_members (
+  team_id, profile_id, role, active, coach_access_level
+) values
+  ('61000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000001', 'coach', true, 'admin'),
+  ('61000000-0000-4000-8000-000000000001', '60000000-0000-4000-8000-000000000002', 'player', true, null),
+  ('61000000-0000-4000-8000-000000000002', '60000000-0000-4000-8000-000000000003', 'coach', true, 'admin'),
+  ('61000000-0000-4000-8000-000000000002', '60000000-0000-4000-8000-000000000004', 'player', true, null);
 
 -- Keep the timing contract real while making its wall-clock test inexpensive.
 update private.lesson_video_requirements

@@ -8,9 +8,11 @@ import { LessonAggregateList } from '../components/LessonAggregateList';
 
 export function CoachLessonsPage({
   model,
+  canManage,
   onDataChanged,
 }: {
   model: CoachReadModel;
+  canManage: boolean;
   onDataChanged: () => void;
 }) {
   const [assigningId, setAssigningId] = useState<string>();
@@ -18,6 +20,7 @@ export function CoachLessonsPage({
   const [error, setError] = useState<string>();
 
   const assign = async (lessonId: string) => {
+    if (!canManage) return;
     setAssigningId(lessonId);
     setAssignedId(undefined);
     setError(undefined);
@@ -53,7 +56,8 @@ export function CoachLessonsPage({
             <button
               key={item.lesson.id}
               type="button"
-              disabled={assigningId === item.lesson.id}
+              disabled={!canManage || assigningId === item.lesson.id}
+              title={canManage ? undefined : 'Solo Coach Amministratore'}
               onClick={() => void assign(item.lesson.id)}
             >
               {assigningId === item.lesson.id
@@ -67,6 +71,9 @@ export function CoachLessonsPage({
           ))}
         </div>
         {error ? <p className="coach-create-error" role="alert">{error}</p> : null}
+        {!canManage ? (
+          <p className="coach-admin-only-note">Solo Coach Amministratore</p>
+        ) : null}
       </section>
 
       <section className="coach-list-panel" aria-labelledby="lessons-list-title">

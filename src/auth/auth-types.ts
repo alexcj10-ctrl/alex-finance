@@ -1,4 +1,4 @@
-import type { AppRole } from '../types/database';
+import type { AppRole, CoachAccessLevel } from '../types/database';
 
 export type AuthIdentity = {
   userId: string;
@@ -7,6 +7,7 @@ export type AuthIdentity = {
   teamId: string;
   teamName: string;
   season: string;
+  coachAccessLevel?: CoachAccessLevel;
 };
 
 export type LoginCredentials = {

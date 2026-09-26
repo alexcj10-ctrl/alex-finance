@@ -1,4 +1,4 @@
-import { requireCoach, requireCoachTeamAccess } from '../_lib/coach-auth.js';
+import { requireCoach, requireCoachTeamAdminAccess } from '../_lib/coach-auth.js';
 import {
   ApiError,
   assertDelete,
@@ -52,7 +52,7 @@ async function handleDelete(request: Request) {
   const { confirmation, playerId, teamId } = parseDeleteRequest(body);
   const { admin, coachId } = await requireCoach(request);
 
-  await requireCoachTeamAccess(coachId, teamId);
+  await requireCoachTeamAdminAccess(coachId, teamId);
 
   const [profileResult, membershipResult] = await Promise.all([
     admin

@@ -1,4 +1,4 @@
-import { requireCoach, requireCoachTeamAccess } from '../_lib/coach-auth.js';
+import { requireCoach, requireCoachTeamAdminAccess } from '../_lib/coach-auth.js';
 import {
   ApiError,
   assertPost,
@@ -73,7 +73,7 @@ async function handlePost(request: Request) {
   const active = parseActive(body.active);
 
   const { admin, coachId } = await requireCoach(request);
-  await requireCoachTeamAccess(coachId, teamId);
+  await requireCoachTeamAdminAccess(coachId, teamId);
 
   const { data: existingProfile, error: existingProfileError } = await admin
     .from('profiles')

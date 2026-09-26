@@ -15,9 +15,11 @@ type PlayerFilter = 'all' | 'attention';
 
 export function CoachPlayersPage({
   model,
+  canManage,
   onDataChanged,
 }: {
   model: CoachReadModel;
+  canManage: boolean;
   onDataChanged: () => void;
 }) {
   const [filter, setFilter] = useState<PlayerFilter>('all');
@@ -77,6 +79,7 @@ export function CoachPlayersPage({
   }, [signupWindow?.closesAt, signupWindow?.isOpen]);
 
   const updateSignupWindow = async (open: boolean) => {
+    if (!canManage) return;
     setSignupWindowStatus('updating');
     setSignupWindowError(undefined);
     try {
@@ -97,6 +100,7 @@ export function CoachPlayersPage({
 
   const submitPlayer = async (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!canManage) return;
     setCreateStatus('submitting');
     setCreateError(undefined);
     try {
@@ -126,18 +130,24 @@ export function CoachPlayersPage({
         title="Giocatori"
         description="Progressi, attività e lezioni completate in un’unica vista."
         action={(
-          <button
-            type="button"
-            className="coach-primary-action"
-            onClick={() => {
-              setShowCreate((current) => !current);
-              setCreateStatus('idle');
-              setCreateError(undefined);
-            }}
-          >
-            {showCreate ? <X className="size-4" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}
-            {showCreate ? 'Chiudi' : 'Nuovo giocatore'}
-          </button>
+          <div className="coach-admin-action-group">
+            <button
+              type="button"
+              className="coach-primary-action"
+              disabled={!canManage}
+              title={canManage ? undefined : 'Solo Coach Amministratore'}
+              onClick={() => {
+                if (!canManage) return;
+                setShowCreate((current) => !current);
+                setCreateStatus('idle');
+                setCreateError(undefined);
+              }}
+            >
+              {showCreate ? <X className="size-4" aria-hidden="true" /> : <Plus className="size-4" aria-hidden="true" />}
+              {showCreate ? 'Chiudi' : 'Nuovo giocatore'}
+            </button>
+            {!canManage ? <small>Solo Coach Amministratore</small> : null}
+          </div>
         )}
       />
 
@@ -164,7 +174,8 @@ export function CoachPlayersPage({
         <button
           type="button"
           className="coach-signup-window-action"
-          disabled={signupWindowStatus !== 'idle'}
+          disabled={!canManage || signupWindowStatus !== 'idle'}
+          title={canManage ? undefined : 'Solo Coach Amministratore'}
           onClick={() => void updateSignupWindow(!signupWindow?.isOpen)}
         >
           {signupWindowStatus !== 'idle' ? (
@@ -187,9 +198,12 @@ export function CoachPlayersPage({
             {signupWindowError}
           </p>
         ) : null}
+        {!canManage ? (
+          <p className="coach-admin-only-note">Solo Coach Amministratore</p>
+        ) : null}
       </section>
 
-      {showCreate ? (
+      {showCreate && canManage ? (
         <section className="coach-create-panel" aria-labelledby="create-player-title">
           <div>
             <p className="coach-create-kicker">Account Player</p>

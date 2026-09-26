@@ -105,12 +105,14 @@ insert into public.teams (id, name, season) values
   ('30000000-0000-4000-8000-000000000001', 'Team A', '2026/27'),
   ('30000000-0000-4000-8000-000000000002', 'Team B', '2026/27');
 
-insert into public.team_members (team_id, profile_id, role, active) values
-  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'coach', true),
-  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'player', true),
-  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'player', true),
-  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000004', 'coach', true),
-  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000005', 'player', true);
+insert into public.team_members (
+  team_id, profile_id, role, active, coach_access_level
+) values
+  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000001', 'coach', true, 'admin'),
+  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000002', 'player', true, null),
+  ('30000000-0000-4000-8000-000000000001', '20000000-0000-4000-8000-000000000003', 'player', true, null),
+  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000004', 'coach', true, 'admin'),
+  ('30000000-0000-4000-8000-000000000002', '20000000-0000-4000-8000-000000000005', 'player', true, null);
 
 update private.lesson_video_requirements
 set duration_seconds = 0.500
@@ -141,7 +143,7 @@ select extensions.throws_ok(
     null
   )$$,
   '42501',
-  'coach is not authorized for this team',
+  'coach administrator is required for this team',
   'coach cannot assign a lesson to another team'
 );
 
@@ -286,7 +288,7 @@ select extensions.throws_ok(
     null
   )$$,
   '42501',
-  'coach is not authorized for this team',
+  'coach administrator is required for this team',
   'player cannot call the coach assignment RPC successfully'
 );
 

@@ -156,7 +156,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
       .maybeSingle(),
     client
       .from('team_members')
-      .select('team_id, profile_id, role, active')
+      .select('team_id, profile_id, role, active, coach_access_level')
       .eq('team_id', teamId)
       .eq('profile_id', coachId)
       .eq('role', 'coach')
@@ -177,7 +177,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
 
   const playersResult = await client
     .from('team_members')
-    .select('team_id, profile_id, role, active')
+    .select('team_id, profile_id, role, active, coach_access_level')
     .eq('team_id', teamId)
     .eq('role', 'player')
     .eq('active', true);

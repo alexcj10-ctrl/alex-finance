@@ -71,7 +71,7 @@ async function readIdentity(session: Session): Promise<AuthIdentity> {
       .maybeSingle(),
     client
       .from('team_members')
-      .select('team_id, profile_id, role, active')
+      .select('team_id, profile_id, role, active, coach_access_level')
       .eq('profile_id', session.user.id)
       .eq('active', true)
       .limit(1)
@@ -108,6 +108,9 @@ async function readIdentity(session: Session): Promise<AuthIdentity> {
     teamId: teamResult.data.id,
     teamName: teamResult.data.name,
     season: teamResult.data.season,
+    ...(profile.role === 'coach'
+      ? { coachAccessLevel: membership.coach_access_level === 'admin' ? 'admin' : 'viewer' }
+      : {}),
   };
 }
 

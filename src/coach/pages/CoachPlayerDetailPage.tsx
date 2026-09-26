@@ -55,11 +55,13 @@ export function CoachPlayerDetailPage({
   referenceDate,
   showDemoBadge,
   teamId,
+  canManage,
 }: {
   detail: CoachPlayerDetail;
   referenceDate: string;
   showDemoBadge: boolean;
   teamId: string;
+  canManage: boolean;
 }) {
   const { summary } = detail;
   const [confirmPinReset, setConfirmPinReset] = useState(false);
@@ -77,6 +79,7 @@ export function CoachPlayerDetailPage({
   }, [pinReceipt]);
 
   const resetPlayerPin = async () => {
+    if (!canManage) return;
     setPinResetStatus('submitting');
     setPinResetError(undefined);
 
@@ -95,6 +98,7 @@ export function CoachPlayerDetailPage({
   };
 
   const deletePlayer = async () => {
+    if (!canManage) return;
     setDeleteStatus('submitting');
     setDeleteError(undefined);
 
@@ -168,8 +172,10 @@ export function CoachPlayerDetailPage({
         <button
           type="button"
           className="coach-pin-reset-button"
-          disabled={pinResetStatus === 'submitting'}
+          disabled={!canManage || pinResetStatus === 'submitting'}
+          title={canManage ? undefined : 'Solo Coach Amministratore'}
           onClick={() => {
+            if (!canManage) return;
             setPinResetError(undefined);
             setConfirmPinReset(true);
           }}
@@ -186,6 +192,10 @@ export function CoachPlayerDetailPage({
           <p className="coach-create-error coach-pin-management-message" role="alert">
             {pinResetError}
           </p>
+        ) : null}
+
+        {!canManage ? (
+          <p className="coach-admin-only-note">Solo Coach Amministratore</p>
         ) : null}
 
         {pinReceipt ? (
@@ -368,7 +378,10 @@ export function CoachPlayerDetailPage({
         <button
           type="button"
           className="coach-delete-player-button"
+          disabled={!canManage}
+          title={canManage ? undefined : 'Solo Coach Amministratore'}
           onClick={() => {
+            if (!canManage) return;
             setDeleteConfirmation('');
             setDeleteError(undefined);
             setConfirmPlayerDelete(true);
@@ -377,6 +390,9 @@ export function CoachPlayerDetailPage({
           <Trash2 className="size-4" aria-hidden="true" />
           Elimina giocatore
         </button>
+        {!canManage ? (
+          <p className="coach-admin-only-note">Solo Coach Amministratore</p>
+        ) : null}
       </section>
 
       <AlertDialog
