@@ -8,7 +8,6 @@ import {
   LoaderCircle,
   LockKeyhole,
   LogIn,
-  Mail,
   UserPlus,
   UserRound,
 } from 'lucide-react';
@@ -47,7 +46,10 @@ export function LoginPage({ message }: { message?: string }) {
     setSubmitting(true);
     setError(undefined);
     try {
-      await login({ identifier, password });
+      const loginIdentifier = mode === 'coach' && !identifier.includes('@')
+        ? `${identifier.trim().toLowerCase()}.coach@coaches.esordienti.invalid`
+        : identifier;
+      await login({ identifier: loginIdentifier, password });
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : 'Credenziali non valide.');
     } finally {
@@ -91,7 +93,7 @@ export function LoginPage({ message }: { message?: string }) {
             {mode === 'signup'
               ? 'Inserisci soltanto il tuo nome e cognome.'
               : isCoach
-                ? 'Usa l’email e la password del tuo account Coach.'
+                ? 'Usa il tuo nome e la password del tuo account Coach.'
                 : 'Usa il tuo codice giocatore e il PIN.'}
           </span>
         </div>
@@ -143,17 +145,15 @@ export function LoginPage({ message }: { message?: string }) {
         ) : (
           <form className="auth-form" onSubmit={handleLogin}>
             <label>
-              <span>{isCoach ? 'Email Coach' : 'Codice giocatore'}</span>
+              <span>{isCoach ? 'Nome Coach' : 'Codice giocatore'}</span>
               <span className="auth-input-wrap">
-                {isCoach
-                  ? <Mail className="size-5" aria-hidden="true" />
-                  : <UserRound className="size-5" aria-hidden="true" />}
+                <UserRound className="size-5" aria-hidden="true" />
                 <input
                   name="username"
-                  type={isCoach ? 'email' : 'text'}
-                  inputMode={isCoach ? 'email' : 'text'}
+                  type="text"
+                  inputMode="text"
                   autoComplete="username"
-                  autoCapitalize={isCoach ? 'none' : 'characters'}
+                  autoCapitalize={isCoach ? 'words' : 'characters'}
                   spellCheck={false}
                   value={identifier}
                   onChange={(event) => setIdentifier(
@@ -162,7 +162,7 @@ export function LoginPage({ message }: { message?: string }) {
                       : event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''),
                   )}
                   maxLength={isCoach ? 254 : 20}
-                  placeholder={isCoach ? 'coach@email.it' : 'Es. ALECANO47'}
+                  placeholder={isCoach ? 'Es. Alessandro' : 'Es. ALECANO47'}
                   required
                 />
               </span>
