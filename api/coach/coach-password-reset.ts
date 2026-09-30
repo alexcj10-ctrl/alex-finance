@@ -1,5 +1,3 @@
-import { randomBytes } from 'node:crypto';
-
 import { requireCoach, requireCoachTeamAdminAccess } from '../_lib/coach-auth.js';
 import {
   ApiError,
@@ -24,24 +22,30 @@ function parseUuid(value: unknown, code: string, message: string) {
 
 function parseResetRequest(body: Record<string, unknown>) {
   const keys = Object.keys(body).sort();
-  if (keys.length !== 2 || keys[0] !== 'coachId' || keys[1] !== 'teamId') {
+  if (
+    keys.length !== 3 ||
+    keys[0] !== 'coachId' ||
+    keys[1] !== 'password' ||
+    keys[2] !== 'teamId'
+  ) {
     throw new ApiError(400, 'INVALID_RESET_BODY', 'Richiesta non valida.');
+  }
+
+  if (typeof body.password !== 'string' || body.password.length < 8 || body.password.length > 128) {
+    throw new ApiError(400, 'INVALID_PASSWORD', 'Password non valida.');
   }
 
   return {
     coachId: parseUuid(body.coachId, 'INVALID_COACH_ID', 'Coach non valido.'),
+    password: body.password,
     teamId: parseUuid(body.teamId, 'INVALID_TEAM_ID', 'Squadra non valida.'),
   };
-}
-
-function generateTemporaryPassword() {
-  return `Ea!7${randomBytes(12).toString('base64url')}`;
 }
 
 async function handlePost(request: Request) {
   assertSameOrigin(request);
   const body = await readJsonObject(request);
-  const { coachId: targetCoachId, teamId } = parseResetRequest(body);
+  const { coachId: targetCoachId, password, teamId } = parseResetRequest(body);
   const { admin, coachId } = await requireCoach(request);
 
   await requireCoachTeamAdminAccess(coachId, teamId);
@@ -83,7 +87,6 @@ async function handlePost(request: Request) {
     throw new ApiError(404, 'COACH_NOT_FOUND', 'Coach osservatore non trovato nella squadra.');
   }
 
-  const password = generateTemporaryPassword();
   const { data: updatedAuth, error: updateError } =
     await admin.auth.admin.updateUserById(targetCoachId, { password });
 
@@ -98,7 +101,6 @@ async function handlePost(request: Request) {
   const username = email.slice(0, -COACH_EMAIL_SUFFIX.length);
   return jsonResponse({
     credentials: {
-      password,
       username: `${username.charAt(0).toUpperCase()}${username.slice(1)}`,
     },
   });
