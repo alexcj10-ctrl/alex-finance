@@ -16,10 +16,16 @@ import { useAuth } from './AuthProvider';
 
 type LoginMode = 'player' | 'signup' | 'coach';
 
-export function LoginPage({ message }: { message?: string }) {
+export function LoginPage({
+  initialMode = 'player',
+  message,
+}: {
+  initialMode?: LoginMode;
+  message?: string;
+}) {
   const { createPlayerProfile, login } = useAuth();
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const [mode, setMode] = useState<LoginMode>('player');
+  const [mode, setMode] = useState<LoginMode>(initialMode);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [firstName, setFirstName] = useState('');

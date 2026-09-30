@@ -63,7 +63,12 @@ function AuthenticatedApp() {
   }
 
   if (state.status === 'anonymous') {
-    return <LoginPage message={state.message} />;
+    return (
+      <LoginPage
+        initialMode={isCoachPath ? 'coach' : 'player'}
+        message={state.message}
+      />
+    );
   }
 
   const { identity } = state;
