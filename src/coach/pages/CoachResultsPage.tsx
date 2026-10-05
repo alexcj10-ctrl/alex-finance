@@ -11,12 +11,64 @@ import {
 } from '@/components/ui/table';
 import type { CoachQuizAttemptView, CoachReadModel } from '../../types/coach';
 import { CoachPageHeader, DemoDataBadge } from '../components/CoachPageHeader';
-import { formatDateTime } from '../lib/format';
+
+function latestAttemptsByPlayerLesson(
+  attempts: readonly CoachQuizAttemptView[],
+) {
+  const latestAttempts = new Map<string, CoachQuizAttemptView>();
+
+  for (const attempt of attempts) {
+    const key = `${attempt.playerId}::${attempt.lessonId}`;
+    const current = latestAttempts.get(key);
+
+    if (!current || Date.parse(attempt.completedAt) > Date.parse(current.completedAt)) {
+      latestAttempts.set(key, attempt);
+    }
+  }
+
+  return [...latestAttempts.values()];
+}
+
+function formatResultDate(value: string) {
+  const date = Date.parse(value);
+  if (!Number.isFinite(date)) return '—';
+
+  return new Intl.DateTimeFormat('it-IT', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  }).format(date);
+}
+
+function errorLabel(attempt: CoachQuizAttemptView) {
+  const count = Math.max(attempt.totalQuestions - attempt.correctAnswers, 0);
+  return `${count} ${count === 1 ? 'errore' : 'errori'}`;
+}
+
+export function deriveResultsOverview(
+  attempts: readonly CoachQuizAttemptView[],
+) {
+  const latestAttempts = latestAttemptsByPlayerLesson(attempts);
+  const reviewAttempts = latestAttempts
+    .filter((attempt) => attempt.score < 100)
+    .sort((left, right) => (
+      left.score - right.score ||
+      Date.parse(right.completedAt) - Date.parse(left.completedAt)
+    ));
+
+  return {
+    completedCount: attempts.length,
+    perfectCount: latestAttempts.filter((attempt) => attempt.score === 100).length,
+    reviewAttempts,
+  };
+}
 
 function ResultBadge({ score }: { score: number }) {
+  const needsReview = score < 100;
+
   return (
-    <span className={`coach-result-badge${score < 60 ? ' coach-result-low' : ''}`}>
-      {score < 60 ? <AlertTriangle className="size-3.5" aria-hidden="true" /> : <CheckCircle2 className="size-3.5" aria-hidden="true" />}
+    <span className={`coach-result-badge${needsReview ? ' coach-result-low' : ''}`}>
+      {needsReview ? <AlertTriangle className="size-3.5" aria-hidden="true" /> : <CheckCircle2 className="size-3.5" aria-hidden="true" />}
       {Math.round(score)}%
     </span>
   );
@@ -26,8 +78,8 @@ function ResultRows({ attempts }: { attempts: readonly CoachQuizAttemptView[] })
   if (attempts.length === 0) {
     return (
       <div className="coach-empty-state">
-        <strong>Nessun tentativo registrato</strong>
-        <span>I risultati compariranno qui dopo il primo quiz completato.</span>
+        <strong>Nessun quiz da rivedere</strong>
+        <span>Tutti gli ultimi tentativi risultano completati senza errori.</span>
       </div>
     );
   }
@@ -40,9 +92,9 @@ function ResultRows({ attempts }: { attempts: readonly CoachQuizAttemptView[] })
             <TableRow>
               <TableHead scope="col">Giocatore</TableHead>
               <TableHead scope="col">Lezione</TableHead>
-              <TableHead scope="col">Risposte</TableHead>
               <TableHead scope="col">Risultato</TableHead>
-              <TableHead scope="col">Completato</TableHead>
+              <TableHead scope="col">Errori</TableHead>
+              <TableHead scope="col">Data</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -50,9 +102,9 @@ function ResultRows({ attempts }: { attempts: readonly CoachQuizAttemptView[] })
               <TableRow key={attempt.id}>
                 <TableCell><strong>{attempt.playerName}</strong></TableCell>
                 <TableCell className="coach-wrap-cell">{attempt.lessonTitle}</TableCell>
-                <TableCell>{attempt.correctAnswers} / {attempt.totalQuestions}</TableCell>
                 <TableCell><ResultBadge score={attempt.score} /></TableCell>
-                <TableCell><time dateTime={attempt.completedAt}>{formatDateTime(attempt.completedAt)}</time></TableCell>
+                <TableCell>{errorLabel(attempt)}</TableCell>
+                <TableCell><time dateTime={attempt.completedAt}>{formatResultDate(attempt.completedAt)}</time></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -65,8 +117,8 @@ function ResultRows({ attempts }: { attempts: readonly CoachQuizAttemptView[] })
             <header><strong>{attempt.playerName}</strong><ResultBadge score={attempt.score} /></header>
             <p>{attempt.lessonTitle}</p>
             <footer>
-              <span>{attempt.correctAnswers} su {attempt.totalQuestions} corrette</span>
-              <time dateTime={attempt.completedAt}>{formatDateTime(attempt.completedAt)}</time>
+              <span>{errorLabel(attempt)}</span>
+              <time dateTime={attempt.completedAt}>{formatResultDate(attempt.completedAt)}</time>
             </footer>
           </article>
         ))}
@@ -76,14 +128,14 @@ function ResultRows({ attempts }: { attempts: readonly CoachQuizAttemptView[] })
 }
 
 export function CoachResultsPage({ model }: { model: CoachReadModel }) {
-  const lowResults = model.quizAttempts.filter((attempt) => attempt.score < 60).length;
+  const results = deriveResultsOverview(model.quizAttempts);
 
   return (
     <div className="coach-page">
       <CoachPageHeader
         eyebrow="Fondazione quiz"
         title="Risultati"
-        description="Tentativi e punteggi sincronizzati dai quiz completati dai giocatori."
+        description="Una visione generale dei quiz e delle situazioni da rivedere."
         action={model.source === 'mock' ? <DemoDataBadge /> : undefined}
       />
 
@@ -92,18 +144,21 @@ export function CoachResultsPage({ model }: { model: CoachReadModel }) {
           <CardContent><span>Media quiz</span><strong>{model.kpis.averageQuizPercent ?? '—'}{model.kpis.averageQuizPercent === undefined ? '' : '%'}</strong></CardContent>
         </Card>
         <Card className="coach-result-summary-card">
-          <CardContent><span>Tentativi registrati</span><strong>{model.quizAttempts.length}</strong></CardContent>
+          <CardContent><span>Quiz completati</span><strong>{results.completedCount}</strong></CardContent>
         </Card>
         <Card className="coach-result-summary-card coach-result-summary-alert">
-          <CardContent><span>Risultati sotto 60%</span><strong>{lowResults}</strong></CardContent>
+          <CardContent><span>Da rivedere</span><strong>{results.reviewAttempts.length}</strong></CardContent>
+        </Card>
+        <Card className="coach-result-summary-card">
+          <CardContent><span>Quiz perfetti</span><strong>{results.perfectCount}</strong></CardContent>
         </Card>
       </div>
 
       <section className="coach-list-panel" aria-labelledby="results-list-title">
         <header className="coach-list-toolbar">
-          <div><h2 id="results-list-title">Tentativi recenti</h2><p>Risposte corrette, percentuale e data di completamento.</p></div>
+          <div><h2 id="results-list-title">Da rivedere</h2><p>Quiz in cui c’è stato almeno un errore.</p></div>
         </header>
-        <ResultRows attempts={model.quizAttempts} />
+        <ResultRows attempts={results.reviewAttempts} />
       </section>
     </div>
   );

@@ -983,7 +983,6 @@
   margin-bottom: 14px;
 }
 
-.coach-result-summary-card:last-child { grid-column: 1 / -1; }
 .coach-result-summary-card { min-height: 105px; border: 0; box-shadow: 0 7px 22px rgb(16 18 16 / 5%); }
 .coach-result-summary-card [data-slot='card-content'] { display: flex; height: 100%; flex-direction: column; justify-content: space-between; padding: 14px; }
 .coach-result-summary-card span { color: var(--text-muted); font-size: 11px; font-weight: 750; }
@@ -1018,6 +1017,7 @@
 
 .coach-result-card footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
@@ -1115,8 +1115,7 @@
   .coach-player-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .coach-phase-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px; }
   .coach-player-lessons { grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 16px; }
-  .coach-results-summary { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .coach-result-summary-card:last-child { grid-column: auto; }
+  .coach-results-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (min-width: 900px) {
@@ -1178,6 +1177,7 @@
   .coach-kpi-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .coach-kpi-card { min-height: 150px; }
   .coach-kpi-card [data-slot='card-content'] { padding: 18px; }
+  .coach-results-summary { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .coach-player-table,
   .coach-lesson-table,
   .coach-results-table { display: block; }
