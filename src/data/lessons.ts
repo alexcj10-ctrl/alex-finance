@@ -117,6 +117,31 @@ export const lessons = [
     demo: false,
   },
   {
+    id: 'costruzione-linea-di-passaggio',
+    titolo: 'Libera la linea di passaggio',
+    macroFase: 'possesso',
+    fase: 'costruzione',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Prima di ricevere, controlla la linea tra te e la palla. Se è chiusa, muoviti per diventare giocabile.',
+    puntiChiave: [
+      'Guarda se la linea tra te e il portatore è libera.',
+      'Se un avversario chiude la linea, non restare fermo.',
+      'Muoviti e crea un nuovo angolo per diventare giocabile.',
+    ],
+    variantiVideo: [
+      {
+        id: 'linea-passaggio',
+        etichetta: 'Linea di passaggio',
+        percorsoVideo: '/videos/linea-di-passaggio.mp4',
+      },
+    ],
+    punti: 60,
+    disponibilita: 'disponibile',
+    concetti: ['Linea di passaggio', 'Smarcamento', 'Rendersi giocabile'],
+    demo: false,
+  },
+  {
     id: 'demo-progressione-terzo-uomo',
     titolo: 'Avanzare con il terzo uomo',
     macroFase: 'possesso',
