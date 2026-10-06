@@ -4,9 +4,7 @@ import {
   ArrowRight,
   BookOpenCheck,
   Check,
-  CircleDot,
   Play,
-  ShieldCheck,
   Star,
   Target,
   Trophy,
@@ -15,7 +13,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
 import {
-  macroPhaseLabels,
   phaseLabels,
   type Lesson,
   type LessonProgressStatus,
@@ -122,36 +119,6 @@ export function DashboardHome({
             </span>
           </button>
         ))}
-      </section>
-
-      <section className="dashboard-section" aria-labelledby="focus-title">
-        <header className="section-heading">
-          <div>
-            <p className="section-kicker">Adesso</p>
-            <h2 id="focus-title">Stiamo lavorando su</h2>
-          </div>
-        </header>
-
-        <div className="focus-grid">
-          <article className="focus-card focus-card-ball">
-            <span className="focus-icon" aria-hidden="true">
-              <CircleDot className="size-6" />
-            </span>
-            <span>
-              <small>Fase</small>
-              <strong>{missionLesson ? macroPhaseLabels[missionLesson.macroFase] : 'In attesa'}</strong>
-            </span>
-          </article>
-          <article className="focus-card focus-card-build">
-            <span className="focus-icon" aria-hidden="true">
-              <ShieldCheck className="size-6" />
-            </span>
-            <span>
-              <small>Concetto</small>
-              <strong>{missionLesson?.concetti[0] ?? 'Da assegnare'}</strong>
-            </span>
-          </article>
-        </div>
       </section>
 
       <section className="dashboard-section" aria-labelledby="recent-title">
