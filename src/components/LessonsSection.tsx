@@ -70,8 +70,13 @@ function LessonVideo({
 }: {
   lesson: Lesson;
   onStarted: () => Promise<void>;
-  getVideoProgress: (lessonId: string, variantId: string) => StoredVideoProgress | undefined;
-  onVideoCheckpoint: (input: VideoProgressCheckpointInput) => Promise<StoredVideoProgress>;
+  getVideoProgress: (
+    lessonId: string,
+    variantId: string,
+  ) => StoredVideoProgress | undefined;
+  onVideoCheckpoint: (
+    input: VideoProgressCheckpointInput,
+  ) => Promise<StoredVideoProgress>;
   onSyncError: (message: string) => void;
 }) {
   const [selectedVariantId, setSelectedVariantId] = useState(
@@ -86,10 +91,13 @@ function LessonVideo({
   const videoIsReady =
     lesson.disponibilita === 'disponibile' &&
     !failedVariantIds.has(selectedVariant.id);
-  const repository = useMemo<VideoProgressRepository>(() => ({
-    get: getVideoProgress,
-    recordCheckpoint: onVideoCheckpoint,
-  }), [getVideoProgress, onVideoCheckpoint]);
+  const repository = useMemo<VideoProgressRepository>(
+    () => ({
+      get: getVideoProgress,
+      recordCheckpoint: onVideoCheckpoint,
+    }),
+    [getVideoProgress, onVideoCheckpoint],
+  );
   const videoProgress = getVideoProgress(lesson.id, selectedVariant.id);
   const videoTracking = useVideoProgressTracking(
     lesson.id,
@@ -99,7 +107,12 @@ function LessonVideo({
   );
 
   return (
-    <div className="lesson-video-area">
+    <div
+      className="lesson-video-area"
+      data-lesson-id={lesson.id}
+      data-variant-id={selectedVariant.id}
+      data-video-ready={videoIsReady ? 'true' : 'false'}
+    >
       {videoIsReady ? (
         <video
           key={selectedVariant.id}
@@ -112,7 +125,9 @@ function LessonVideo({
             void onStarted().catch(() => undefined);
             videoTracking.onPlay(event.currentTarget);
           }}
-          onTimeUpdate={(event) => videoTracking.onTimeUpdate(event.currentTarget)}
+          onTimeUpdate={(event) =>
+            videoTracking.onTimeUpdate(event.currentTarget)
+          }
           onEnded={(event) => videoTracking.onEnded(event.currentTarget)}
           onSeeking={videoTracking.onSeeking}
           onError={() =>
@@ -144,7 +159,9 @@ function LessonVideo({
 
       {videoProgress ? (
         <p className="video-sync-status" aria-live="polite">
-          {videoProgress.completed ? 'Video completato: ' : 'Video sincronizzato: '}
+          {videoProgress.completed
+            ? 'Video completato: '
+            : 'Video sincronizzato: '}
           <strong>{videoProgress.watchedPercent}%</strong>
         </p>
       ) : null}
@@ -161,7 +178,8 @@ function LessonVideo({
                   type="button"
                   className={cn(
                     'variant-button',
-                    selectedVariant.id === variant.id && 'variant-button-active',
+                    selectedVariant.id === variant.id &&
+                      'variant-button-active',
                   )}
                   aria-label={`${variant.etichetta}${progress?.completed ? ', completata' : ''}`}
                   aria-pressed={selectedVariant.id === variant.id}
@@ -187,9 +205,14 @@ type LessonsSectionProps = {
   lessons: readonly Lesson[];
   initialLessonId?: string;
   getLessonStatus: (lessonId: string) => LessonProgressStatus;
-  getVideoProgress: (lessonId: string, variantId: string) => StoredVideoProgress | undefined;
+  getVideoProgress: (
+    lessonId: string,
+    variantId: string,
+  ) => StoredVideoProgress | undefined;
   getLatestQuizAttempt: (lessonId: string) => StoredQuizAttempt | undefined;
-  onVideoCheckpoint: (input: VideoProgressCheckpointInput) => Promise<StoredVideoProgress>;
+  onVideoCheckpoint: (
+    input: VideoProgressCheckpointInput,
+  ) => Promise<StoredVideoProgress>;
   onLessonStarted: (lessonId: string) => Promise<void>;
   onCompleteLesson: (lessonId: string) => Promise<void>;
   onQuizSubmitted: () => Promise<void>;
@@ -221,7 +244,9 @@ export function LessonsSection({
     initialLesson?.id ?? null,
   );
   const [completing, setCompleting] = useState(false);
-  const selectedLesson = lessons.find((lesson) => lesson.id === selectedLessonId);
+  const selectedLesson = lessons.find(
+    (lesson) => lesson.id === selectedLessonId,
+  );
   const phaseLessons = lessons.filter((lesson) => lesson.fase === activePhase);
 
   const selectMacro = (macro: MacroPhaseId) => {
@@ -241,7 +266,8 @@ export function LessonsSection({
     const isAvailable = selectedLesson.disponibilita === 'disponibile';
     const visibleStatus = isAvailable ? statusLabels[status] : 'In arrivo';
     const allVideosCompleted = selectedLesson.variantiVideo.every(
-      (variant) => getVideoProgress(selectedLesson.id, variant.id)?.completed === true,
+      (variant) =>
+        getVideoProgress(selectedLesson.id, variant.id)?.completed === true,
     );
     const latestQuizAttempt = getLatestQuizAttempt(selectedLesson.id);
     const quizCompleted = Boolean(latestQuizAttempt);
@@ -257,7 +283,14 @@ export function LessonsSection({
           <ArrowLeft className="size-4" aria-hidden="true" /> Lezioni
         </button>
 
-        <article className="lesson-detail" aria-labelledby="lesson-title">
+        <article
+          className="lesson-detail"
+          aria-labelledby="lesson-title"
+          data-lesson-id={selectedLesson.id}
+          data-macro-phase={selectedLesson.macroFase}
+          data-phase={selectedLesson.fase}
+          data-status={status}
+        >
           <header className="lesson-title-block">
             <div className="lesson-title-meta">
               <span>{macroPhaseLabels[selectedLesson.macroFase]}</span>
@@ -276,7 +309,9 @@ export function LessonsSection({
               {status === 'completata' ? (
                 <Check className="size-4" aria-hidden="true" />
               ) : null}
-              {!isAvailable ? <Lock className="size-4" aria-hidden="true" /> : null}
+              {!isAvailable ? (
+                <Lock className="size-4" aria-hidden="true" />
+              ) : null}
               {visibleStatus}
             </span>
           </header>
@@ -317,7 +352,9 @@ export function LessonsSection({
           />
 
           {actionError ? (
-            <p className="lesson-action-error" role="alert">{actionError}</p>
+            <p className="lesson-action-error" role="alert">
+              {actionError}
+            </p>
           ) : null}
 
           <footer className="lesson-completion">
@@ -334,40 +371,54 @@ export function LessonsSection({
             <Button
               type="button"
               size="lg"
-              className={cn('complete-button', isCompleted && 'complete-button-done')}
+              className={cn(
+                'complete-button',
+                isCompleted && 'complete-button-done',
+              )}
               disabled={!canComplete || isCompleted || completing}
               onClick={() => {
                 setCompleting(true);
-                void onCompleteLesson(selectedLesson.id).finally(() => setCompleting(false));
+                void onCompleteLesson(selectedLesson.id).finally(() =>
+                  setCompleting(false),
+                );
               }}
             >
               {isCompleted ? (
                 <>
-                  <CheckCircle2 className="size-5" aria-hidden="true" /> Completata
+                  <CheckCircle2 className="size-5" aria-hidden="true" />{' '}
+                  Completata
                 </>
               ) : completing ? (
                 <>
-                  <Clock3 className="size-5" aria-hidden="true" /> Sincronizzazione…
+                  <Clock3 className="size-5" aria-hidden="true" />{' '}
+                  Sincronizzazione…
                 </>
               ) : isAvailable ? (
                 allVideosCompleted ? (
                   quizCompleted ? (
                     <>
-                      Completa lezione <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+                      Completa lezione{' '}
+                      <ArrowRight
+                        className="ml-auto size-5"
+                        aria-hidden="true"
+                      />
                     </>
                   ) : (
                     <>
-                      <Lock className="size-5" aria-hidden="true" /> Completa prima il quiz
+                      <Lock className="size-5" aria-hidden="true" /> Completa
+                      prima il quiz
                     </>
                   )
                 ) : (
                   <>
-                    <Lock className="size-5" aria-hidden="true" /> Guarda tutti i video
+                    <Lock className="size-5" aria-hidden="true" /> Guarda tutti
+                    i video
                   </>
                 )
               ) : (
                 <>
-                  <Clock3 className="size-5" aria-hidden="true" /> In preparazione
+                  <Clock3 className="size-5" aria-hidden="true" /> In
+                  preparazione
                 </>
               )}
             </Button>
@@ -388,7 +439,9 @@ export function LessonsSection({
       </header>
 
       <section className="macro-picker" aria-labelledby="macro-title">
-        <h2 id="macro-title" className="sr-only">Scegli la fase</h2>
+        <h2 id="macro-title" className="sr-only">
+          Scegli la fase
+        </h2>
         {macroOptions.map((macro) => (
           <button
             key={macro.id}
@@ -398,6 +451,7 @@ export function LessonsSection({
               `macro-card-${macro.id}`,
               activeMacro === macro.id && 'macro-card-active',
             )}
+            data-macro-phase={macro.id}
             aria-label={`${macroPhaseLabels[macro.id]}, ${macro.subtitle}`}
             aria-pressed={activeMacro === macro.id}
             onClick={() => selectMacro(macro.id)}
@@ -413,7 +467,10 @@ export function LessonsSection({
         ))}
       </section>
 
-      <section className="phase-picker" aria-label={`Categorie ${macroPhaseLabels[activeMacro]}`}>
+      <section
+        className="phase-picker"
+        aria-label={`Categorie ${macroPhaseLabels[activeMacro]}`}
+      >
         {phaseOrderByMacro[activeMacro].map((phase) => {
           const PhaseIcon = phaseIcons[phase];
 
@@ -421,7 +478,11 @@ export function LessonsSection({
             <button
               key={phase}
               type="button"
-              className={cn('phase-card', activePhase === phase && 'phase-card-active')}
+              className={cn(
+                'phase-card',
+                activePhase === phase && 'phase-card-active',
+              )}
+              data-phase={phase}
               aria-pressed={activePhase === phase}
               onClick={() => selectPhase(phase)}
             >
@@ -432,7 +493,12 @@ export function LessonsSection({
         })}
       </section>
 
-      <section className="lesson-list-section" aria-labelledby="lesson-list-title">
+      <section
+        className="lesson-list-section"
+        aria-labelledby="lesson-list-title"
+        data-macro-phase={activeMacro}
+        data-phase={activePhase}
+      >
         <header className="section-heading">
           <div>
             <p className="section-kicker">{macroPhaseLabels[activeMacro]}</p>
@@ -458,7 +524,14 @@ export function LessonsSection({
               <button
                 key={lesson.id}
                 type="button"
-                className={cn('lesson-card', isCompleted && 'lesson-card-completed')}
+                className={cn(
+                  'lesson-card',
+                  isCompleted && 'lesson-card-completed',
+                )}
+                data-lesson-id={lesson.id}
+                data-macro-phase={lesson.macroFase}
+                data-phase={lesson.fase}
+                data-status={hasVideo ? status : 'prossimamente'}
                 aria-label={`Apri ${lesson.titolo}, ${visibleStatus}, ${lesson.punti} punti`}
                 onClick={() => setSelectedLessonId(lesson.id)}
               >
@@ -473,12 +546,16 @@ export function LessonsSection({
                   ) : (
                     <Lock className="size-5" />
                   )}
-                  {hasVideo ? <Play className="lesson-thumb-play size-5 fill-current" /> : null}
+                  {hasVideo ? (
+                    <Play className="lesson-thumb-play size-5 fill-current" />
+                  ) : null}
                 </span>
 
                 <span className="lesson-card-copy">
                   <span className="lesson-card-topline">
-                    {lesson.demo ? <span className="demo-badge">Demo</span> : null}
+                    {lesson.demo ? (
+                      <span className="demo-badge">Demo</span>
+                    ) : null}
                     <span
                       className={cn(
                         'lesson-progress-label',
@@ -487,18 +564,29 @@ export function LessonsSection({
                           : 'lesson-progress-prossimamente',
                       )}
                     >
-                      {isCompleted ? <Check className="size-3.5" aria-hidden="true" /> : null}
-                      {!hasVideo ? <Lock className="size-3.5" aria-hidden="true" /> : null}
+                      {isCompleted ? (
+                        <Check className="size-3.5" aria-hidden="true" />
+                      ) : null}
+                      {!hasVideo ? (
+                        <Lock className="size-3.5" aria-hidden="true" />
+                      ) : null}
                       {visibleStatus}
                     </span>
                   </span>
                   <strong>{lesson.titolo}</strong>
                   <small>
-                    <Star className="size-3.5 fill-current" aria-hidden="true" /> {lesson.punti} punti
+                    <Star
+                      className="size-3.5 fill-current"
+                      aria-hidden="true"
+                    />{' '}
+                    {lesson.punti} punti
                   </small>
                 </span>
 
-                <ArrowRight className="lesson-card-arrow size-5" aria-hidden="true" />
+                <ArrowRight
+                  className="lesson-card-arrow size-5"
+                  aria-hidden="true"
+                />
               </button>
             );
           })}

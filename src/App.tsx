@@ -1,6 +1,13 @@
 /* oxlint-disable next/no-img-element -- Vite app: the official local crest is served as a static asset. */
 import { useState, type ComponentType } from 'react';
-import { BookOpen, CircleDot, Home, LoaderCircle, LogOut, Trophy } from 'lucide-react';
+import {
+  BookOpen,
+  CircleDot,
+  Home,
+  LoaderCircle,
+  LogOut,
+  Trophy,
+} from 'lucide-react';
 
 import { cn } from '@/lib/utils';
 import type { AuthIdentity } from './auth/auth-types';
@@ -51,7 +58,10 @@ export default function App({
   };
 
   return (
-    <div className="app-frame min-h-screen bg-background text-foreground">
+    <div
+      className="app-frame min-h-screen bg-background text-foreground"
+      data-player-view={activeView}
+    >
       <a className="skip-link" href="#main-content">
         Vai al contenuto
       </a>
@@ -73,12 +83,18 @@ export default function App({
             </span>
           </button>
 
-          <nav className="desktop-navigation" aria-label="Navigazione principale">
+          <nav
+            className="desktop-navigation"
+            aria-label="Navigazione principale"
+          >
             {navigationItems.map((item) => (
               <button
                 key={item.id}
                 type="button"
-                className={cn('app-nav-button', activeView === item.id && 'app-nav-button-active')}
+                className={cn(
+                  'app-nav-button',
+                  activeView === item.id && 'app-nav-button-active',
+                )}
                 aria-current={activeView === item.id ? 'page' : undefined}
                 onClick={() => navigateTo(item.id)}
               >
@@ -141,16 +157,25 @@ export default function App({
         ) : null}
 
         {!progress.loading && activeView === 'trofei' ? (
-          <TrophiesSection progress={progress.progress} summary={progress.summary} />
+          <TrophiesSection
+            progress={progress.progress}
+            summary={progress.summary}
+          />
         ) : null}
       </main>
 
-      <nav className="mobile-navigation" aria-label="Navigazione principale mobile">
+      <nav
+        className="mobile-navigation"
+        aria-label="Navigazione principale mobile"
+      >
         {navigationItems.map((item) => (
           <button
             key={item.id}
             type="button"
-            className={cn('mobile-nav-button', activeView === item.id && 'mobile-nav-button-active')}
+            className={cn(
+              'mobile-nav-button',
+              activeView === item.id && 'mobile-nav-button-active',
+            )}
             aria-current={activeView === item.id ? 'page' : undefined}
             onClick={() => navigateTo(item.id)}
           >

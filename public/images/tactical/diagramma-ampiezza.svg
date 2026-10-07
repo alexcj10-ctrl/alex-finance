@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 540" role="img" aria-label="Ampiezza e linee di passaggio">
+<rect width="960" height="540" rx="30" fill="#053B2B"/>
+<g opacity=".13"><rect x="0" y="0" width="40" height="540" fill="#75A88D"/><rect x="80" y="0" width="40" height="540" fill="#75A88D"/><rect x="160" y="0" width="40" height="540" fill="#75A88D"/><rect x="240" y="0" width="40" height="540" fill="#75A88D"/><rect x="320" y="0" width="40" height="540" fill="#75A88D"/><rect x="400" y="0" width="40" height="540" fill="#75A88D"/><rect x="480" y="0" width="40" height="540" fill="#75A88D"/><rect x="560" y="0" width="40" height="540" fill="#75A88D"/><rect x="640" y="0" width="40" height="540" fill="#75A88D"/><rect x="720" y="0" width="40" height="540" fill="#75A88D"/><rect x="800" y="0" width="40" height="540" fill="#75A88D"/><rect x="880" y="0" width="40" height="540" fill="#75A88D"/></g>
+<g fill="none" stroke="#D5E8DA" stroke-width="5" opacity=".46"><rect x="34" y="34" width="892" height="472" rx="5"/><path d="M480 34V506"/><circle cx="480" cy="270" r="92"/><rect x="34" y="142" width="152" height="256"/><rect x="774" y="142" width="152" height="256"/><rect x="34" y="205" width="58" height="130"/><rect x="868" y="205" width="58" height="130"/></g>
+<circle cx="544" cy="210" r="26" fill="#F7F5EF" stroke="#15221C" stroke-width="6"/><circle cx="544" cy="210" r="5" fill="#15221C"/>
+<circle cx="620" cy="335" r="26" fill="#F7F5EF" stroke="#15221C" stroke-width="6"/><circle cx="620" cy="335" r="5" fill="#15221C"/>
+<circle cx="699" cy="260" r="26" fill="#F7F5EF" stroke="#15221C" stroke-width="6"/><circle cx="699" cy="260" r="5" fill="#15221C"/>
+<circle cx="310" cy="270" r="27" fill="#C81032" stroke="#F7F5EF" stroke-width="6"/><circle cx="310" cy="270" r="5" fill="#F7F5EF"/>
+<circle cx="415" cy="212" r="27" fill="#C81032" stroke="#F7F5EF" stroke-width="6"/><circle cx="415" cy="212" r="5" fill="#F7F5EF"/>
+<circle cx="207" cy="96" r="27" fill="#C81032" stroke="#F7F5EF" stroke-width="6"/><circle cx="207" cy="96" r="5" fill="#F7F5EF"/>
+<circle cx="205" cy="438" r="27" fill="#C81032" stroke="#F7F5EF" stroke-width="6"/><circle cx="205" cy="438" r="5" fill="#F7F5EF"/>
+<defs><marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto"><path d="M1 1L11 6L1 11" fill="none" stroke="white" stroke-width="2.4"/></marker></defs>
+<path d="M340 180 Q275.0 108.5 210 93" stroke="white" stroke-width="7" stroke-linecap="round"  marker-end="url(#arrow)" fill="none"/>
+<path d="M345 366 Q273.0 379.0 201 448" stroke="white" stroke-width="7" stroke-linecap="round"  marker-end="url(#arrow)" fill="none"/>
+<path d="M280 270 Q340.0 213.0 400 212" stroke="white" stroke-width="7" stroke-linecap="round" stroke-dasharray="14 13" marker-end="url(#arrow)" fill="none"/>
+<text x="55" y="478" fill="#F3F7F0" opacity=".66" font-family="DejaVu Sans,sans-serif" font-size="19" letter-spacing="4">ESORDIENTI / TACTICAL LAB</text>
+</svg>

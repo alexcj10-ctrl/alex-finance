@@ -1,15 +1,29 @@
+/* oxlint-disable next/no-img-element -- Vite serve l'illustrazione locale. */
 import { ArrowLeft, ShieldX } from 'lucide-react';
 
 export function AccessDeniedPage({ onReturn }: { onReturn: () => void }) {
   return (
-    <main className="auth-screen">
+    <main className="auth-screen auth-screen--denied">
+      <div className="auth-tactical-art" aria-hidden="true">
+        <img
+          className="auth-tactical-art__diagram"
+          src="/images/tactical/diagramma-pressione.svg"
+          alt=""
+        />
+      </div>
       <section className="auth-card auth-state-card" role="alert">
-        <span className="auth-state-icon" aria-hidden="true"><ShieldX className="size-8" /></span>
+        <span className="auth-state-icon" aria-hidden="true">
+          <ShieldX className="size-8" />
+        </span>
         <p>Area riservata</p>
         <h1>Accesso Coach non consentito</h1>
-        <span>Il tuo account giocatore può usare soltanto il percorso didattico personale.</span>
+        <span>
+          Il tuo account giocatore può usare soltanto il percorso didattico
+          personale.
+        </span>
         <button type="button" className="auth-submit" onClick={onReturn}>
-          <ArrowLeft className="size-5" aria-hidden="true" /> Torna alla tua Home
+          <ArrowLeft className="size-5" aria-hidden="true" /> Torna alla tua
+          Home
         </button>
       </section>
     </main>

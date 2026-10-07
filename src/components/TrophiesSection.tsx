@@ -11,7 +11,11 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 
-import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from '@/components/ui/progress';
 import { lessons } from '../data/lessons';
 import { trophies, type TrophyIconId } from '../data/trophies';
 import {
@@ -56,17 +60,28 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
 
       <section className="trophy-hero" aria-labelledby="trophy-progress-title">
         <img
+          className="trophy-emblem"
+          src="/images/tactical/emblema-trofei.svg"
+          alt=""
+          aria-hidden="true"
+        />
+        <img
           className="trophy-crest"
           src="/images/poggio-mirteto-logo.png"
           alt="Stemma del Poggio Mirteto Calcio"
         />
         <div className="trophy-hero-copy">
-          <span className="trophy-count" aria-label={`${summary.unlockedTrophyCount} trofei sbloccati`}>
+          <span
+            className="trophy-count"
+            aria-label={`${summary.unlockedTrophyCount} trofei sbloccati`}
+          >
             <Trophy className="size-6" aria-hidden="true" />
             <strong>{summary.unlockedTrophyCount}</strong>
             <small>su {trophies.length}</small>
           </span>
-          <Progress value={(summary.unlockedTrophyCount / trophies.length) * 100}>
+          <Progress
+            value={(summary.unlockedTrophyCount / trophies.length) * 100}
+          >
             <ProgressLabel id="trophy-progress-title">Collezione</ProgressLabel>
             <ProgressValue>
               {() => `${summary.unlockedTrophyCount}/${trophies.length}`}
@@ -86,7 +101,9 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
             <Progress value={nextTrophy.ruleProgress.percentage}>
               <ProgressLabel>{nextTrophy.trophy.descrizione}</ProgressLabel>
               <ProgressValue>
-                {() => `${nextTrophy.ruleProgress.current}/${nextTrophy.ruleProgress.target}`}
+                {() =>
+                  `${nextTrophy.ruleProgress.current}/${nextTrophy.ruleProgress.target}`
+                }
               </ProgressValue>
             </Progress>
           </div>
@@ -108,12 +125,22 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
             return (
               <article
                 key={trophy.id}
-                className={isUnlocked ? 'trophy-card trophy-card-unlocked' : 'trophy-card'}
+                className={
+                  isUnlocked
+                    ? 'trophy-card trophy-card-unlocked'
+                    : 'trophy-card'
+                }
+                data-trophy-id={trophy.id}
+                data-trophy-state={isUnlocked ? 'unlocked' : 'locked'}
               >
                 <span className="trophy-card-icon" aria-hidden="true">
                   <Icon className="size-7" />
                   <span className="trophy-card-state">
-                    {isUnlocked ? <Check className="size-3.5" /> : <Lock className="size-3.5" />}
+                    {isUnlocked ? (
+                      <Check className="size-3.5" />
+                    ) : (
+                      <Lock className="size-3.5" />
+                    )}
                   </span>
                 </span>
                 <div className="trophy-card-copy">
@@ -122,7 +149,10 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
                   </span>
                   <h3>{trophy.titolo}</h3>
                   <p>{trophy.descrizione}</p>
-                  <Progress value={ruleProgress.percentage} aria-label={`Progresso ${trophy.titolo}`}>
+                  <Progress
+                    value={ruleProgress.percentage}
+                    aria-label={`Progresso ${trophy.titolo}`}
+                  >
                     <ProgressValue>
                       {() => `${ruleProgress.current}/${ruleProgress.target}`}
                     </ProgressValue>
@@ -133,7 +163,6 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
           })}
         </div>
       </section>
-
     </div>
   );
 }

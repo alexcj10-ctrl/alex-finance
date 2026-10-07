@@ -24,16 +24,30 @@ export function PasswordSetupPage() {
     try {
       await setNewPassword(password);
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Impossibile impostare la password.');
+      setError(
+        reason instanceof Error
+          ? reason.message
+          : 'Impossibile impostare la password.',
+      );
       setSubmitting(false);
     }
   };
 
   return (
-    <main className="auth-screen">
+    <main className="auth-screen auth-screen--password">
+      <div className="auth-tactical-art" aria-hidden="true">
+        <img
+          className="auth-tactical-art__diagram"
+          src="/images/tactical/diagramma-compattezza.svg"
+          alt=""
+        />
+      </div>
       <section className="auth-card" aria-labelledby="password-setup-title">
         <header className="auth-brand">
-          <img src="/images/poggio-mirteto-logo.png" alt="Stemma del Poggio Mirteto Calcio" />
+          <img
+            src="/images/poggio-mirteto-logo.png"
+            alt="Stemma del Poggio Mirteto Calcio"
+          />
           <div>
             <span>Poggio Mirteto Calcio</span>
             <strong>ESORDIENTI ANALYST</strong>
@@ -43,7 +57,10 @@ export function PasswordSetupPage() {
         <div className="auth-copy">
           <p>Area Coach</p>
           <h1 id="password-setup-title">Crea la tua password</h1>
-          <span>Completa l’attivazione dell’account scegliendo una password personale.</span>
+          <span>
+            Completa l’attivazione dell’account scegliendo una password
+            personale.
+          </span>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
@@ -63,10 +80,16 @@ export function PasswordSetupPage() {
               <button
                 type="button"
                 className="auth-reveal"
-                aria-label={showPassword ? 'Nascondi password' : 'Mostra password'}
+                aria-label={
+                  showPassword ? 'Nascondi password' : 'Mostra password'
+                }
                 onClick={() => setShowPassword((current) => !current)}
               >
-                {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                {showPassword ? (
+                  <EyeOff className="size-5" />
+                ) : (
+                  <Eye className="size-5" />
+                )}
               </button>
             </span>
           </label>
@@ -86,17 +109,32 @@ export function PasswordSetupPage() {
             </span>
           </label>
 
-          <p id="password-requirements" className="auth-help auth-password-requirements">
+          <p
+            id="password-requirements"
+            className="auth-help auth-password-requirements"
+          >
             Almeno 8 caratteri, con maiuscola, minuscola e numero.
           </p>
 
-          {error ? <p className="auth-error" role="alert">{error}</p> : null}
+          {error ? (
+            <p className="auth-error" role="alert">
+              {error}
+            </p>
+          ) : null}
 
           <button className="auth-submit" type="submit" disabled={submitting}>
             {submitting ? (
-              <><LoaderCircle className="size-5 auth-spinner" aria-hidden="true" /> Salvataggio…</>
+              <>
+                <LoaderCircle
+                  className="size-5 auth-spinner"
+                  aria-hidden="true"
+                />{' '}
+                Salvataggio…
+              </>
             ) : (
-              <><Check className="size-5" aria-hidden="true" /> Imposta password</>
+              <>
+                <Check className="size-5" aria-hidden="true" /> Imposta password
+              </>
             )}
           </button>
         </form>

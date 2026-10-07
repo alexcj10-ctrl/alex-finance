@@ -52,12 +52,15 @@ export function LoginPage({
     setSubmitting(true);
     setError(undefined);
     try {
-      const loginIdentifier = mode === 'coach' && !identifier.includes('@')
-        ? `${identifier.trim().toLowerCase()}.coach@coaches.esordienti.invalid`
-        : identifier;
+      const loginIdentifier =
+        mode === 'coach' && !identifier.includes('@')
+          ? `${identifier.trim().toLowerCase()}.coach@coaches.esordienti.invalid`
+          : identifier;
       await login({ identifier: loginIdentifier, password });
     } catch (reason) {
-      setError(reason instanceof Error ? reason.message : 'Credenziali non valide.');
+      setError(
+        reason instanceof Error ? reason.message : 'Credenziali non valide.',
+      );
     } finally {
       setSubmitting(false);
     }
@@ -71,7 +74,9 @@ export function LoginPage({
       await createPlayerProfile({ firstName, lastName });
     } catch (reason) {
       setError(
-        reason instanceof Error ? reason.message : 'Creazione del profilo non riuscita.',
+        reason instanceof Error
+          ? reason.message
+          : 'Creazione del profilo non riuscita.',
       );
       setSubmitting(false);
     }
@@ -80,10 +85,20 @@ export function LoginPage({
   const isCoach = mode === 'coach';
 
   return (
-    <main className="auth-screen">
+    <main className={`auth-screen auth-screen--${mode}`}>
+      <div className="auth-tactical-art" aria-hidden="true">
+        <img
+          className="auth-tactical-art__diagram"
+          src="/images/tactical/diagramma-linea-passaggio.svg"
+          alt=""
+        />
+      </div>
       <section className="auth-card" aria-labelledby="login-title">
         <header className="auth-brand">
-          <img src="/images/poggio-mirteto-logo.png" alt="Stemma del Poggio Mirteto Calcio" />
+          <img
+            src="/images/poggio-mirteto-logo.png"
+            alt="Stemma del Poggio Mirteto Calcio"
+          />
           <div>
             <span>Poggio Mirteto Calcio</span>
             <strong>ESORDIENTI ANALYST</strong>
@@ -138,13 +153,26 @@ export function LoginPage({
               </span>
             </label>
 
-            {error ? <p className="auth-error" role="alert">{error}</p> : null}
+            {error ? (
+              <p className="auth-error" role="alert">
+                {error}
+              </p>
+            ) : null}
 
             <button className="auth-submit" type="submit" disabled={submitting}>
               {submitting ? (
-                <><LoaderCircle className="size-5 auth-spinner" aria-hidden="true" /> Creazione…</>
+                <>
+                  <LoaderCircle
+                    className="size-5 auth-spinner"
+                    aria-hidden="true"
+                  />{' '}
+                  Creazione…
+                </>
               ) : (
-                <><UserPlus className="size-5" aria-hidden="true" /> Entra nella squadra</>
+                <>
+                  <UserPlus className="size-5" aria-hidden="true" /> Entra nella
+                  squadra
+                </>
               )}
             </button>
           </form>
@@ -162,11 +190,15 @@ export function LoginPage({
                   autoCapitalize={isCoach ? 'words' : 'characters'}
                   spellCheck={false}
                   value={identifier}
-                  onChange={(event) => setIdentifier(
-                    isCoach
-                      ? event.target.value
-                      : event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''),
-                  )}
+                  onChange={(event) =>
+                    setIdentifier(
+                      isCoach
+                        ? event.target.value
+                        : event.target.value
+                            .toUpperCase()
+                            .replace(/[^A-Z0-9]/g, ''),
+                    )
+                  }
                   maxLength={isCoach ? 254 : 20}
                   placeholder={isCoach ? 'Es. Alessandro' : 'Es. ALECANO47'}
                   required
@@ -184,11 +216,13 @@ export function LoginPage({
                   inputMode={isCoach ? 'text' : 'numeric'}
                   autoComplete="current-password"
                   value={password}
-                  onChange={(event) => setPassword(
-                    isCoach
-                      ? event.target.value
-                      : event.target.value.replace(/\D/g, '').slice(0, 8),
-                  )}
+                  onChange={(event) =>
+                    setPassword(
+                      isCoach
+                        ? event.target.value
+                        : event.target.value.replace(/\D/g, '').slice(0, 8),
+                    )
+                  }
                   minLength={isCoach ? undefined : 4}
                   maxLength={isCoach ? undefined : 8}
                   pattern={isCoach ? undefined : '[0-9]{4,8}'}
@@ -197,23 +231,41 @@ export function LoginPage({
                 <button
                   type="button"
                   className="auth-reveal"
-                  aria-label={showPassword
-                    ? `Nascondi ${isCoach ? 'password' : 'PIN'}`
-                    : `Mostra ${isCoach ? 'password' : 'PIN'}`}
+                  aria-label={
+                    showPassword
+                      ? `Nascondi ${isCoach ? 'password' : 'PIN'}`
+                      : `Mostra ${isCoach ? 'password' : 'PIN'}`
+                  }
                   onClick={() => setShowPassword((current) => !current)}
                 >
-                  {showPassword ? <EyeOff className="size-5" /> : <Eye className="size-5" />}
+                  {showPassword ? (
+                    <EyeOff className="size-5" />
+                  ) : (
+                    <Eye className="size-5" />
+                  )}
                 </button>
               </span>
             </label>
 
-            {error ? <p className="auth-error" role="alert">{error}</p> : null}
+            {error ? (
+              <p className="auth-error" role="alert">
+                {error}
+              </p>
+            ) : null}
 
             <button className="auth-submit" type="submit" disabled={submitting}>
               {submitting ? (
-                <><LoaderCircle className="size-5 auth-spinner" aria-hidden="true" /> Accesso…</>
+                <>
+                  <LoaderCircle
+                    className="size-5 auth-spinner"
+                    aria-hidden="true"
+                  />{' '}
+                  Accesso…
+                </>
               ) : (
-                <><LogIn className="size-5" aria-hidden="true" /> Entra</>
+                <>
+                  <LogIn className="size-5" aria-hidden="true" /> Entra
+                </>
               )}
             </button>
           </form>
@@ -229,7 +281,8 @@ export function LoginPage({
                 disabled={submitting}
                 onClick={() => changeMode('signup')}
               >
-                <UserPlus className="size-5" aria-hidden="true" /> Crea il tuo profilo
+                <UserPlus className="size-5" aria-hidden="true" /> Crea il tuo
+                profilo
               </button>
             </div>
             <button
@@ -248,7 +301,8 @@ export function LoginPage({
             disabled={submitting}
             onClick={() => changeMode('player')}
           >
-            <ArrowLeft className="size-4" aria-hidden="true" /> Torna all’accesso giocatore
+            <ArrowLeft className="size-4" aria-hidden="true" /> Torna
+            all’accesso giocatore
           </button>
         )}
       </section>

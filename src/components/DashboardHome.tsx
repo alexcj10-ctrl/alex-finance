@@ -11,7 +11,11 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Progress, ProgressLabel, ProgressValue } from '@/components/ui/progress';
+import {
+  Progress,
+  ProgressLabel,
+  ProgressValue,
+} from '@/components/ui/progress';
 import {
   phaseLabels,
   type Lesson,
@@ -83,6 +87,12 @@ export function DashboardHome({
   return (
     <div className="dashboard-view view-shell">
       <section className="journey-hero" aria-labelledby="journey-title">
+        <img
+          className="journey-tactical-art"
+          src="/images/tactical/tavola-cammino.svg"
+          alt=""
+          aria-hidden="true"
+        />
         <div className="journey-identity">
           <img
             className="journey-crest"
@@ -90,7 +100,9 @@ export function DashboardHome({
             alt="Stemma ufficiale del Poggio Mirteto Calcio"
           />
           <div>
-            <p className="section-kicker section-kicker-light">Il tuo percorso</p>
+            <p className="section-kicker section-kicker-light">
+              Il tuo percorso
+            </p>
             <h1 id="journey-title">Si gioca insieme.</h1>
           </div>
         </div>
@@ -149,10 +161,17 @@ export function DashboardHome({
                 key={lesson.id}
                 type="button"
                 className="recent-lesson"
+                data-lesson-id={lesson.id}
+                data-phase={lesson.fase}
+                data-status={status}
                 onClick={() => onOpenLesson(lesson.id)}
               >
                 <span
-                  className={isCompleted ? 'recent-check recent-check-done' : 'recent-check'}
+                  className={
+                    isCompleted
+                      ? 'recent-check recent-check-done'
+                      : 'recent-check'
+                  }
                   aria-hidden="true"
                 >
                   {isCompleted ? <Check className="size-4" /> : null}
@@ -161,7 +180,9 @@ export function DashboardHome({
                   <small>{phaseLabels[lesson.fase]}</small>
                   <strong>{lesson.titolo}</strong>
                 </span>
-                <span className={`lesson-progress-label lesson-progress-${status}`}>
+                <span
+                  className={`lesson-progress-label lesson-progress-${status}`}
+                >
                   {statusLabels[status]}
                 </span>
               </button>
@@ -171,7 +192,12 @@ export function DashboardHome({
       </section>
 
       {missionLesson ? (
-        <section className="next-mission" aria-labelledby="next-mission-title">
+        <section
+          className="next-mission"
+          aria-labelledby="next-mission-title"
+          data-lesson-id={missionLesson.id}
+          data-phase={missionLesson.fase}
+        >
           <button
             type="button"
             className="next-mission-media"
@@ -179,8 +205,17 @@ export function DashboardHome({
             onClick={() => onOpenLesson(missionLesson.id)}
           >
             {missionVideo ? (
-              <video muted playsInline preload="metadata" tabIndex={-1} aria-hidden="true">
-                <source src={`${missionVideo.percorsoVideo}#t=0.1`} type="video/mp4" />
+              <video
+                muted
+                playsInline
+                preload="metadata"
+                tabIndex={-1}
+                aria-hidden="true"
+              >
+                <source
+                  src={`${missionVideo.percorsoVideo}#t=0.1`}
+                  type="video/mp4"
+                />
               </video>
             ) : null}
             <span className="mission-play" aria-hidden="true">
@@ -189,12 +224,16 @@ export function DashboardHome({
           </button>
 
           <div className="next-mission-copy">
-            <p className="section-kicker section-kicker-light">Prossima missione</p>
-            <span className="mission-phase">{phaseLabels[missionLesson.fase]}</span>
+            <p className="section-kicker section-kicker-light">
+              Prossima missione
+            </p>
+            <span className="mission-phase">
+              {phaseLabels[missionLesson.fase]}
+            </span>
             <h2 id="next-mission-title">{missionLesson.titolo}</h2>
             <div className="mission-reward">
-              <Star className="size-4 fill-current" aria-hidden="true" />
-              +{missionLesson.punti} punti
+              <Star className="size-4 fill-current" aria-hidden="true" />+
+              {missionLesson.punti} punti
             </div>
             <Button
               type="button"
@@ -202,17 +241,23 @@ export function DashboardHome({
               className="primary-cta"
               onClick={() => onOpenLesson(missionLesson.id)}
             >
-              Continua <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+              Continua{' '}
+              <ArrowRight className="ml-auto size-5" aria-hidden="true" />
             </Button>
           </div>
         </section>
       ) : summary.availableLessonCount > 0 ? (
-        <section className="next-mission next-mission-complete" aria-labelledby="next-mission-title">
+        <section
+          className="next-mission next-mission-complete"
+          aria-labelledby="next-mission-title"
+        >
           <span className="mission-finish-icon" aria-hidden="true">
             <Trophy className="size-8" />
           </span>
           <div className="next-mission-copy">
-            <p className="section-kicker section-kicker-light">Prossima missione</p>
+            <p className="section-kicker section-kicker-light">
+              Prossima missione
+            </p>
             <span className="mission-phase">Percorso completato</span>
             <h2 id="next-mission-title">Ottimo lavoro!</h2>
             <Button
@@ -221,17 +266,23 @@ export function DashboardHome({
               className="primary-cta"
               onClick={onOpenLessons}
             >
-              Rivedi le lezioni <ArrowRight className="ml-auto size-5" aria-hidden="true" />
+              Rivedi le lezioni{' '}
+              <ArrowRight className="ml-auto size-5" aria-hidden="true" />
             </Button>
           </div>
         </section>
       ) : (
-        <section className="next-mission next-mission-complete" aria-labelledby="next-mission-title">
+        <section
+          className="next-mission next-mission-complete"
+          aria-labelledby="next-mission-title"
+        >
           <span className="mission-finish-icon" aria-hidden="true">
             <Target className="size-8" />
           </span>
           <div className="next-mission-copy">
-            <p className="section-kicker section-kicker-light">Prossima missione</p>
+            <p className="section-kicker section-kicker-light">
+              Prossima missione
+            </p>
             <span className="mission-phase">In preparazione</span>
             <h2 id="next-mission-title">Aspetta l’assegnazione del coach</h2>
           </div>

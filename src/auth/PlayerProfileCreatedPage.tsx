@@ -22,14 +22,24 @@ export function PlayerProfileCreatedPage({
   }, []);
 
   return (
-    <main className="auth-screen">
+    <main className="auth-screen auth-screen--created">
+      <div className="auth-tactical-art" aria-hidden="true">
+        <img
+          className="auth-tactical-art__diagram"
+          src="/images/tactical/tavola-cammino.svg"
+          alt=""
+        />
+      </div>
       <section
         className="auth-card auth-created-card"
         aria-labelledby="profile-created-title"
         aria-live="polite"
       >
         <header className="auth-brand">
-          <img src="/images/poggio-mirteto-logo.png" alt="Stemma del Poggio Mirteto Calcio" />
+          <img
+            src="/images/poggio-mirteto-logo.png"
+            alt="Stemma del Poggio Mirteto Calcio"
+          />
           <div>
             <span>Poggio Mirteto Calcio</span>
             <strong>ESORDIENTI ANALYST</strong>
@@ -42,7 +52,9 @@ export function PlayerProfileCreatedPage({
           </span>
           <div>
             <p>Benvenuto in squadra</p>
-            <h1 id="profile-created-title" ref={titleRef} tabIndex={-1}>Profilo creato!</h1>
+            <h1 id="profile-created-title" ref={titleRef} tabIndex={-1}>
+              Profilo creato!
+            </h1>
             <strong>{credentials.displayName}</strong>
           </div>
         </div>
@@ -71,9 +83,17 @@ export function PlayerProfileCreatedPage({
           onClick={() => void onContinue()}
         >
           {connecting ? (
-            <><LoaderCircle className="size-5 auth-spinner" aria-hidden="true" /> Prepariamo l’accesso…</>
+            <>
+              <LoaderCircle
+                className="size-5 auth-spinner"
+                aria-hidden="true"
+              />{' '}
+              Prepariamo l’accesso…
+            </>
           ) : (
-            <>Continua <ArrowRight className="size-5" aria-hidden="true" /></>
+            <>
+              Continua <ArrowRight className="size-5" aria-hidden="true" />
+            </>
           )}
         </button>
       </section>
