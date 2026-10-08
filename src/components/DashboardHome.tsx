@@ -139,7 +139,7 @@ export function DashboardHome({
       <section className="dashboard-section" aria-labelledby="recent-title">
         <header className="section-heading section-heading-action">
           <div>
-            <p className="section-kicker">Il tuo cammino</p>
+            <p className="section-kicker">Il tuo percorso</p>
             <h2 id="recent-title">Ultime lezioni</h2>
           </div>
           <button type="button" className="text-link" onClick={onOpenLessons}>
