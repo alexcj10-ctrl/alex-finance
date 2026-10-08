@@ -4262,10 +4262,11 @@ body {
   color: #ffffff;
   font-size: clamp(49px, 12vw, 82px);
   font-style: italic;
-  letter-spacing: -0.055em;
+  letter-spacing: -0.02em;
   line-height: 0.82;
   text-shadow: 2px 3px 0 rgb(0 0 0 / 14%);
   transform: skewX(-2deg);
+  word-spacing: 0.14em;
 }
 
 .auth-copy h1:focus,
