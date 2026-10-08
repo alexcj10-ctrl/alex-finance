@@ -103,7 +103,7 @@ export function DashboardHome({
             <p className="section-kicker section-kicker-light">
               Il tuo percorso
             </p>
-            <h1 id="journey-title">Il tuo cammino</h1>
+            <h1 id="journey-title">Il tuo percorso</h1>
             <p className="journey-mantra">
               Impara. Guarda. Applica. Cresci.
             </p>
