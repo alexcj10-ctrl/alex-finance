@@ -79,7 +79,17 @@ export default function App({
             </span>
             <span className="brand-copy">
               <span className="brand-team">Poggio Mirteto Calcio</span>
-              <span className="brand-product">ESORDIENTI ANALYST</span>
+              <span
+                className="brand-product"
+                aria-label="ESORDIENTI ANALYST"
+              >
+                <span className="brand-product-primary" aria-hidden="true">
+                  ESORDIENTI
+                </span>
+                <span className="brand-product-secondary" aria-hidden="true">
+                  ANALYST
+                </span>
+              </span>
             </span>
           </button>
 

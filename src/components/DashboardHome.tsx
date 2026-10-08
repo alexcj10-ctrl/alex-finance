@@ -65,21 +65,21 @@ export function DashboardHome({
       label: 'Da fare',
       value: summary.todoLessonCount,
       icon: Target,
-      tone: 'neutral',
+      tone: 'red',
       action: onOpenLessons,
     },
     {
       label: 'Punti',
       value: summary.totalPoints,
       icon: Star,
-      tone: 'red',
+      tone: 'gold',
       action: onOpenTrophies,
     },
     {
       label: 'Trofei',
       value: summary.unlockedTrophyCount,
       icon: Trophy,
-      tone: 'gold',
+      tone: 'neutral',
       action: onOpenTrophies,
     },
   ] as const;
@@ -103,7 +103,10 @@ export function DashboardHome({
             <p className="section-kicker section-kicker-light">
               Il tuo percorso
             </p>
-            <h1 id="journey-title">Si gioca insieme.</h1>
+            <h1 id="journey-title">Il tuo cammino</h1>
+            <p className="journey-mantra">
+              Impara. Guarda. Applica. Cresci.
+            </p>
           </div>
         </div>
 
@@ -152,7 +155,7 @@ export function DashboardHome({
               <span>Il coach sta preparando il tuo prossimo allenamento.</span>
             </div>
           ) : null}
-          {recentLessons.map((lesson) => {
+          {recentLessons.map((lesson, index) => {
             const status = getLessonStatus(lesson.id);
             const isCompleted = status === 'completata';
 
@@ -166,19 +169,27 @@ export function DashboardHome({
                 data-status={status}
                 onClick={() => onOpenLesson(lesson.id)}
               >
-                <span
-                  className={
-                    isCompleted
-                      ? 'recent-check recent-check-done'
-                      : 'recent-check'
-                  }
-                  aria-hidden="true"
-                >
-                  {isCompleted ? <Check className="size-4" /> : null}
+                <span className="recent-lesson-media" aria-hidden="true">
+                  <span className="recent-lesson-number">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
+                  <Play className="recent-lesson-play size-4 fill-current" />
+                  <span
+                    className={
+                      isCompleted
+                        ? 'recent-check recent-check-done'
+                        : 'recent-check'
+                    }
+                  >
+                    {isCompleted ? <Check className="size-4" /> : null}
+                  </span>
                 </span>
                 <span className="recent-lesson-copy">
                   <small>{phaseLabels[lesson.fase]}</small>
                   <strong>{lesson.titolo}</strong>
+                  <span className="recent-lesson-description">
+                    {lesson.descrizioneBreve}
+                  </span>
                 </span>
                 <span
                   className={`lesson-progress-label lesson-progress-${status}`}

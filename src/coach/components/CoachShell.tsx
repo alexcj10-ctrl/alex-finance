@@ -60,9 +60,12 @@ export function CoachShell({
             <span className="coach-brand-mark" aria-hidden="true">
               <img src="/images/poggio-mirteto-logo.png" alt="" />
             </span>
-            <span>
-              <strong>ESORDIENTI ANALYST</strong>
-              <small>Area Coach</small>
+            <span className="coach-brand-copy">
+              <span className="coach-brand-club">Poggio Mirteto Calcio</span>
+              <strong>
+                ESORDIENTI <span>ANALYST</span>
+              </strong>
+              <small>Area Coach · Quaderno tattico</small>
             </span>
           </a>
 
@@ -120,8 +123,11 @@ export function CoachShell({
             <span className="coach-brand-mark" aria-hidden="true">
               <img src="/images/poggio-mirteto-logo.png" alt="" />
             </span>
-            <span>
-              <strong>ESORDIENTI ANALYST</strong>
+            <span className="coach-brand-copy">
+              <span className="coach-brand-club">Poggio Mirteto Calcio</span>
+              <strong>
+                ESORDIENTI <span>ANALYST</span>
+              </strong>
               <small>{accessLevel === 'admin' ? 'Coach Admin' : 'Sola lettura'}</small>
             </span>
             <button

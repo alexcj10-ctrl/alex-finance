@@ -514,7 +514,7 @@ export function LessonsSection({
               <span>Il coach aggiungerà qui il prossimo contenuto.</span>
             </div>
           ) : null}
-          {phaseLessons.map((lesson) => {
+          {phaseLessons.map((lesson, index) => {
             const status = getLessonStatus(lesson.id);
             const isCompleted = status === 'completata';
             const hasVideo = lesson.disponibilita === 'disponibile';
@@ -536,6 +536,9 @@ export function LessonsSection({
                 onClick={() => setSelectedLessonId(lesson.id)}
               >
                 <span className="lesson-thumb" aria-hidden="true">
+                  <span className="lesson-card-index">
+                    {String(index + 1).padStart(2, '0')}
+                  </span>
                   {hasVideo ? (
                     <video muted playsInline preload="metadata" tabIndex={-1}>
                       <source

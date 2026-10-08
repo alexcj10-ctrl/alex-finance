@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,700;0,800;0,900;1,800;1,900&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -4040,5 +4041,1015 @@ svg {
 
   .macro-card strong {
     font-size: 22px;
+  }
+}
+
+/* ========================================================================== */
+/* SECONDA PASSATA — matrice reference-home                                    */
+/* Solo composizione e linguaggio visivo: dati, handler e flussi restano uguali. */
+/* ========================================================================== */
+
+:root {
+  --background: #f3f0e7;
+  --surface-soft: #f3f0e7;
+  --pm-red: #d2163d;
+  --pm-red-dark: #a80f2e;
+  --pm-green: #07543d;
+  --pm-green-dark: #003d2d;
+  --pm-ink: #101714;
+  --line: #d8d5ca;
+  --text-muted: #626a65;
+  --font-display:
+    'Barlow Condensed', 'Bahnschrift Condensed', 'Arial Narrow', Impact,
+    sans-serif;
+}
+
+body {
+  background:
+    linear-gradient(rgb(243 240 231 / 91%), rgb(243 240 231 / 91%)),
+    url('/images/tactical/trama-carta.svg') top center / 1180px auto repeat-y,
+    var(--background);
+}
+
+.app-frame {
+  position: relative;
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+.app-frame::before {
+  position: fixed;
+  inset: 12% -12% auto auto;
+  z-index: -1;
+  width: min(68vw, 850px);
+  height: min(68vw, 850px);
+  border: 2px solid rgb(6 74 53 / 4%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 0 68px rgb(6 74 53 / 1.5%),
+    0 0 0 136px rgb(200 16 50 / 1.2%);
+  content: '';
+  pointer-events: none;
+}
+
+/* Player lockup: same hierarchy and red/black split as the official matrix. */
+.app-header {
+  position: sticky;
+  overflow: hidden;
+  border-bottom: 1px solid rgb(16 23 20 / 12%);
+  background:
+    linear-gradient(90deg, rgb(246 243 234 / 98%), rgb(246 243 234 / 94%)),
+    url('/images/tactical/trama-carta.svg') center / 900px auto;
+}
+
+.app-header::before,
+.app-header::after {
+  position: absolute;
+  z-index: 0;
+  content: '';
+  pointer-events: none;
+}
+
+.app-header::before {
+  top: -34px;
+  right: 5%;
+  width: 170px;
+  height: 78px;
+  background: url('/images/tactical/tratto-rosso.svg') center / contain no-repeat;
+  opacity: 0.16;
+  transform: rotate(-9deg);
+}
+
+.app-header::after {
+  bottom: -37px;
+  left: 27%;
+  width: 150px;
+  height: 64px;
+  background: url('/images/tactical/tratto-verde.svg') center / contain no-repeat;
+  opacity: 0.13;
+  transform: rotate(5deg);
+}
+
+.app-header-inner {
+  position: relative;
+  z-index: 1;
+}
+
+.brand-copy {
+  gap: 0;
+}
+
+.brand-team {
+  color: var(--pm-ink);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.045em;
+}
+
+.brand-product {
+  display: inline-flex;
+  width: fit-content;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 1px;
+  line-height: 0.9;
+}
+
+.brand-product-primary,
+.brand-product-secondary {
+  display: inline-block;
+  font-family: var(--font-display);
+  font-weight: 950;
+  text-transform: uppercase;
+}
+
+.brand-product-primary {
+  color: var(--pm-red);
+  font-size: 1.08em;
+  font-style: italic;
+  letter-spacing: -0.025em;
+  transform: skewX(-5deg);
+}
+
+.brand-product-secondary {
+  color: var(--pm-ink);
+  font-size: 0.88em;
+  letter-spacing: 0.015em;
+}
+
+.brand-mark {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brand-mark img {
+  filter: drop-shadow(0 5px 7px rgb(16 23 20 / 18%));
+}
+
+.app-nav-button,
+.sport-badge,
+.player-logout-button {
+  border-radius: 3px;
+}
+
+.app-nav-button {
+  font-family: var(--font-display);
+}
+
+.app-nav-button-active {
+  color: var(--pm-red);
+}
+
+.app-nav-button-active::after {
+  background: url('/images/tactical/tratto-rosso.svg') center / 100% 100%
+    no-repeat;
+}
+
+/* Home: the green tactical board and four compact score cards mirror the matrix. */
+.journey-hero {
+  isolation: isolate;
+  min-height: 275px;
+  align-content: space-between;
+  gap: 24px;
+  padding: clamp(24px, 6vw, 44px);
+  border: 0;
+  border-radius: 8px;
+  background:
+    linear-gradient(105deg, rgb(0 61 45 / 99%) 0%, rgb(0 61 45 / 92%) 55%, rgb(0 61 45 / 48%) 100%),
+    url('/images/tactical/tavola-cammino.svg') right center / cover no-repeat,
+    var(--pm-green-dark);
+  box-shadow: 0 14px 26px rgb(0 61 45 / 16%);
+  clip-path: polygon(0.7% 0, 99.2% 0.8%, 100% 98.5%, 0 100%);
+}
+
+.journey-hero::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    linear-gradient(90deg, transparent 0 58%, rgb(255 255 255 / 5%) 58% 58.25%, transparent 58.25%),
+    linear-gradient(0deg, transparent 0 64%, rgb(255 255 255 / 4%) 64% 64.4%, transparent 64.4%);
+  content: '';
+  pointer-events: none;
+}
+
+.journey-hero::after {
+  right: 38%;
+  bottom: 22px;
+  width: 92px;
+  height: 11px;
+  opacity: 0.95;
+}
+
+.journey-identity {
+  gap: 18px;
+}
+
+.journey-identity > div {
+  min-width: 0;
+}
+
+.journey-hero .section-kicker {
+  margin-bottom: 7px;
+  color: #f8f4e9;
+  letter-spacing: 0.18em;
+}
+
+.journey-hero h1 {
+  max-width: none;
+  color: #ffffff;
+  font-size: clamp(49px, 12vw, 82px);
+  font-style: italic;
+  letter-spacing: -0.055em;
+  line-height: 0.82;
+  text-shadow: 2px 3px 0 rgb(0 0 0 / 14%);
+  transform: skewX(-2deg);
+}
+
+.auth-copy h1:focus,
+.auth-created-heading h1:focus {
+  outline: none;
+}
+
+.journey-mantra {
+  margin: 14px 0 0;
+  color: rgb(255 255 255 / 88%);
+  font-size: clamp(13px, 3.5vw, 17px);
+  font-weight: 750;
+  letter-spacing: 0.015em;
+}
+
+.journey-tactical-art {
+  width: min(54%, 540px);
+  opacity: 0.3;
+  mix-blend-mode: screen;
+}
+
+.journey-progress {
+  max-width: 590px;
+  grid-template-columns: 1fr auto;
+  column-gap: 14px;
+}
+
+.journey-progress [data-slot='progress-label'] {
+  color: rgb(255 255 255 / 80%);
+}
+
+.journey-progress [data-slot='progress-value'] {
+  font-size: clamp(27px, 7vw, 38px);
+}
+
+.journey-progress [data-slot='progress-track'] {
+  grid-column: 1;
+  height: 13px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  background: rgb(255 255 255 / 71%);
+}
+
+.journey-progress [data-slot='progress-indicator'] {
+  background: linear-gradient(90deg, #ee1746, #cf1238);
+}
+
+.home-stats {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(7px, 2vw, 14px);
+}
+
+.home-stat {
+  min-height: 118px;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 8px 17px;
+  border-color: rgb(16 23 20 / 11%);
+  border-radius: 7px;
+  background:
+    linear-gradient(rgb(250 248 242 / 93%), rgb(250 248 242 / 93%)),
+    url('/images/tactical/trama-carta.svg') center / 550px auto;
+  text-align: center;
+}
+
+.home-stat-icon {
+  width: 45px;
+  height: 45px;
+  flex-basis: 45px;
+  border-radius: 50%;
+  color: #ffffff;
+}
+
+.home-stat-green .home-stat-icon {
+  background: var(--pm-green);
+  color: #ffffff;
+}
+
+.home-stat-neutral .home-stat-icon {
+  background: var(--pm-ink);
+  color: #e7b942;
+}
+
+.home-stat-red .home-stat-icon {
+  background: #cf173e;
+  color: #ffffff;
+}
+
+.home-stat-gold .home-stat-icon {
+  background: #d69b13;
+  color: #ffffff;
+}
+
+.home-stat-neutral::after {
+  background: var(--pm-ink);
+}
+
+.home-stat strong {
+  font-size: clamp(27px, 7vw, 38px);
+}
+
+.home-stat small {
+  margin-top: 3px;
+  color: var(--pm-ink);
+  font-size: 11px;
+  font-weight: 780;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.dashboard-section .section-heading h2 {
+  position: relative;
+  width: fit-content;
+  font-size: clamp(34px, 8vw, 50px);
+  font-style: italic;
+  letter-spacing: -0.045em;
+  transform: skewX(-2deg);
+}
+
+.dashboard-section .section-heading h2::after {
+  display: block;
+  width: 58%;
+  height: 8px;
+  margin-top: 3px;
+  background: url('/images/tactical/tratto-rosso.svg') center / 100% 100% no-repeat;
+  content: '';
+}
+
+.text-link {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid rgb(16 23 20 / 16%);
+  border-radius: 999px;
+  background: rgb(250 248 242 / 72%);
+  color: var(--pm-ink);
+}
+
+.recent-lesson {
+  min-height: 112px;
+  grid-template-columns: 112px minmax(0, 1fr) auto;
+  gap: 16px;
+  padding: 8px 14px 8px 8px;
+  border-radius: 7px;
+  background: rgb(250 248 242 / 92%);
+  box-shadow: 0 5px 12px rgb(16 23 20 / 5%);
+}
+
+.recent-lesson-media {
+  position: relative;
+  display: grid;
+  width: 112px;
+  height: 94px;
+  overflow: hidden;
+  place-items: center;
+  border-radius: 5px;
+  background:
+    linear-gradient(rgb(0 61 45 / 16%), rgb(0 61 45 / 48%)),
+    url('/images/tactical/diagramma-ampiezza.svg') center / cover,
+    var(--pm-green-dark);
+  color: #ffffff;
+}
+
+.recent-lesson[data-phase='progressione'] .recent-lesson-media {
+  background-image:
+    linear-gradient(rgb(0 61 45 / 16%), rgb(0 61 45 / 48%)),
+    url('/images/tactical/diagramma-terzo-uomo.svg');
+}
+
+.recent-lesson[data-phase='finalizzazione'] .recent-lesson-media {
+  background-image:
+    linear-gradient(rgb(0 61 45 / 16%), rgb(0 61 45 / 48%)),
+    url('/images/tactical/diagramma-linea-passaggio.svg');
+}
+
+.recent-lesson[data-phase='pressione_alta'] .recent-lesson-media,
+.recent-lesson[data-phase='pressione_bassa'] .recent-lesson-media {
+  background-image:
+    linear-gradient(rgb(200 16 50 / 15%), rgb(16 23 20 / 58%)),
+    url('/images/tactical/diagramma-pressione.svg');
+}
+
+.recent-lesson-number,
+.lesson-card-index,
+.trophy-card-number {
+  position: absolute;
+  top: 7px;
+  left: 8px;
+  z-index: 2;
+  color: rgb(255 255 255 / 82%);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+}
+
+.recent-lesson-play {
+  padding: 9px;
+  border: 1px solid rgb(255 255 255 / 46%);
+  border-radius: 50%;
+  background: rgb(0 61 45 / 78%);
+  box-sizing: content-box;
+}
+
+.recent-lesson-media .recent-check {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  width: 25px;
+  height: 25px;
+  border-width: 1px;
+  border-color: rgb(255 255 255 / 60%);
+  background: rgb(0 61 45 / 62%);
+}
+
+.recent-lesson-media .recent-check-done {
+  border-color: #ffffff;
+  background: var(--pm-green);
+}
+
+.recent-lesson-copy small {
+  color: var(--pm-green);
+  font-size: 10px;
+  letter-spacing: 0.11em;
+}
+
+.recent-lesson-copy strong {
+  overflow: visible;
+  font-size: clamp(15px, 3.8vw, 20px);
+  line-height: 1.08;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+.recent-lesson-description {
+  display: -webkit-box;
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 550;
+  line-height: 1.22;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.next-mission {
+  border-radius: 8px;
+  background:
+    linear-gradient(110deg, rgb(16 23 20 / 98%), rgb(0 61 45 / 95%)),
+    var(--pm-ink);
+}
+
+/* Catalogue, detail, quiz and trophies use one numbered editorial grammar. */
+.view-heading h1 {
+  font-size: clamp(48px, 12vw, 76px);
+  font-style: italic;
+  letter-spacing: -0.05em;
+  transform: skewX(-2deg);
+}
+
+.view-heading::after {
+  width: 92px;
+  background-image: url('/images/tactical/tratto-rosso.svg');
+}
+
+.macro-card {
+  min-height: 176px;
+  border-radius: 7px;
+  clip-path: none;
+}
+
+.phase-picker {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.phase-card {
+  border-radius: 0;
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.phase-card-active {
+  box-shadow: inset 0 -4px 0 var(--pm-red);
+}
+
+.lesson-card {
+  min-height: 118px;
+  border-radius: 7px;
+}
+
+.lesson-thumb {
+  position: relative;
+}
+
+.lesson-card-index {
+  padding: 2px 5px;
+  border-radius: 2px;
+  background: rgb(16 23 20 / 52%);
+}
+
+.lesson-card-copy > strong {
+  font-family: var(--font-display);
+  font-size: clamp(18px, 4vw, 24px);
+  letter-spacing: -0.015em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.lesson-title-block {
+  border-radius: 7px;
+  clip-path: polygon(0.4% 0, 99.6% 0.7%, 100% 99%, 0 100%);
+}
+
+.lesson-title-block h1 {
+  font-style: italic;
+  letter-spacing: -0.045em;
+  transform: skewX(-2deg);
+}
+
+.lesson-video,
+.lesson-video-placeholder {
+  border: 0;
+  border-radius: 5px;
+  box-shadow:
+    0 0 0 4px var(--pm-green-dark),
+    0 12px 28px rgb(16 23 20 / 16%);
+}
+
+.variant-button,
+.remember-card,
+.lesson-completion,
+.lesson-quiz,
+.lesson-quiz-choices label > span {
+  border-radius: 4px;
+}
+
+.remember-card {
+  border: 0;
+  border-left: 6px solid var(--pm-red);
+  background:
+    linear-gradient(rgb(235 241 236 / 94%), rgb(235 241 236 / 94%)),
+    url('/images/tactical/diagramma-compattezza.svg') right center / 58% auto no-repeat;
+  box-shadow: 4px 5px 0 rgb(0 61 45 / 8%);
+  transform: rotate(-0.15deg);
+}
+
+.lesson-quiz {
+  border-top-color: var(--pm-red);
+  background:
+    linear-gradient(rgb(255 255 255 / 95%), rgb(255 255 255 / 95%)),
+    url('/images/tactical/trama-carta.svg') center / 700px auto;
+}
+
+.lesson-quiz-questions legend {
+  font-size: clamp(17px, 4vw, 21px);
+}
+
+.lesson-quiz-questions legend > span {
+  background: var(--pm-red);
+}
+
+.lesson-quiz-choices label > span {
+  min-height: 54px;
+  border-width: 2px;
+  background: #faf8f1;
+}
+
+.lesson-quiz-choices input:checked + span {
+  border-color: var(--pm-green);
+  background: #e5efe8;
+}
+
+.quiz-submit-button,
+.primary-cta,
+.complete-button {
+  clip-path: none;
+}
+
+.trophy-hero {
+  border-radius: 7px;
+  clip-path: polygon(0.5% 0, 99.4% 0.8%, 100% 98.5%, 0 100%);
+}
+
+.trophy-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 5px;
+}
+
+.trophy-card-number {
+  top: 8px;
+  right: 9px;
+  left: auto;
+  color: rgb(16 23 20 / 32%);
+  font-size: 14px;
+}
+
+.trophy-card-unlocked .trophy-card-number {
+  color: #9b721e;
+}
+
+/* Auth pages share the club masthead instead of looking like a generic form. */
+.auth-screen {
+  background:
+    linear-gradient(90deg, rgb(243 240 231 / 95%), rgb(243 240 231 / 88%)),
+    url('/images/tactical/trama-carta.svg') center / 1100px auto;
+}
+
+.auth-screen::before {
+  border: 0;
+  border-radius: 0;
+  background: url('/images/tactical/tratto-verde.svg') center / contain no-repeat;
+  box-shadow: none;
+  opacity: 0.14;
+  transform: rotate(-15deg);
+}
+
+.auth-screen::after {
+  border: 0;
+  border-radius: 0;
+  background: url('/images/tactical/tratto-rosso.svg') center / contain no-repeat;
+  box-shadow: none;
+  opacity: 0.14;
+  transform: rotate(17deg);
+}
+
+.auth-card,
+.auth-state-card {
+  border-top-width: 7px;
+  border-radius: 6px;
+  background:
+    linear-gradient(rgb(255 255 255 / 96%), rgb(255 255 255 / 96%)),
+    url('/images/tactical/trama-carta.svg') center / 600px auto;
+  box-shadow: 0 18px 42px rgb(16 23 20 / 12%);
+}
+
+.auth-brand img {
+  width: 66px;
+  height: 66px;
+}
+
+.auth-brand span {
+  color: var(--pm-ink);
+  font-family: var(--font-display);
+  font-size: 12px;
+}
+
+.auth-brand strong {
+  width: fit-content;
+  background: linear-gradient(105deg, var(--pm-red) 0 61%, var(--pm-ink) 61% 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: var(--pm-red);
+  font-size: clamp(19px, 5vw, 25px);
+  font-style: italic;
+  letter-spacing: -0.02em;
+  -webkit-text-fill-color: transparent;
+}
+
+.auth-copy h1,
+.auth-state-card h1,
+.auth-created-heading h1 {
+  font-style: italic;
+  letter-spacing: -0.045em;
+  transform: skewX(-2deg);
+}
+
+.auth-input-wrap,
+.auth-submit,
+.auth-secondary,
+.auth-signup-prompt,
+.auth-entry-actions,
+.auth-created-note,
+.auth-password-requirements {
+  border-radius: 4px;
+}
+
+.auth-submit,
+.auth-secondary,
+.auth-created-card > .auth-submit {
+  clip-path: none;
+}
+
+.auth-loading,
+.player-loading-state {
+  font-family: var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Reference mobile nav: warm paper, red active state, no floating glass capsule. */
+.mobile-navigation {
+  border-top: 1px solid rgb(16 23 20 / 13%);
+  background:
+    linear-gradient(rgb(249 247 240 / 97%), rgb(249 247 240 / 97%)),
+    url('/images/tactical/trama-carta.svg') center / 520px auto;
+  box-shadow: 0 -7px 20px rgb(16 23 20 / 9%);
+}
+
+.mobile-nav-button {
+  color: #626764;
+}
+
+.mobile-nav-button-active {
+  background: transparent;
+  box-shadow: inset 0 -4px 0 var(--pm-red);
+  color: var(--pm-red);
+}
+
+.mobile-nav-button span {
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.015em;
+  text-transform: none;
+}
+
+@media (max-width: 819px) {
+  .sport-badge {
+    display: none;
+  }
+
+  .app-frame[data-player-view='home'] .app-header {
+    position: relative;
+  }
+
+  .app-frame[data-player-view='home'] .app-header-inner {
+    min-height: 106px;
+  }
+
+  .app-frame[data-player-view='home'] .brand-mark {
+    width: 68px;
+    height: 68px;
+    flex-basis: 68px;
+  }
+
+  .app-frame[data-player-view='home'] .brand-team {
+    max-width: none;
+    font-size: 12px;
+  }
+
+  .app-frame[data-player-view='home'] .brand-product {
+    display: grid;
+    gap: 0;
+  }
+
+  .app-frame[data-player-view='home'] .brand-product-primary {
+    font-size: 27px;
+    line-height: 0.88;
+  }
+
+  .app-frame[data-player-view='home'] .brand-product-secondary {
+    justify-self: end;
+    font-size: 20px;
+    line-height: 0.94;
+  }
+
+  .journey-identity {
+    gap: 0;
+  }
+
+  .lesson-progress-label {
+    font-size: 10px;
+  }
+}
+
+.journey-crest {
+  display: none;
+}
+
+@media (min-width: 680px) {
+  .home-stat {
+    min-height: 136px;
+  }
+
+  .recent-lesson {
+    min-height: 120px;
+  }
+
+  .recent-lesson-media {
+    width: 126px;
+    height: 102px;
+  }
+
+  .recent-lessons {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 820px) {
+  .brand-product-primary {
+    font-size: 20px;
+  }
+
+  .brand-product-secondary {
+    font-size: 16px;
+  }
+
+  .mobile-navigation {
+    display: none;
+  }
+}
+
+@media (min-width: 1040px) {
+  .dashboard-view .journey-hero {
+    min-height: 330px;
+  }
+
+  .dashboard-view .home-stats {
+    max-width: 920px;
+    justify-self: center;
+  }
+
+  .dashboard-view .dashboard-section {
+    align-self: start;
+  }
+
+  .recent-lesson {
+    min-height: 112px;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+  }
+
+  .recent-lesson-media {
+    width: 112px;
+    height: 94px;
+  }
+}
+
+@media (max-width: 430px) {
+  .page-width {
+    width: min(100% - 20px, 1180px);
+  }
+
+  .app-frame[data-player-view='home'] .brand-copy {
+    max-width: 170px;
+  }
+
+  .player-logout-button {
+    align-self: flex-start;
+    margin-top: 9px;
+  }
+
+  .journey-hero {
+    min-height: 268px;
+    padding: 25px 20px 23px;
+  }
+
+  .journey-hero h1 {
+    font-size: clamp(46px, 13.4vw, 58px);
+  }
+
+  .journey-mantra {
+    max-width: 23ch;
+  }
+
+  .home-stat {
+    min-height: 112px;
+    padding-inline: 3px;
+  }
+
+  .home-stat-icon {
+    width: 40px;
+    height: 40px;
+    flex-basis: 40px;
+  }
+
+  .home-stat strong {
+    font-size: 29px;
+  }
+
+  .home-stat small {
+    max-width: 74px;
+    font-size: 10px;
+    line-height: 1.05;
+  }
+
+  .section-heading-action {
+    align-items: flex-end;
+  }
+
+  .text-link {
+    min-height: 39px;
+    padding-inline: 11px;
+    font-size: 12px;
+  }
+
+  .recent-lesson {
+    min-height: 94px;
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 11px;
+    padding: 6px 9px 6px 6px;
+  }
+
+  .recent-lesson-media {
+    width: 84px;
+    height: 80px;
+  }
+
+  .recent-lesson .lesson-progress-label {
+    grid-column: 2;
+    width: fit-content;
+    margin-top: -3px;
+  }
+
+  .recent-lesson-copy strong {
+    font-size: 15px;
+  }
+
+  .macro-card {
+    min-height: 154px;
+  }
+
+  .lesson-card {
+    grid-template-columns: 82px minmax(0, 1fr) auto;
+    min-height: 104px;
+  }
+
+  .lesson-thumb {
+    width: 82px;
+    height: 78px;
+  }
+
+  .lesson-card-copy > strong {
+    font-size: 17px;
+  }
+}
+
+@media (max-width: 374px) {
+  .app-frame[data-player-view='home'] .brand-mark {
+    width: 60px;
+    height: 60px;
+    flex-basis: 60px;
+  }
+
+  .app-frame[data-player-view='home'] .brand-product-primary {
+    font-size: 23px;
+  }
+
+  .app-frame[data-player-view='home'] .brand-product-secondary {
+    font-size: 17px;
+  }
+
+  .home-stats {
+    gap: 5px;
+  }
+
+  .home-stat {
+    min-height: 106px;
+  }
+
+  .home-stat-icon {
+    width: 36px;
+    height: 36px;
+    flex-basis: 36px;
+  }
+
+  .home-stat strong {
+    font-size: 26px;
+  }
+
+  .home-stat small {
+    font-size: 9px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .brand-product-primary,
+  .journey-hero h1,
+  .view-heading h1,
+  .dashboard-section .section-heading h2,
+  .lesson-title-block h1,
+  .auth-copy h1,
+  .auth-state-card h1,
+  .auth-created-heading h1 {
+    transform: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .auth-brand strong {
+    background: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
   }
 }

@@ -119,7 +119,7 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
         </header>
 
         <div className="trophy-grid">
-          {trophyItems.map(({ trophy, isUnlocked, ruleProgress }) => {
+          {trophyItems.map(({ trophy, isUnlocked, ruleProgress }, index) => {
             const Icon = trophyIcons[trophy.icon];
 
             return (
@@ -133,6 +133,9 @@ export function TrophiesSection({ progress, summary }: TrophiesSectionProps) {
                 data-trophy-id={trophy.id}
                 data-trophy-state={isUnlocked ? 'unlocked' : 'locked'}
               >
+                <span className="trophy-card-number" aria-hidden="true">
+                  {String(index + 1).padStart(2, '0')}
+                </span>
                 <span className="trophy-card-icon" aria-hidden="true">
                   <Icon className="size-7" />
                   <span className="trophy-card-state">
