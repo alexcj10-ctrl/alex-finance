@@ -8,6 +8,7 @@ export type Json =
 
 export type AppRole = 'player' | 'coach';
 export type CoachAccessLevel = 'admin' | 'viewer';
+export type PlayerBirthYear = 2014 | 2015;
 export type DatabaseLessonStatus = 'da_fare' | 'in_corso' | 'completata';
 export type VideoCheckpoint = 0 | 25 | 50 | 75 | 100;
 
@@ -20,6 +21,7 @@ export type Database = {
           display_name: string;
           role: AppRole;
           player_code: string | null;
+          birth_year: PlayerBirthYear | null;
           account_active: boolean;
           local_progress_imported_at: string | null;
           avatar_path: string | null;
@@ -30,6 +32,7 @@ export type Database = {
           display_name: string;
           role?: AppRole;
           player_code?: string | null;
+          birth_year?: PlayerBirthYear | null;
           account_active?: boolean;
           local_progress_imported_at?: string | null;
           avatar_path?: string | null;
@@ -38,6 +41,7 @@ export type Database = {
         Update: {
           display_name?: string;
           player_code?: string | null;
+          birth_year?: PlayerBirthYear | null;
           account_active?: boolean;
           local_progress_imported_at?: string | null;
           avatar_path?: string | null;
@@ -330,8 +334,16 @@ export type Database = {
           p_team_id: string;
           p_active: boolean;
           p_coach_id: string;
+          p_birth_year?: PlayerBirthYear | null;
         };
         Returns: Database['public']['Tables']['profiles']['Row'];
+      };
+      list_lesson_audiences: {
+        Args: { p_team_id: string };
+        Returns: {
+          lesson_id: string;
+          eligible_birth_years: PlayerBirthYear[];
+        }[];
       };
       record_login: {
         Args: { p_team_id: string };
@@ -355,6 +367,15 @@ export type Database = {
       start_lesson: {
         Args: { p_team_id: string; p_lesson_id: string };
         Returns: Database['public']['Tables']['lesson_progress']['Row'];
+      };
+      set_player_birth_year: {
+        Args: {
+          p_team_id: string;
+          p_player_id: string;
+          p_birth_year: PlayerBirthYear;
+          p_coach_id: string;
+        };
+        Returns: Database['public']['Tables']['profiles']['Row'];
       };
       submit_quiz: {
         Args: {

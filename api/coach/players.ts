@@ -55,6 +55,14 @@ function parseActive(value: unknown) {
   return value;
 }
 
+function parseBirthYear(value: unknown) {
+  if (value !== 2014 && value !== 2015) {
+    throw new ApiError(400, 'INVALID_BIRTH_YEAR', 'Gruppo non valido.');
+  }
+
+  return value;
+}
+
 function isConflictCode(code: string | undefined) {
   return code === '23505' || code === 'email_exists' || code === 'user_already_exists';
 }
@@ -71,6 +79,7 @@ async function handlePost(request: Request) {
   const pin = parsePlayerPin(body.pin);
   const teamId = parseTeamId(body.teamId);
   const active = parseActive(body.active);
+  const birthYear = parseBirthYear(body.birthYear);
 
   const { admin, coachId } = await requireCoach(request);
   await requireCoachTeamAdminAccess(coachId, teamId);
@@ -116,6 +125,7 @@ async function handlePost(request: Request) {
   const userId = authData.user.id;
   const { error: provisioningError } = await admin.rpc('provision_player_profile', {
     p_active: active,
+    p_birth_year: birthYear,
     p_coach_id: coachId,
     p_display_name: displayName,
     p_player_code: playerCode,
@@ -156,6 +166,7 @@ async function handlePost(request: Request) {
     {
       player: {
         active,
+        birthYear,
         displayName,
         id: userId,
         playerCode,

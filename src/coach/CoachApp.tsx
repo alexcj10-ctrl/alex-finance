@@ -73,11 +73,13 @@ export function CoachApp({
       const detail = model.getPlayerDetail(route.playerId);
       page = detail ? (
         <CoachPlayerDetailPage
+          key={detail.summary.playerId}
           detail={detail}
           referenceDate={model.generatedAt}
           showDemoBadge={model.source === 'mock'}
           teamId={model.team.id}
           canManage={canManage}
+          onDataChanged={data.refresh}
         />
       ) : (
         <section className="coach-not-found">

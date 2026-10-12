@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { phaseLabels } from '../../data/lessons';
+import { formatLessonAudience, phaseLabels } from '../../data/lessons';
 import type { CoachLessonAggregate } from '../../types/coach';
 import { navigateCoach } from '../routes';
 import { CoachProgress } from './CoachProgress';
@@ -52,7 +52,10 @@ export function LessonAggregateList({ lessons }: { lessons: readonly CoachLesson
                     <span aria-hidden="true"><BookOpen className="size-5" /></span>
                     <span>
                       <strong>{item.lesson.titolo}</strong>
-                      <small>{phaseLabels[item.lesson.fase]}</small>
+                      <small>
+                        {phaseLabels[item.lesson.fase]} · Destinatari:{' '}
+                        {formatLessonAudience(item.lesson.eligibleBirthYears)}
+                      </small>
                       <a
                         className="coach-lesson-inline-link"
                         href={lessonPath(item.lesson.id)}
@@ -79,7 +82,13 @@ export function LessonAggregateList({ lessons }: { lessons: readonly CoachLesson
           <article className="coach-lesson-card" key={item.lesson.id}>
             <header>
               <span className="coach-lesson-icon" aria-hidden="true"><BookOpen className="size-5" /></span>
-              <div><strong>{item.lesson.titolo}</strong><span>{phaseLabels[item.lesson.fase]}</span></div>
+              <div>
+                <strong>{item.lesson.titolo}</strong>
+                <span>
+                  {phaseLabels[item.lesson.fase]} · Destinatari:{' '}
+                  {formatLessonAudience(item.lesson.eligibleBirthYears)}
+                </span>
+              </div>
             </header>
             <CoachProgress value={item.averageProgressPercent} label="Progresso medio" />
             <div className="coach-lesson-counts">

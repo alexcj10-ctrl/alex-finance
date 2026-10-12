@@ -8,7 +8,7 @@ import {
   PlayCircle,
 } from 'lucide-react';
 
-import { phaseLabels } from '../../data/lessons';
+import { formatLessonAudience, phaseLabels } from '../../data/lessons';
 import { requireSupabaseClient } from '../../services/supabase/client';
 import type { CoachLessonAggregate } from '../../types/coach';
 import type { Json } from '../../types/database';
@@ -154,7 +154,7 @@ export function CoachLessonDetailPage({
       </a>
 
       <CoachPageHeader
-        eyebrow={`${phaseLabels[lesson.fase]} · ${lesson.sistema}`}
+        eyebrow={`${phaseLabels[lesson.fase]} · ${lesson.sistema} · Destinatari: ${formatLessonAudience(lesson.eligibleBirthYears)}`}
         title={lesson.titolo}
         description={lesson.descrizioneBreve}
       />

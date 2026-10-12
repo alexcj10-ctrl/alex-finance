@@ -6,7 +6,7 @@ import type {
   CoachQuizAttemptRecord,
   CoachVideoProgressRecord,
 } from '../types/coach';
-import type { LessonProgressStatus } from './lessons';
+import { lessons, type LessonProgressStatus } from './lessons';
 
 const teamId = 'mock-team-poggio-esordienti-2026';
 const generatedAt = '2026-09-11T12:00:00.000Z';
@@ -33,12 +33,14 @@ const profiles: readonly CoachProfileRecord[] = [
     id: 'mock-coach-01',
     displayName: 'Mister Andrea',
     role: 'coach',
+    birthYear: null,
     createdAt: '2026-08-20T09:00:00.000Z',
   },
   ...playerProfiles.map(([id, displayName]) => ({
     id,
     displayName,
     role: 'player' as const,
+    birthYear: null,
     createdAt: '2026-08-25T09:00:00.000Z',
   })),
 ];
@@ -315,6 +317,10 @@ export const mockCoachDataset = {
   lessonProgress,
   videoProgress,
   quizAttempts,
+  lessonAudiences: lessons.map((lesson) => ({
+    lessonId: lesson.id,
+    eligibleBirthYears: lesson.eligibleBirthYears,
+  })),
   playerTrophies: [
     { teamId, playerId: 'mock-player-01', trophyId: 'prima-lezione', unlockedAt: '2026-09-02T16:27:00.000Z' },
     { teamId, playerId: 'mock-player-01', trophyId: 'costruttore', unlockedAt: '2026-09-05T17:18:00.000Z' },

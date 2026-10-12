@@ -1,5 +1,5 @@
 import type { Lesson, LessonProgressStatus, PhaseId } from '../data/lessons';
-import type { AppRole, Json, VideoCheckpoint } from './database';
+import type { AppRole, Json, PlayerBirthYear, VideoCheckpoint } from './database';
 
 export type CoachDataSource = 'mock' | 'supabase';
 export type AttentionKind =
@@ -20,6 +20,7 @@ export type CoachProfileRecord = {
   displayName: string;
   role: AppRole;
   playerCode?: string;
+  birthYear: PlayerBirthYear | null;
   avatarPath?: string;
   createdAt: string;
 };
@@ -96,6 +97,10 @@ export type CoachDataset = {
   quizAttempts: readonly CoachQuizAttemptRecord[];
   playerTrophies: readonly CoachPlayerTrophyRecord[];
   activityEvents: readonly CoachActivityEventRecord[];
+  lessonAudiences: readonly {
+    lessonId: string;
+    eligibleBirthYears: readonly PlayerBirthYear[];
+  }[];
 };
 
 export type AttentionItem = {
@@ -113,6 +118,7 @@ export type CoachPlayerSummary = {
   playerId: string;
   displayName: string;
   playerCode?: string;
+  birthYear: PlayerBirthYear | null;
   initials: string;
   progressPercent: number;
   points: number;

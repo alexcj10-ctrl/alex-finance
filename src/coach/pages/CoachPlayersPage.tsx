@@ -8,6 +8,7 @@ import {
   type PlayerSignupWindow,
 } from '../../services/supabase/supabase-coach-actions';
 import type { CoachReadModel } from '../../types/coach';
+import type { PlayerBirthYear } from '../../types/database';
 import { CoachPageHeader } from '../components/CoachPageHeader';
 import { PlayerList } from '../components/PlayerList';
 
@@ -27,6 +28,7 @@ export function CoachPlayersPage({
   const [displayName, setDisplayName] = useState('');
   const [playerCode, setPlayerCode] = useState('');
   const [pin, setPin] = useState('');
+  const [birthYear, setBirthYear] = useState<PlayerBirthYear | ''>('');
   const [createStatus, setCreateStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [createError, setCreateError] = useState<string>();
   const [signupWindow, setSignupWindow] = useState<PlayerSignupWindow>();
@@ -103,17 +105,24 @@ export function CoachPlayersPage({
     if (!canManage) return;
     setCreateStatus('submitting');
     setCreateError(undefined);
+    if (birthYear === '') {
+      setCreateStatus('idle');
+      setCreateError('Seleziona il gruppo 2014 o 2015.');
+      return;
+    }
     try {
       await createPlayerAccount({
         displayName,
         playerCode,
         pin,
         teamId: model.team.id,
+        birthYear,
       });
       setCreateStatus('success');
       setDisplayName('');
       setPlayerCode('');
       setPin('');
+      setBirthYear('');
       onDataChanged();
     } catch (error) {
       setCreateStatus('idle');
@@ -250,6 +259,21 @@ export function CoachPlayersPage({
                 autoComplete="new-password"
                 required
               />
+            </label>
+            <label>
+              <span>Gruppo</span>
+              <select
+                value={birthYear}
+                onChange={(event) => setBirthYear(
+                  event.target.value === '2014' ? 2014 :
+                    event.target.value === '2015' ? 2015 : '',
+                )}
+                required
+              >
+                <option value="">Seleziona</option>
+                <option value="2014">2014</option>
+                <option value="2015">2015</option>
+              </select>
             </label>
             <button type="submit" disabled={createStatus === 'submitting'}>
               {createStatus === 'submitting'

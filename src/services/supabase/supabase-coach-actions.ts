@@ -1,10 +1,12 @@
 import { requireSupabaseClient } from './client';
+import type { PlayerBirthYear } from '../../types/database';
 
 type CreatePlayerInput = {
   displayName: string;
   playerCode: string;
   pin: string;
   teamId: string;
+  birthYear: PlayerBirthYear;
 };
 
 export type PlayerSignupWindow = {
@@ -52,8 +54,25 @@ export async function createPlayerAccount(input: CreatePlayerInput) {
       playerCode: string;
       teamId: string;
       active: boolean;
+      birthYear: PlayerBirthYear;
     };
   }>;
+}
+
+export async function updatePlayerBirthYear(
+  teamId: string,
+  playerId: string,
+  birthYear: PlayerBirthYear,
+) {
+  const response = await fetch('/api/coach/player-group', {
+    method: 'POST',
+    headers: {
+      ...await coachAuthorizationHeader(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ birthYear, playerId, teamId }),
+  });
+  if (!response.ok) throw new Error(await readError(response));
 }
 
 export async function getPlayerSignupWindow(teamId: string) {

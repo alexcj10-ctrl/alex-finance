@@ -1700,6 +1700,24 @@
   cursor: wait;
   opacity: 0.6;
 }
+.coach-group-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.coach-group-controls select {
+  min-height: 44px;
+  padding: 0 34px 0 12px;
+  border: 1px solid #d9dfda;
+  border-radius: 11px;
+  background: #fff;
+  color: #111713;
+  font: inherit;
+}
+.coach-group-controls select:focus {
+  border-color: var(--pm-green);
+  outline: 3px solid rgb(0 112 72 / 10%);
+}
 .coach-pin-management-message {
   grid-column: 1 / -1;
   margin: 0;
@@ -1884,7 +1902,8 @@
   font-weight: 800;
 }
 
-.coach-create-panel input {
+.coach-create-panel input,
+.coach-create-panel select {
   width: 100%;
   min-height: 44px;
   padding: 0 12px;
@@ -1895,7 +1914,8 @@
   font-size: 13px;
 }
 
-.coach-create-panel input:focus {
+.coach-create-panel input:focus,
+.coach-create-panel select:focus {
   border-color: var(--pm-green);
   outline: 3px solid rgb(0 112 72 / 10%);
 }
@@ -2211,7 +2231,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .coach-create-panel form {
-    grid-template-columns: 1.2fr 1fr 0.7fr auto;
+    grid-template-columns: 1.2fr 1fr 0.7fr 0.7fr auto;
     align-items: end;
   }
   .coach-assignment-actions {
@@ -3241,6 +3261,7 @@
 }
 
 .coach-create-panel input,
+.coach-create-panel select,
 .coach-delete-dialog-field input {
   min-height: 46px;
   border: 1px solid var(--coach-line, #dadfd7);
@@ -3250,6 +3271,7 @@
 }
 
 .coach-create-panel input:focus,
+.coach-create-panel select:focus,
 .coach-delete-dialog-field input:focus {
   border-color: var(--coach-green, #064a35);
   outline: 3px solid rgb(6 74 53 / 12%);
@@ -4480,6 +4502,7 @@
 }
 
 .coach-create-panel input,
+.coach-create-panel select,
 .coach-delete-dialog-field input {
   border-radius: 1px;
   background: rgb(244 240 230 / 72%);

@@ -1,4 +1,5 @@
 import {
+  isLessonEligibleForBirthYear,
   phaseOrderByMacro,
   type Lesson,
   type PhaseId,
@@ -73,7 +74,18 @@ export function buildCoachReadModel(
   dataset: CoachDataset,
   catalog: readonly Lesson[],
 ): CoachReadModel {
-  const trackedLessons = catalog.filter(
+  const audienceByLessonId = new Map(
+    dataset.lessonAudiences.map((audience) => [
+      audience.lessonId,
+      audience.eligibleBirthYears,
+    ]),
+  );
+  const configuredCatalog = catalog.map((lesson) => ({
+    ...lesson,
+    eligibleBirthYears:
+      audienceByLessonId.get(lesson.id) ?? lesson.eligibleBirthYears,
+  }));
+  const trackedLessons = configuredCatalog.filter(
     (lesson) => lesson.disponibilita === 'disponibile' && lesson.demo === false,
   );
   const trackedLessonById = new Map(trackedLessons.map((lesson) => [lesson.id, lesson]));
@@ -93,19 +105,31 @@ export function buildCoachReadModel(
     (progress) =>
       progress.teamId === dataset.team.id &&
       activePlayerIds.has(progress.playerId) &&
-      trackedLessonById.has(progress.lessonId),
+      trackedLessonById.has(progress.lessonId) &&
+      isLessonEligibleForBirthYear(
+        trackedLessonById.get(progress.lessonId)!,
+        profileById.get(progress.playerId)?.birthYear ?? null,
+      ),
   );
   const relevantVideos = dataset.videoProgress.filter(
     (progress) =>
       progress.teamId === dataset.team.id &&
       activePlayerIds.has(progress.playerId) &&
-      trackedLessonById.has(progress.lessonId),
+      trackedLessonById.has(progress.lessonId) &&
+      isLessonEligibleForBirthYear(
+        trackedLessonById.get(progress.lessonId)!,
+        profileById.get(progress.playerId)?.birthYear ?? null,
+      ),
   );
   const relevantQuizzes = dataset.quizAttempts.filter(
     (attempt) =>
       attempt.teamId === dataset.team.id &&
       activePlayerIds.has(attempt.playerId) &&
-      trackedLessonById.has(attempt.lessonId),
+      trackedLessonById.has(attempt.lessonId) &&
+      isLessonEligibleForBirthYear(
+        trackedLessonById.get(attempt.lessonId)!,
+        profileById.get(attempt.playerId)?.birthYear ?? null,
+      ),
   );
   const latestQuizByPlayerLesson = latestQuizAttempts(relevantQuizzes);
   const relevantActivities = dataset.activityEvents.filter(
@@ -212,6 +236,7 @@ export function buildCoachReadModel(
         playerId,
         displayName: profile.displayName,
         ...(profile.playerCode ? { playerCode: profile.playerCode } : {}),
+        birthYear: profile.birthYear,
         initials: getInitials(profile.displayName),
         progressPercent: roundedAverage(playerProgress.map((item) => item.progressPercent)) ?? 0,
         points: playerProgress.reduce((total, item) => total + item.pointsEarned, 0),
@@ -252,7 +277,11 @@ export function buildCoachReadModel(
 
     const playerProgress = relevantProgress.filter((item) => item.playerId === playerId);
     const phaseProgress = allPhases.map((phase) => {
-      const phaseLessons = trackedLessons.filter((lesson) => lesson.fase === phase);
+      const phaseLessons = trackedLessons.filter(
+        (lesson) =>
+          lesson.fase === phase &&
+          isLessonEligibleForBirthYear(lesson, summary.birthYear),
+      );
       const phaseLessonIds = new Set(phaseLessons.map((lesson) => lesson.id));
       const assigned = playerProgress.filter((item) => phaseLessonIds.has(item.lessonId));
 

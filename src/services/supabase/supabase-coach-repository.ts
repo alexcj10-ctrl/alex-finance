@@ -3,7 +3,7 @@ import type { PostgrestError } from '@supabase/supabase-js';
 import { buildCoachReadModel } from '../../coach/lib/coach-selectors';
 import { lessons } from '../../data/lessons';
 import type { CoachDataset } from '../../types/coach';
-import type { Database } from '../../types/database';
+import type { Database, PlayerBirthYear } from '../../types/database';
 import type { CoachRepository } from '../coach-repository';
 import { requireSupabaseClient, supabaseConfigured } from './client';
 
@@ -44,6 +44,7 @@ function mapProfile(row: ProfileRow) {
     displayName: row.display_name,
     role: row.role,
     ...(row.player_code ? { playerCode: row.player_code } : {}),
+    birthYear: row.birth_year,
     ...(row.avatar_path ? { avatarPath: row.avatar_path } : {}),
     createdAt: row.created_at,
   };
@@ -186,7 +187,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
   const playerMemberships = playersResult.data ?? [];
   const profileIds = [coachId, ...playerMemberships.map((row) => row.profile_id)];
 
-  const [profilesResult, progressResult, videosResult, quizzesResult, trophiesResult, activitiesResult] = await Promise.all([
+  const [profilesResult, progressResult, videosResult, quizzesResult, trophiesResult, activitiesResult, audiencesResult] = await Promise.all([
     client
       .from('profiles')
       .select('*')
@@ -212,6 +213,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
       .select('*')
       .eq('team_id', teamId)
       .order('created_at', { ascending: false }),
+    client.rpc('list_lesson_audiences', { p_team_id: teamId }),
   ]);
 
   failQuery('Lettura profili non riuscita', profilesResult.error);
@@ -220,6 +222,7 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
   failQuery('Lettura risultati quiz non riuscita', quizzesResult.error);
   failQuery('Lettura trofei non riuscita', trophiesResult.error);
   failQuery('Lettura attività non riuscita', activitiesResult.error);
+  failQuery('Lettura destinatari lezioni non riuscita', audiencesResult.error);
 
   const team = teamResult.data as TeamRow;
   const coachMembership = coachMembershipResult.data as MembershipRow;
@@ -234,6 +237,10 @@ export async function loadSupabaseCoachDataset(teamId: string): Promise<CoachDat
     lessonProgress: (progressResult.data ?? []).map(mapLessonProgress),
     videoProgress: (videosResult.data ?? []).map(mapVideoProgress),
     quizAttempts: (quizzesResult.data ?? []).map(mapQuizAttempt),
+    lessonAudiences: (audiencesResult.data ?? []).map((audience) => ({
+      lessonId: audience.lesson_id,
+      eligibleBirthYears: audience.eligible_birth_years as PlayerBirthYear[],
+    })),
     playerTrophies: (trophiesResult.data ?? []).map(mapTrophy),
     activityEvents: (activitiesResult.data ?? []).map(mapActivity),
   };

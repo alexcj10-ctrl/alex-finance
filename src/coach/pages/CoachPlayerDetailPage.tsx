@@ -10,6 +10,7 @@ import {
   Star,
   Trash2,
   Trophy,
+  UsersRound,
 } from 'lucide-react';
 
 import {
@@ -35,8 +36,10 @@ import {
   deletePlayerAccount,
   regeneratePlayerPin,
   type PlayerPinReceipt,
+  updatePlayerBirthYear,
 } from '../../services/supabase/supabase-coach-actions';
 import type { CoachPlayerDetail } from '../../types/coach';
+import type { PlayerBirthYear } from '../../types/database';
 import { AttentionList } from '../components/AttentionList';
 import { CoachPageHeader, DemoDataBadge } from '../components/CoachPageHeader';
 import { CoachProgress } from '../components/CoachProgress';
@@ -56,12 +59,14 @@ export function CoachPlayerDetailPage({
   showDemoBadge,
   teamId,
   canManage,
+  onDataChanged,
 }: {
   detail: CoachPlayerDetail;
   referenceDate: string;
   showDemoBadge: boolean;
   teamId: string;
   canManage: boolean;
+  onDataChanged: () => void;
 }) {
   const { summary } = detail;
   const [confirmPinReset, setConfirmPinReset] = useState(false);
@@ -72,6 +77,11 @@ export function CoachPlayerDetailPage({
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'submitting'>('idle');
   const [deleteError, setDeleteError] = useState<string>();
+  const [birthYear, setBirthYear] = useState<PlayerBirthYear | ''>(
+    summary.birthYear ?? '',
+  );
+  const [birthYearStatus, setBirthYearStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
+  const [birthYearError, setBirthYearError] = useState<string>();
   const receiptRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -117,6 +127,22 @@ export function CoachPlayerDetailPage({
     deleteConfirmation.trim() === summary.displayName ||
     deleteConfirmation.trim() === 'ELIMINA';
 
+  const saveBirthYear = async () => {
+    if (!canManage || birthYear === '') return;
+    setBirthYearStatus('submitting');
+    setBirthYearError(undefined);
+    try {
+      await updatePlayerBirthYear(teamId, summary.playerId, birthYear);
+      setBirthYearStatus('success');
+      onDataChanged();
+    } catch (error) {
+      setBirthYearStatus('idle');
+      setBirthYearError(
+        error instanceof Error ? error.message : 'Aggiornamento gruppo non riuscito.',
+      );
+    }
+  };
+
   return (
     <div className="coach-page coach-player-detail-page">
       <a className="coach-back-link" href="/coach/giocatori" onClick={handleBack}>
@@ -146,6 +172,66 @@ export function CoachPlayerDetailPage({
         <div className="coach-player-hero-progress">
           <CoachProgress value={summary.progressPercent} label="Progresso generale" />
         </div>
+      </section>
+
+      <section className="coach-pin-management" aria-labelledby="player-group-title">
+        <div className="coach-pin-management-copy">
+          <span className="coach-pin-management-icon" aria-hidden="true">
+            <UsersRound className="size-5" />
+          </span>
+          <div>
+            <p className="coach-eyebrow">Profilo didattico</p>
+            <h2 id="player-group-title">Gruppo</h2>
+            <p>{summary.birthYear ?? 'Non assegnato'}</p>
+          </div>
+        </div>
+        <div className="coach-group-controls">
+          <label>
+            <span className="sr-only">Gruppo del giocatore</span>
+            <select
+              value={birthYear}
+              disabled={!canManage || birthYearStatus === 'submitting'}
+              onChange={(event) => {
+                setBirthYear(
+                  event.target.value === '2014' ? 2014 :
+                    event.target.value === '2015' ? 2015 : '',
+                );
+                setBirthYearStatus('idle');
+                setBirthYearError(undefined);
+              }}
+            >
+              <option value="">Non assegnato</option>
+              <option value="2014">2014</option>
+              <option value="2015">2015</option>
+            </select>
+          </label>
+          <button
+            type="button"
+            className="coach-pin-reset-button"
+            disabled={
+              !canManage ||
+              birthYear === '' ||
+              birthYear === summary.birthYear ||
+              birthYearStatus === 'submitting'
+            }
+            title={canManage ? undefined : 'Solo Coach Amministratore'}
+            onClick={() => void saveBirthYear()}
+          >
+            {birthYearStatus === 'submitting' ? (
+              <LoaderCircle className="size-4 coach-loading-icon" aria-hidden="true" />
+            ) : null}
+            Salva gruppo
+          </button>
+        </div>
+        {birthYearStatus === 'success' ? (
+          <p className="coach-create-success">Gruppo aggiornato.</p>
+        ) : null}
+        {birthYearError ? (
+          <p className="coach-create-error" role="alert">{birthYearError}</p>
+        ) : null}
+        {!canManage ? (
+          <p className="coach-admin-only-note">Solo Coach Amministratore</p>
+        ) : null}
       </section>
 
       <div className="coach-player-stats">

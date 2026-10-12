@@ -1,4 +1,5 @@
 import type { LessonQuiz } from '../types/quiz';
+import type { PlayerBirthYear } from '../types/database';
 
 export type MacroPhaseId = 'possesso' | 'non_possesso';
 
@@ -38,9 +39,24 @@ export type Lesson = {
   disponibilita: LessonAvailability;
   trofeoCollegato?: string;
   concetti: readonly string[];
+  eligibleBirthYears: readonly PlayerBirthYear[];
   quiz?: LessonQuiz;
   demo: boolean;
 };
+
+export function formatLessonAudience(years: readonly PlayerBirthYear[]) {
+  if (years.length === 1) return `Solo ${years[0]}`;
+  return years.join(' · ');
+}
+
+export function isLessonEligibleForBirthYear(
+  lesson: Pick<Lesson, 'eligibleBirthYears'>,
+  birthYear: PlayerBirthYear | null,
+) {
+  return birthYear === null || lesson.eligibleBirthYears.includes(birthYear);
+}
+
+const allPlayerBirthYears = [2014, 2015] as const satisfies readonly PlayerBirthYear[];
 
 export const macroPhaseLabels: Record<MacroPhaseId, string> = {
   possesso: 'Con palla',
@@ -89,6 +105,7 @@ export const lessons = [
     disponibilita: 'disponibile',
     trofeoCollegato: 'prima-lezione',
     concetti: ['Ampiezza', 'Linea di passaggio'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: false,
   },
   {
@@ -114,6 +131,7 @@ export const lessons = [
     punti: 60,
     disponibilita: 'disponibile',
     concetti: ['Attrazione della pressione', 'Terzo uomo', 'Uomo libero'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: false,
   },
   {
@@ -139,6 +157,7 @@ export const lessons = [
     punti: 60,
     disponibilita: 'disponibile',
     concetti: ['Linea di passaggio', 'Smarcamento', 'Rendersi giocabile'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: false,
   },
   {
@@ -163,6 +182,7 @@ export const lessons = [
     punti: 40,
     disponibilita: 'prossimamente',
     concetti: ['Terzo uomo'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: true,
   },
   {
@@ -187,6 +207,7 @@ export const lessons = [
     punti: 50,
     disponibilita: 'prossimamente',
     concetti: ['Attacco dell’area'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: true,
   },
   {
@@ -217,6 +238,7 @@ export const lessons = [
     punti: 50,
     disponibilita: 'disponibile',
     concetti: ['Chiusura del centro', 'Orientamento verso la fascia', 'Pressione coordinata'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: false,
   },
   {
@@ -241,6 +263,7 @@ export const lessons = [
     punti: 50,
     disponibilita: 'prossimamente',
     concetti: ['Pressione coordinata'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: true,
   },
   {
@@ -265,6 +288,7 @@ export const lessons = [
     punti: 50,
     disponibilita: 'prossimamente',
     concetti: ['Blocco compatto'],
+    eligibleBirthYears: allPlayerBirthYears,
     demo: true,
   },
 ] as const satisfies readonly Lesson[];
