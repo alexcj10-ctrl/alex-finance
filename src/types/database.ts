@@ -345,6 +345,18 @@ export type Database = {
           eligible_birth_years: PlayerBirthYear[];
         }[];
       };
+      set_lesson_audience: {
+        Args: {
+          p_team_id: string;
+          p_lesson_id: string;
+          p_eligible_birth_years: PlayerBirthYear[];
+          p_coach_id: string;
+        };
+        Returns: {
+          lesson_id: string;
+          eligible_birth_years: PlayerBirthYear[];
+        }[];
+      };
       record_login: {
         Args: { p_team_id: string };
         Returns: Database['public']['Tables']['activity_events']['Row'];

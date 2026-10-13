@@ -139,3 +139,23 @@ export async function assignLessonToTeam(teamId: string, lessonId: string) {
   if (error) throw new Error(`Assegnazione non riuscita: ${error.message}`);
   return data;
 }
+
+export async function updateLessonAudience(
+  teamId: string,
+  lessonId: string,
+  eligibleBirthYears: readonly PlayerBirthYear[],
+) {
+  const response = await fetch('/api/coach/lesson-audience', {
+    method: 'POST',
+    headers: {
+      ...await coachAuthorizationHeader(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      eligibleBirthYears: [...eligibleBirthYears],
+      lessonId,
+      teamId,
+    }),
+  });
+  if (!response.ok) throw new Error(await readError(response));
+}

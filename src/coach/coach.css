@@ -1948,6 +1948,52 @@
   display: grid;
   gap: 8px;
 }
+.coach-assignment-item {
+  display: grid;
+  min-width: 0;
+  gap: 7px;
+}
+.coach-assignment-item > button {
+  width: 100%;
+}
+.coach-lesson-audience-control {
+  display: grid;
+  gap: 4px;
+}
+.coach-lesson-audience-control > span {
+  color: var(--text-muted);
+  font-size: 9px;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.coach-lesson-audience-control select {
+  width: 100%;
+  min-height: 38px;
+  padding: 7px 9px;
+  border: 1px solid #d9dfda;
+  border-radius: 7px;
+  background: #fff;
+  color: #252c27;
+  font: inherit;
+  font-size: 11px;
+  font-weight: 750;
+}
+.coach-lesson-audience-control select:focus-visible {
+  border-color: var(--pm-green);
+  outline: 2px solid rgb(0 94 67 / 16%);
+  outline-offset: 1px;
+}
+.coach-lesson-audience-control select:disabled {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+.coach-lesson-audience-control small {
+  min-height: 12px;
+  color: var(--pm-green);
+  font-size: 9px;
+  font-weight: 750;
+}
 .coach-assignment-actions button {
   display: grid;
   min-height: 50px;
