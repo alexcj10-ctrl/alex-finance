@@ -8,7 +8,8 @@ export type PhaseId =
   | 'progressione'
   | 'finalizzazione'
   | 'pressione_alta'
-  | 'pressione_bassa';
+  | 'pressione_bassa'
+  | 'transizione';
 
 export type FormationId = '1-3-2-3';
 export type LessonAvailability = 'disponibile' | 'prossimamente';
@@ -69,11 +70,12 @@ export const phaseLabels: Record<PhaseId, string> = {
   finalizzazione: 'Finalizzazione',
   pressione_alta: 'Pressione alta',
   pressione_bassa: 'Pressione bassa',
+  transizione: 'Transizione',
 };
 
 export const phaseOrderByMacro: Record<MacroPhaseId, readonly PhaseId[]> = {
   possesso: ['costruzione', 'progressione', 'finalizzazione'],
-  non_possesso: ['pressione_alta', 'pressione_bassa'],
+  non_possesso: ['pressione_alta', 'pressione_bassa', 'transizione'],
 };
 
 export const lessons = [
@@ -157,6 +159,37 @@ export const lessons = [
     punti: 60,
     disponibilita: 'disponibile',
     concetti: ['Linea di passaggio', 'Smarcamento', 'Rendersi giocabile'],
+    eligibleBirthYears: allPlayerBirthYears,
+    demo: false,
+  },
+  {
+    id: 'progressione-positiva-negativa',
+    titolo: 'Progressione: positiva o negativa',
+    macroFase: 'possesso',
+    fase: 'progressione',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Se sei l\'uomo libero, osserva lo spazio davanti a te: se puoi creare vantaggio, progredisci; se lo spazio è chiuso, non forzare e ricomincia la giocata.',
+    puntiChiave: [
+      'Riconosci se sei tu l\'uomo libero.',
+      'Se davanti hai spazio utile e puoi creare vantaggio, progredisci.',
+      'Se lo spazio è chiuso, non forzare: ricomincia e cerca nuovamente l\'uomo libero.',
+    ],
+    variantiVideo: [
+      {
+        id: 'progressione-positiva',
+        etichetta: 'Progressione positiva',
+        percorsoVideo: '/videos/progressione_positiva.mp4',
+      },
+      {
+        id: 'progressione-negativa',
+        etichetta: 'Progressione negativa',
+        percorsoVideo: '/videos/progressione_negativa.mp4',
+      },
+    ],
+    punti: 60,
+    disponibilita: 'disponibile',
+    concetti: ['Uomo libero', 'Progressione', 'Creare vantaggio'],
     eligibleBirthYears: allPlayerBirthYears,
     demo: false,
   },
@@ -265,6 +298,36 @@ export const lessons = [
     concetti: ['Pressione coordinata'],
     eligibleBirthYears: allPlayerBirthYears,
     demo: true,
+  },
+  {
+    id: 'transizione-inferiorita-numerica',
+    titolo: 'Inferiorità numerica',
+    macroFase: 'non_possesso',
+    fase: 'transizione',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Se siamo in inferiorità numerica, non usciamo in pressione: scappiamo, togliamo profondità e proteggiamo lo spazio davanti alla nostra porta.',
+    puntiChiave: [
+      'Riconosci quando gli avversari hanno superiorità numerica.',
+      'Non uscire in pressione: scappa e togli profondità.',
+      'Proteggi lo spazio tra i difensori e la propria porta.',
+    ],
+    variantiVideo: [
+      {
+        id: 'inferiorita-numerica',
+        etichetta: 'Inferiorità numerica',
+        percorsoVideo: '/videos/inferiorità_numerica.mp4',
+      },
+    ],
+    punti: 60,
+    disponibilita: 'disponibile',
+    concetti: [
+      'Inferiorità numerica',
+      'Togliere profondità',
+      'Protezione della porta',
+    ],
+    eligibleBirthYears: allPlayerBirthYears,
+    demo: false,
   },
   {
     id: 'demo-pressione-bassa-proteggi-centro',

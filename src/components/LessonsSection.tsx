@@ -11,6 +11,7 @@ import {
   Lock,
   MoveRight,
   Play,
+  RefreshCw,
   Shield,
   Star,
   Target,
@@ -59,6 +60,7 @@ const phaseIcons: Record<PhaseId, ComponentType<{ className?: string }>> = {
   finalizzazione: Target,
   pressione_alta: Zap,
   pressione_bassa: Shield,
+  transizione: RefreshCw,
 };
 
 function LessonVideo({
