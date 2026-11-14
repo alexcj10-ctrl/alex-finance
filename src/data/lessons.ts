@@ -194,6 +194,38 @@ export const lessons = [
     demo: false,
   },
   {
+    id: 'progressione-cambio-corsia',
+    titolo: 'Cambia corsia, libera spazio',
+    macroFase: 'possesso',
+    fase: 'progressione',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Attira gli avversari verso una corsia e porta la palla sul lato lontano per trovare più tempo, più spazio e migliori condizioni per progredire.',
+    puntiChiave: [
+      'Osserva dove la palla sta attirando la squadra avversaria.',
+      'Cerca di portare la palla dalla corsia occupata verso quella più libera.',
+      'Sul lato lontano sfrutta il tempo e lo spazio creati per ricevere meglio e, se possibile, progredire.',
+    ],
+    variantiVideo: [
+      {
+        id: 'cambio-corsia',
+        etichetta: 'Cambio di corsia',
+        percorsoVideo: '/videos/cambio_corsia.mp4',
+      },
+    ],
+    punti: 60,
+    disponibilita: 'disponibile',
+    concetti: [
+      'Cambio di corsia',
+      'Attrazione',
+      'Lato lontano',
+      'Spazio e tempo',
+      'Progressione',
+    ],
+    eligibleBirthYears: allPlayerBirthYears,
+    demo: false,
+  },
+  {
     id: 'demo-progressione-terzo-uomo',
     titolo: 'Avanzare con il terzo uomo',
     macroFase: 'possesso',
