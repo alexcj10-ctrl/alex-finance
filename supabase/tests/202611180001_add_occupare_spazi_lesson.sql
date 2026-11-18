@@ -12,7 +12,7 @@ select extensions.ok(
       and points = 60
       and minimum_video_percent = 100
       and minimum_quiz_percent = 0
-      and phase = 'costruzione'
+      and phase = 'progressione'
       and macro_phase = 'possesso'
       and active
       and eligible_birth_years = array[2014, 2015]::smallint[]

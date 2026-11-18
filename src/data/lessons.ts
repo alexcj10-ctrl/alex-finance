@@ -166,7 +166,7 @@ export const lessons = [
     id: 'costruzione-occupare-spazi',
     titolo: 'Occupa lo spazio, diventa giocabile',
     macroFase: 'possesso',
-    fase: 'costruzione',
+    fase: 'progressione',
     sistema: '1-3-2-3',
     descrizioneBreve:
       'Se non hai una linea di passaggio pulita, osserva dove può arrivare la palla: riconosci lo spazio libero, occupalo e diventa una nuova soluzione per il portatore.',
