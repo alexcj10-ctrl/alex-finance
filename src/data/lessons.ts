@@ -163,6 +163,42 @@ export const lessons = [
     demo: false,
   },
   {
+    id: 'costruzione-occupare-spazi',
+    titolo: 'Occupa lo spazio, diventa giocabile',
+    macroFase: 'possesso',
+    fase: 'costruzione',
+    sistema: '1-3-2-3',
+    descrizioneBreve:
+      'Se non hai una linea di passaggio pulita, osserva dove può arrivare la palla: riconosci lo spazio libero, occupalo e diventa una nuova soluzione per il portatore.',
+    puntiChiave: [
+      'Osserva se esiste una linea di passaggio pulita tra te e il portatore.',
+      'Se la linea è chiusa, cerca uno spazio libero dove la palla può arrivare.',
+      'Occupa quello spazio per diventare giocabile e creare una nuova linea di passaggio.',
+    ],
+    variantiVideo: [
+      {
+        id: 'occupare-spazi-1',
+        etichetta: 'Occupare gli spazi · 1',
+        percorsoVideo: '/videos/occupare_spazi.mp4',
+      },
+      {
+        id: 'occupare-spazi-2',
+        etichetta: 'Occupare gli spazi · 2',
+        percorsoVideo: '/videos/occupare_spazi_2.mp4',
+      },
+    ],
+    punti: 60,
+    disponibilita: 'disponibile',
+    concetti: [
+      'Occupazione dello spazio',
+      'Linea di passaggio',
+      'Smarcamento',
+      'Rendersi giocabile',
+    ],
+    eligibleBirthYears: allPlayerBirthYears,
+    demo: false,
+  },
+  {
     id: 'progressione-positiva-negativa',
     titolo: 'Progressione: positiva o negativa',
     macroFase: 'possesso',
