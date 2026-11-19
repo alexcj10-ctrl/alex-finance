@@ -40,9 +40,9 @@ async function handlePost(request: Request) {
   assertPost(request);
   assertSameOrigin(request);
   const { lessonId, teamId } = parseRequest(await readJsonObject(request));
-  const lessonTitle = getLessonTitle(lessonId);
   const { admin, coachId } = await requireCoach(request);
   await requireCoachTeamAdminAccess(coachId, teamId);
+  const lessonTitle = getLessonTitle(lessonId);
 
   const { data: assignment, error: assignmentError } = await admin
     .from('lesson_assignments')
