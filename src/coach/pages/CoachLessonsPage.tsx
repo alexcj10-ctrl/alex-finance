@@ -1,8 +1,21 @@
 import { useState } from 'react';
-import { CheckCircle2, LoaderCircle, Send } from 'lucide-react';
+import { BellRing, CheckCircle2, LoaderCircle, Send } from 'lucide-react';
+
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 import {
   assignLessonToTeam,
+  sendLessonNotification,
   updateLessonAudience,
 } from '../../services/supabase/supabase-coach-actions';
 import type { CoachReadModel } from '../../types/coach';
@@ -42,6 +55,13 @@ export function CoachLessonsPage({
   const [audienceOverrides, setAudienceOverrides] = useState<
     Record<string, readonly PlayerBirthYear[]>
   >({});
+  const [notificationLesson, setNotificationLesson] = useState<{
+    id: string;
+    title: string;
+  }>();
+  const [notifyingId, setNotifyingId] = useState<string>();
+  const [notifiedId, setNotifiedId] = useState<string>();
+  const [notificationError, setNotificationError] = useState<string>();
 
   const assign = async (lessonId: string) => {
     if (!canManage) return;
@@ -92,6 +112,27 @@ export function CoachLessonsPage({
     }
   };
 
+  const sendNotification = async () => {
+    if (!canManage || !notificationLesson) return;
+    setNotifyingId(notificationLesson.id);
+    setNotifiedId(undefined);
+    setNotificationError(undefined);
+
+    try {
+      await sendLessonNotification(model.team.id, notificationLesson.id);
+      setNotifiedId(notificationLesson.id);
+      setNotificationLesson(undefined);
+    } catch (sendError) {
+      setNotificationError(
+        sendError instanceof Error
+          ? sendError.message
+          : 'Invio della notifica non riuscito.',
+      );
+    } finally {
+      setNotifyingId(undefined);
+    }
+  };
+
   return (
     <div className="coach-page">
       <CoachPageHeader
@@ -130,6 +171,32 @@ export function CoachLessonsPage({
                   <strong>{assignedId === item.lesson.id ? 'Assegnata' : 'Assegna'}</strong>
                 </button>
 
+                {item.assignedPlayers > 0 ? (
+                  <button
+                    type="button"
+                    className="coach-lesson-notification-button"
+                    disabled={!canManage || notifyingId === item.lesson.id}
+                    title={canManage ? undefined : 'Solo Coach Amministratore'}
+                    onClick={() => {
+                      setNotificationError(undefined);
+                      setNotificationLesson({
+                        id: item.lesson.id,
+                        title: item.lesson.titolo,
+                      });
+                    }}
+                  >
+                    {notifyingId === item.lesson.id ? (
+                      <LoaderCircle className="size-4 coach-loading-icon" aria-hidden="true" />
+                    ) : (
+                      <BellRing className="size-4" aria-hidden="true" />
+                    )}
+                    <span>Avvisa i Player assegnati</span>
+                    <strong>
+                      {notifiedId === item.lesson.id ? 'Inviata' : 'Invia notifica'}
+                    </strong>
+                  </button>
+                ) : null}
+
                 <label className="coach-lesson-audience-control">
                   <span>Destinatari</span>
                   <select
@@ -160,6 +227,9 @@ export function CoachLessonsPage({
         {audienceError ? (
           <p className="coach-create-error" role="alert">{audienceError}</p>
         ) : null}
+        {notificationError ? (
+          <p className="coach-create-error" role="alert">{notificationError}</p>
+        ) : null}
         {!canManage ? (
           <p className="coach-admin-only-note">Solo Coach Amministratore</p>
         ) : null}
@@ -175,6 +245,38 @@ export function CoachLessonsPage({
         </header>
         <LessonAggregateList lessons={model.lessonAggregates} />
       </section>
+
+      <AlertDialog
+        open={notificationLesson !== undefined}
+        onOpenChange={(open) => {
+          if (!open && notifyingId === undefined) setNotificationLesson(undefined);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogMedia>
+              <BellRing aria-hidden="true" />
+            </AlertDialogMedia>
+            <AlertDialogTitle>
+              Inviare una notifica ai ragazzi destinatari di questa lezione?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              I Player assegnati riceveranno un avviso per “{notificationLesson?.title}”.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={notifyingId !== undefined}>
+              Annulla
+            </AlertDialogCancel>
+            <AlertDialogAction
+              disabled={!canManage || notifyingId !== undefined}
+              onClick={() => void sendNotification()}
+            >
+              {notifyingId !== undefined ? 'Invio…' : 'Invia'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

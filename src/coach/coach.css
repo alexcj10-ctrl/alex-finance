@@ -1956,6 +1956,17 @@
 .coach-assignment-item > button {
   width: 100%;
 }
+
+.coach-assignment-item > .coach-lesson-notification-button {
+  min-height: 42px;
+  border-style: dashed;
+  background: rgb(233 240 235 / 72%);
+  color: var(--pm-green-dark);
+}
+
+.coach-assignment-item > .coach-lesson-notification-button > strong {
+  color: var(--pm-green);
+}
 .coach-lesson-audience-control {
   display: grid;
   gap: 4px;

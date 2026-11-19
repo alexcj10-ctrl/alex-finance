@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { PushNotificationCard } from './PushNotificationCard';
 import {
   Progress,
   ProgressLabel,
@@ -135,6 +136,8 @@ export function DashboardHome({
           </button>
         ))}
       </section>
+
+      <PushNotificationCard />
 
       <section className="dashboard-section" aria-labelledby="recent-title">
         <header className="section-heading section-heading-action">

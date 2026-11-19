@@ -1,0 +1,26 @@
+{
+  "name": "ESORDIENTI ANALYST",
+  "short_name": "ESORDIENTI",
+  "description": "Lezioni, missioni e percorso didattico degli Esordienti del Poggio Mirteto Calcio.",
+  "id": "/",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f5ef",
+  "theme_color": "#053b2b",
+  "lang": "it",
+  "icons": [
+    {
+      "src": "/images/icons/esordienti-analyst-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icons/esordienti-analyst-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

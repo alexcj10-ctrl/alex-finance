@@ -130,14 +130,27 @@ export async function deletePlayerAccount(
 }
 
 export async function assignLessonToTeam(teamId: string, lessonId: string) {
-  const { data, error } = await requireSupabaseClient().rpc('assign_lesson', {
-    p_team_id: teamId,
-    p_lesson_id: lessonId,
-    p_player_id: null,
-    p_due_at: null,
+  const response = await fetch('/api/coach/lesson-assignment', {
+    method: 'POST',
+    headers: {
+      ...await coachAuthorizationHeader(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ lessonId, teamId }),
   });
-  if (error) throw new Error(`Assegnazione non riuscita: ${error.message}`);
-  return data;
+  if (!response.ok) throw new Error(await readError(response));
+}
+
+export async function sendLessonNotification(teamId: string, lessonId: string) {
+  const response = await fetch('/api/coach/lesson-notification', {
+    method: 'POST',
+    headers: {
+      ...await coachAuthorizationHeader(),
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ lessonId, teamId }),
+  });
+  if (!response.ok) throw new Error(await readError(response));
 }
 
 export async function updateLessonAudience(
